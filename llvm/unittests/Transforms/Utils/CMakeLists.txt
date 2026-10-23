@@ -2,6 +2,7 @@ set(LLVM_LINK_COMPONENTS
   Analysis
   AsmParser
   BitWriter
+  BitWriter140
   Core
   Support
   TransformUtils

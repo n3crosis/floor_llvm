@@ -198,7 +198,7 @@ matchesConditionallyWithCuda(const Twine &Code, const T &AMatcher,
       "typedef unsigned int size_t;\n"
       "#define __constant__ __attribute__((constant))\n"
       "#define __device__ __attribute__((device))\n"
-      "#define __global__ __attribute__((global))\n"
+      "#define __global__ __attribute__((compute_kernel))\n"
       "#define __host__ __attribute__((host))\n"
       "#define __shared__ __attribute__((shared))\n"
       "struct dim3 {"

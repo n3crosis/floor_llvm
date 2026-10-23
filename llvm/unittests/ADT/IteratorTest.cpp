@@ -335,6 +335,33 @@ TEST(FilterIteratorTest, InputIterator) {
   EXPECT_EQ((SmallVector<int, 3>{1, 3, 5}), Actual);
 }
 
+TEST(FilterIteratorTest, DefaultConstruction) {
+  auto IsOdd = [](int N) { return N % 2 == 1; };
+  int A[] = {0, 1, 2, 3};
+
+  // Both specializations can be default constructed when the predicate can.
+  using ForwardIterator = filter_iterator_impl<int *, decltype(IsOdd)>;
+  ForwardIterator Forward;
+  Forward = ForwardIterator(std::begin(A), std::end(A), IsOdd);
+  EXPECT_EQ(1, *Forward);
+  EXPECT_EQ(3, *++Forward);
+
+  using BidirectionalIterator = filter_iterator<int *, decltype(IsOdd)>;
+  BidirectionalIterator Bidirectional;
+  Bidirectional = BidirectionalIterator(std::end(A), std::end(A), IsOdd);
+  EXPECT_EQ(3, *--Bidirectional);
+  EXPECT_EQ(1, *--Bidirectional);
+
+  // Default construction must remain unavailable for capturing predicates.
+  auto GreaterThan = [Limit = 1](int N) { return N > Limit; };
+  static_assert(!std::is_default_constructible<
+                    filter_iterator_impl<int *, decltype(GreaterThan)>>::value,
+                "A capturing predicate is not default constructible");
+  static_assert(!std::is_default_constructible<
+                    filter_iterator<int *, decltype(GreaterThan)>>::value,
+                "A capturing predicate is not default constructible");
+}
+
 TEST(FilterIteratorTest, ReverseFilterRange) {
   auto IsOdd = [](int N) { return N % 2 == 1; };
   int A[] = {0, 1, 2, 3, 4, 5, 6};
