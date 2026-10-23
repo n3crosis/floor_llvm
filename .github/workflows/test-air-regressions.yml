@@ -131,7 +131,7 @@ jobs:
           set -euo pipefail
           { df -h "$RUNNER_TEMP"; free -h; } | tee "$TEST_REPORTS/pre-build-capacity.txt"
           cmake --build "$NATIVE_BUILD" --parallel "$COMPILER_JOBS" \
-            --target llvm-test-depends clang-test-depends \
+            --target llvm-test-depends clang-test-depends -- -k 0 \
             2>&1 | tee "$TEST_REPORTS/build.log"
           ccache --show-stats | tee "$TEST_REPORTS/ccache.txt"
           { df -h "$RUNNER_TEMP"; du -sh "$NATIVE_BUILD" "$CCACHE_DIR"; } | tee "$TEST_REPORTS/post-build-capacity.txt"
