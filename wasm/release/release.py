@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import argparse
+from email.utils import parsedate_to_datetime
 import gzip
 import hashlib
+from http.client import IncompleteRead
 import io
 import json
 import os
@@ -16,6 +18,7 @@ import subprocess
 import sys
 import tarfile
 import time
+import urllib.error
 import urllib.request
 
 from github_release import GitHub, NoRedirect, ReleaseError, check_file, descriptor, publish_release, require, sha256, stream_download
@@ -117,6 +120,52 @@ def output(name, value):
         stream.write(name + "=" + str(value) + "\n")
 
 
+def notice_retry_delay(retry_after, attempt):
+    """Honor HTTP Retry-After (seconds or date), otherwise use bounded backoff."""
+    if retry_after:
+        value = retry_after.strip()
+        if value.isascii() and value.isdecimal():
+            return int(value)
+        try:
+            date = parsedate_to_datetime(value)
+            if date.tzinfo is not None:
+                return max(0, date.timestamp() - time.time())
+        except (TypeError, ValueError, OverflowError):
+            pass
+    return min(30, 5 * 2 ** (attempt - 1))
+
+
+def download_notice(destination):
+    """Retry only this small read-only download, never the build or publication."""
+    attempts = 5
+    deadline = time.monotonic() + 300
+    request = urllib.request.Request(GPL_SOURCE, headers={"User-Agent": "air-wasm-release/1"})
+    opener = urllib.request.build_opener(NoRedirect())
+    for attempt in range(1, attempts + 1):
+        remaining = deadline - time.monotonic()
+        require(remaining > 0, "GPL notice download exceeded its five-minute retry budget")
+        retry_after = None
+        try:
+            with opener.open(request, timeout=min(60, remaining)) as response:
+                # Size and SHA-256 remain mandatory; corrupt content is not retried.
+                stream_download(response, destination, GPL_PIN)
+            return
+        except urllib.error.HTTPError as error:
+            if error.code not in (408, 429) and not 500 <= error.code < 600:
+                raise
+            reason = "HTTP " + str(error.code)
+            retry_after = error.headers.get("Retry-After") if error.headers else None
+            error.close()
+        except (urllib.error.URLError, TimeoutError, ConnectionError, IncompleteRead) as error:
+            reason = type(error).__name__
+        require(attempt < attempts, f"GPL notice download failed after {attempts} attempts ({reason}); no compiler build was started")
+        delay = notice_retry_delay(retry_after, attempt)
+        require(delay < deadline - time.monotonic(),
+                f"GPL notice download retry exceeds its five-minute budget ({reason}); retry later")
+        print(f"GPL notice download: {reason}; retry {attempt + 1}/{attempts} in {delay:g}s", flush=True)
+        time.sleep(delay)
+
+
 def preflight(config, work):
     identity = source_identity(config)
     require(header_identity() == config["headerSha256"], "Header identity changed")
@@ -131,9 +180,7 @@ def preflight(config, work):
     # the expensive compiler build, never by restoring a license folder in Git.
     gpl = work / "GPL-2.0.txt"
     if not gpl.exists():
-        request = urllib.request.Request(GPL_SOURCE, headers={"User-Agent": "air-wasm-release/1"})
-        with urllib.request.build_opener(NoRedirect()).open(request, timeout=60) as response:
-            stream_download(response, gpl, GPL_PIN)
+        download_notice(gpl)
     check_file(gpl, GPL_PIN)
     for path in NOTICE_PATHS:
         require((ROOT / path).is_file() and not (ROOT / path).is_symlink(), "Missing upstream notice: " + path)

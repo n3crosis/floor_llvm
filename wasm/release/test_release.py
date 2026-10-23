@@ -1,4 +1,6 @@
 """Local helper regression tests. Synthetic artifacts are never compiler validation."""
+from email.utils import formatdate
+import io
 import json
 import os
 from pathlib import Path
@@ -7,6 +9,7 @@ import tarfile
 import tempfile
 import unittest
 from unittest.mock import Mock, patch
+import urllib.error
 
 import release
 
@@ -202,6 +205,103 @@ class ReleaseTests(unittest.TestCase):
             with self.assertRaisesRegex(release.ReleaseError, "tag already exists"):
                 release.publish(self.config, self.work)
             publish.assert_not_called()
+
+
+class NoticeDownloadTests(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.destination = Path(self.temporary.name) / "GPL-2.0.txt"
+        self.content = b"synthetic license notice\n"
+        self.pin = {"bytes": len(self.content), "sha256": release.digest(self.content)}
+        self.opener = Mock()
+        pin_patch = patch.object(release, "GPL_PIN", self.pin)
+        pin_patch.start()
+        self.addCleanup(pin_patch.stop)
+        opener_patch = patch.object(release.urllib.request, "build_opener", return_value=self.opener)
+        opener_patch.start()
+        self.addCleanup(opener_patch.stop)
+        sleep_patch = patch.object(release.time, "sleep")
+        self.sleep = sleep_patch.start()
+        self.addCleanup(sleep_patch.stop)
+
+    def http_error(self, status, retry_after=None):
+        headers = {} if retry_after is None else {"Retry-After": retry_after}
+        return urllib.error.HTTPError(release.GPL_SOURCE, status, "synthetic failure", headers, None)
+
+    def test_http_429_retry_after_then_success_preserves_hash_check(self):
+        self.opener.open.side_effect = [self.http_error(429, "7"), io.BytesIO(self.content)]
+        release.download_notice(self.destination)
+        release.check_file(self.destination, self.pin)
+        self.assertEqual(self.opener.open.call_count, 2)
+        self.sleep.assert_called_once_with(7)
+        self.assertFalse(self.destination.with_suffix(".txt.partial").exists())
+
+    def test_http_5xx_and_network_failure_use_exponential_backoff(self):
+        self.opener.open.side_effect = [self.http_error(503), urllib.error.URLError("temporary network failure"),
+                                      TimeoutError("temporary timeout"), io.BytesIO(self.content)]
+        release.download_notice(self.destination)
+        self.assertEqual([call.args[0] for call in self.sleep.call_args_list], [5, 10, 20])
+        release.check_file(self.destination, self.pin)
+
+    def test_retry_after_http_date_and_malformed_value(self):
+        with patch.object(release.time, "time", return_value=1_700_000_000):
+            self.assertEqual(release.notice_retry_delay(formatdate(1_700_000_012, usegmt=True), 1), 12)
+            self.assertEqual(release.notice_retry_delay(formatdate(1_699_999_999, usegmt=True), 1), 0)
+        self.assertEqual(release.notice_retry_delay("not a date", 3), 20)
+        self.assertEqual(release.notice_retry_delay(None, 4), 30)
+
+    def test_transient_failures_stop_after_five_attempts(self):
+        for status in (429, 503):
+            with self.subTest(status=status):
+                self.opener.open.reset_mock()
+                self.sleep.reset_mock()
+                self.opener.open.side_effect = [self.http_error(status, "1") for _ in range(5)]
+                with self.assertRaisesRegex(release.ReleaseError, "failed after 5 attempts"):
+                    release.download_notice(self.destination)
+                self.assertEqual(self.opener.open.call_count, 5)
+                self.assertEqual(self.sleep.call_count, 4)
+                self.assertFalse(self.destination.exists())
+
+    def test_retry_after_beyond_budget_stops_instead_of_retrying_early(self):
+        self.opener.open.side_effect = self.http_error(429, "3600")
+        with self.assertRaisesRegex(release.ReleaseError, "five-minute budget"):
+            release.download_notice(self.destination)
+        self.assertEqual(self.opener.open.call_count, 1)
+        self.sleep.assert_not_called()
+
+    def test_nontransient_http_errors_are_not_retried(self):
+        for status in (302, 403, 404):
+            with self.subTest(status=status):
+                self.opener.open.reset_mock()
+                self.opener.open.side_effect = self.http_error(status)
+                with self.assertRaises(urllib.error.HTTPError):
+                    release.download_notice(self.destination)
+                self.assertEqual(self.opener.open.call_count, 1)
+                self.sleep.assert_not_called()
+
+    def test_corrupt_bytes_fail_without_retry(self):
+        self.opener.open.return_value = io.BytesIO(b"X" * len(self.content))
+        with self.assertRaisesRegex(release.ReleaseError, "SHA-256 mismatch"):
+            release.download_notice(self.destination)
+        self.assertEqual(self.opener.open.call_count, 1)
+        self.sleep.assert_not_called()
+        self.assertFalse(self.destination.exists())
+        self.assertFalse(self.destination.with_suffix(".txt.partial").exists())
+
+    def test_interrupted_stream_is_cleaned_before_retry(self):
+        class Interrupted(io.BytesIO):
+            def read(self, size=-1):
+                if self.tell():
+                    raise ConnectionResetError("synthetic interrupted transfer")
+                return super().read(4)
+
+        self.opener.open.side_effect = [Interrupted(self.content), io.BytesIO(self.content)]
+        release.download_notice(self.destination)
+        self.assertEqual(self.opener.open.call_count, 2)
+        self.sleep.assert_called_once_with(5)
+        release.check_file(self.destination, self.pin)
+        self.assertFalse(self.destination.with_suffix(".txt.partial").exists())
 
 
 if __name__ == "__main__":
