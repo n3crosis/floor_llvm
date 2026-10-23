@@ -1,0 +1,162 @@
+name: Test native AIR regressions
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [test/air-regressions]
+    paths:
+      - .github/workflows/test-air-regressions.yml
+      - clang/test/SemaCXX/metal-interface-attributes.cpp
+      - clang/test/SemaCXX/metal-member-address-spaces.cpp
+      - clang/test/CodeGenCXX/metal-interface-abi.cpp
+      - clang/test/CodeGenCXX/metal-record-layout.cpp
+      - clang/test/CodeGenCXX/metal-member-address-spaces.cpp
+      - clang/test/CodeGenCXX/metal-interface-errors.cpp
+      - llvm/test/Transforms/LibFloor/air-constant-vector-loads.ll
+      - llvm/test/Transforms/LibFloor/air-constant-vector-reject.ll
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-air-regressions-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+  CCACHE_MAXSIZE: 2G
+  CCACHE_COMPILERCHECK: content
+
+jobs:
+  focused-lit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - name: Check out compiler and its pinned SPIR-V submodule
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          fetch-depth: 1
+          submodules: recursive
+          persist-credentials: false
+      - name: Install native build tools
+        run: |
+          mkdir -p "$RUNNER_TEMP/floor-native-test-reports"
+          printf 'CCACHE_DIR=%s/floor-native-ccache\nNATIVE_BUILD=%s/floor-native-build\nTEST_REPORTS=%s/floor-native-test-reports\n' \
+            "$RUNNER_TEMP" "$RUNNER_TEMP" "$RUNNER_TEMP" >> "$GITHUB_ENV"
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends build-essential cmake ninja-build ccache python3
+      - name: Restore native compiler object cache
+        id: objects
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/floor-native-ccache
+          key: floor-native-lit-v1-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
+          restore-keys: floor-native-lit-v1-${{ runner.os }}-${{ runner.arch }}-
+      - name: Prepare the existing pinned SPIR-V headers dependency
+        run: |
+          mkdir -p "$TEST_REPORTS"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          spirv_ref="$(git ls-tree HEAD llvm/projects/spirv | awk '{print $3}')"
+          test "$(git -C llvm/projects/spirv rev-parse HEAD)" = "$spirv_ref"
+          headers_ref="$(tr -d '[:space:]' < llvm/projects/spirv/spirv-headers-tag.conf)"
+          [[ "$headers_ref" =~ ^[a-f0-9]{40}$ ]]
+          git init "$RUNNER_TEMP/spirv-headers"
+          git -C "$RUNNER_TEMP/spirv-headers" remote add origin https://github.com/KhronosGroup/SPIRV-Headers.git
+          git -C "$RUNNER_TEMP/spirv-headers" fetch --depth 1 origin "$headers_ref"
+          git -C "$RUNNER_TEMP/spirv-headers" checkout --detach FETCH_HEAD
+          test "$(git -C "$RUNNER_TEMP/spirv-headers" rev-parse HEAD)" = "$headers_ref"
+          {
+            printf 'repository=%s\ncommit=%s\ntree=%s\nspirv=%s\nspirv_headers=%s\n' \
+              "$GITHUB_REPOSITORY" "$GITHUB_SHA" "$(git rev-parse HEAD^{tree})" "$spirv_ref" "$headers_ref"
+            c++ --version
+            cmake --version
+            ninja --version
+          } > "$TEST_REPORTS/build-inputs.txt"
+      - name: Configure native compiler and upstream lit
+        run: |
+          jobs="$(python3 - <<'PY'
+          import os
+          memory = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
+          print(max(1, min(4, os.cpu_count() or 1, memory // (2 * 1024**3))))
+          PY
+          )"
+          echo "COMPILER_JOBS=$jobs" >> "$GITHUB_ENV"
+          ccache --zero-stats
+          cmake -S llvm -B "$NATIVE_BUILD" -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            '-DCMAKE_C_FLAGS_RELEASE=-O1 -DNDEBUG' \
+            '-DCMAKE_CXX_FLAGS_RELEASE=-O1 -DNDEBUG' \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -DLLVM_ENABLE_PROJECTS=clang \
+            -DLLVM_TARGETS_TO_BUILD= \
+            -DLLVM_ENABLE_ASSERTIONS=ON \
+            -DLLVM_INCLUDE_TESTS=ON \
+            -DCLANG_INCLUDE_TESTS=ON \
+            -DLLVM_INCLUDE_UTILS=ON \
+            -DLLVM_BUILD_TESTS=OFF \
+            -DLLVM_INCLUDE_EXAMPLES=OFF \
+            -DLLVM_INCLUDE_BENCHMARKS=OFF \
+            -DLLVM_ENABLE_ZLIB=OFF \
+            -DLLVM_ENABLE_ZSTD=OFF \
+            -DLLVM_ENABLE_LIBXML2=OFF \
+            -DLLVM_ENABLE_LIBEDIT=OFF \
+            -DLLVM_ENABLE_LIBPFM=OFF \
+            -DLLVM_ENABLE_TERMINFO=OFF \
+            -DLLVM_ENABLE_CURL=OFF \
+            -DCLANG_ENABLE_ARCMT=OFF \
+            -DCLANG_ENABLE_STATIC_ANALYZER=OFF \
+            -DLLVM_SPIRV_INCLUDE_TESTS=OFF \
+            -DLLVM_EXTERNAL_SPIRV_HEADERS_SOURCE_DIR="$RUNNER_TEMP/spirv-headers" \
+            -DLLVM_PARALLEL_COMPILE_JOBS="$jobs" \
+            -DLLVM_PARALLEL_LINK_JOBS=1 \
+            2>&1 | tee "$TEST_REPORTS/configure.log"
+      - name: Build only the tools needed by the focused tests
+        id: build
+        run: |
+          cmake --build "$NATIVE_BUILD" --parallel "$COMPILER_JOBS" \
+            --target clang opt FileCheck split-file count not \
+            2>&1 | tee "$TEST_REPORTS/build.log"
+          ccache --show-stats | tee "$TEST_REPORTS/ccache.txt"
+      - name: Save compiler objects even if a later regression fails
+        if: ${{ !cancelled() && steps.build.outcome == 'success' && steps.objects.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/floor-native-ccache
+          key: ${{ steps.objects.outputs.cache-primary-key }}
+      - name: Run only the new regression tests and reject skipped tests
+        run: |
+          tests=(
+            clang/test/SemaCXX/metal-interface-attributes.cpp
+            clang/test/SemaCXX/metal-member-address-spaces.cpp
+            clang/test/CodeGenCXX/metal-interface-abi.cpp
+            clang/test/CodeGenCXX/metal-record-layout.cpp
+            clang/test/CodeGenCXX/metal-member-address-spaces.cpp
+            clang/test/CodeGenCXX/metal-interface-errors.cpp
+            llvm/test/Transforms/LibFloor/air-constant-vector-loads.ll
+            llvm/test/Transforms/LibFloor/air-constant-vector-reject.ll
+          )
+          sha256sum "${tests[@]}" > "$TEST_REPORTS/test-sources.sha256"
+          python3 "$NATIVE_BUILD/bin/llvm-lit" -v -j 2 \
+            --xunit-xml-output "$TEST_REPORTS/lit.xml" \
+            -o "$TEST_REPORTS/lit.json" "${tests[@]}" \
+            2>&1 | tee "$TEST_REPORTS/lit.log"
+          python3 - "${tests[@]}" <<'PY'
+          import json, os, sys
+          from pathlib import Path
+          report = json.loads((Path(os.environ['TEST_REPORTS']) / 'lit.json').read_text())
+          expected = {('Clang' if path.startswith('clang/') else 'LLVM') + ' :: ' + path.split('/test/', 1)[1] for path in sys.argv[1:]}
+          tests = report['tests']
+          assert {test['name'] for test in tests} == expected, 'Unexpected or missing test results'
+          assert len(tests) == len(expected), 'Duplicate test results'
+          assert all(test['code'] == 'PASS' for test in tests), 'Every selected regression must execute and pass; skips are not success'
+          print(f'All {len(tests)} selected native regressions executed and passed')
+          PY
+      - name: Upload native regression evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: native-air-regression-results-${{ github.sha }}
+          path: ${{ runner.temp }}/floor-native-test-reports/
+          if-no-files-found: warn
+          retention-days: 14
