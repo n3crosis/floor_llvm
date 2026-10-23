@@ -9453,10 +9453,10 @@ static void ProcessDeclAttribute(Sema &S, Scope *scope, Decl *D,
     handleSimpleAttribute<GraphicsPointSizeAttr>(S, D, AL);
     break;
   case ParsedAttr::AT_GraphicsInterpolateFlat:
-    // Retain upstream record-level flat interpolation; MSL field spellings
-    // use the same strict numeric-field checks as other interpolation modes.
+    // flat predates the explicit MSL interface syntax and also annotates
+    // aggregate fields. Validate the numeric-field restriction only when an
+    // entry selects the explicit stage_in interface, not on legacy declarations.
     if (S.getLangOpts().Metal && !isa<RecordDecl>(D)) {
-      if (!checkMetalIOField(S, D, AL)) break;
       if (D->hasAttr<MetalInterpolationAttr>() || D->hasAttr<GraphicsInterpolateFlatAttr>()) {
         S.Diag(AL.getLoc(), S.getDiagnostics().getCustomDiagID(
             DiagnosticsEngine::Error, "conflicting Metal interpolation attributes"));

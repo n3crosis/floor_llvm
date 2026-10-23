@@ -3,6 +3,7 @@
 // RUN: %clang_cc1 -triple air64-apple-macosx14.0.0 -x metal -std=metal3.2 -DCASE=3 -emit-llvm -disable-llvm-passes -o /dev/null -verify %s
 // RUN: %clang_cc1 -triple air64-apple-macosx14.0.0 -x metal -std=metal3.2 -DCASE=4 -emit-llvm -disable-llvm-passes -o /dev/null -verify %s
 // RUN: %clang_cc1 -triple air64-apple-macosx14.0.0 -x metal -std=metal3.2 -DCASE=5 -emit-llvm -disable-llvm-passes -o /dev/null -verify %s
+// RUN: %clang_cc1 -triple air64-apple-macosx14.0.0 -x metal -std=metal3.2 -DCASE=6 -emit-llvm -disable-llvm-passes -o /dev/null -verify %s
 
 #define DEVICE __attribute__((global_as))
 #define CONSTANT __attribute__((constant_as))
@@ -32,4 +33,13 @@ struct NestedInput {
   Input nested; // expected-error {{unsupported or conflicting MSL stage-input field}}
 };
 KERNEL void nested_stage_input(NestedInput input [[stage_in]]) {}
+#elif CASE == 6
+// A legacy flat marker must not disable explicit MSL output validation.
+struct ModernFlatOutput {
+  float4 position [[position]];
+  float value [[user(locn0), flat]]; // expected-error {{unsupported or conflicting MSL vertex-output semantic}}
+};
+__attribute__((vertex_shader)) ModernFlatOutput modern_flat_output() {
+  return {float4(0.0f), 1.0f};
+}
 #endif

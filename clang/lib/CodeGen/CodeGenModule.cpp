@@ -3579,7 +3579,7 @@ void CodeGenModule::GenAIRMetadata(const FunctionDecl *FD, llvm::Function *Fn,
 		for (const auto &Base : R->bases())
 			if (has_msl_io(Base.getType()->getAsCXXRecordDecl())) return true;
 		for (const auto *F : R->fields()) {
-			if (F->hasAttr<MetalVertexAttributeAttr>() || F->hasAttr<MetalUserVaryingAttr>() || (F->hasAttr<MetalInterpolationAttr>() || F->hasAttr<GraphicsInterpolateFlatAttr>()) || F->hasAttr<MetalInvariantAttr>())
+			if (F->hasAttr<MetalVertexAttributeAttr>() || F->hasAttr<MetalUserVaryingAttr>() || F->hasAttr<MetalInterpolationAttr>() || F->hasAttr<MetalInvariantAttr>())
 				return true;
 			if (has_msl_io(getContext().getBaseElementType(F->getType())->getAsCXXRecordDecl()))
 				return true;
