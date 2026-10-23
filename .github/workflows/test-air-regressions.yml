@@ -18,6 +18,10 @@ on:
 permissions:
   contents: read
 
+defaults:
+  run:
+    shell: bash
+
 concurrency:
   group: native-air-regressions-${{ github.ref }}
   cancel-in-progress: true
@@ -40,6 +44,7 @@ jobs:
           persist-credentials: false
       - name: Install native build tools
         run: |
+          set -euo pipefail
           mkdir -p "$RUNNER_TEMP/floor-native-test-reports"
           printf 'CCACHE_DIR=%s/floor-native-ccache\nNATIVE_BUILD=%s/floor-native-build\nTEST_REPORTS=%s/floor-native-test-reports\n' \
             "$RUNNER_TEMP" "$RUNNER_TEMP" "$RUNNER_TEMP" >> "$GITHUB_ENV"
@@ -54,6 +59,7 @@ jobs:
           restore-keys: floor-native-lit-v1-${{ runner.os }}-${{ runner.arch }}-
       - name: Prepare the existing pinned SPIR-V headers dependency
         run: |
+          set -euo pipefail
           mkdir -p "$TEST_REPORTS"
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           spirv_ref="$(git ls-tree HEAD llvm/projects/spirv | awk '{print $3}')"
@@ -74,6 +80,7 @@ jobs:
           } > "$TEST_REPORTS/build-inputs.txt"
       - name: Configure native compiler and upstream lit
         run: |
+          set -euo pipefail
           jobs="$(python3 - <<'PY'
           import os
           memory = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
@@ -114,6 +121,7 @@ jobs:
       - name: Build only the tools needed by the focused tests
         id: build
         run: |
+          set -euo pipefail
           cmake --build "$NATIVE_BUILD" --parallel "$COMPILER_JOBS" \
             --target clang opt FileCheck split-file count not \
             2>&1 | tee "$TEST_REPORTS/build.log"
@@ -126,6 +134,7 @@ jobs:
           key: ${{ steps.objects.outputs.cache-primary-key }}
       - name: Run only the new regression tests and reject skipped tests
         run: |
+          set -euo pipefail
           tests=(
             clang/test/SemaCXX/metal-interface-attributes.cpp
             clang/test/SemaCXX/metal-member-address-spaces.cpp
