@@ -162,6 +162,11 @@ namespace CallingConv {
     /// NOTE: used to be SPIR_KERNEL, must be 76 for binary compat
     FLOOR_KERNEL = 76,
 
+    /// Legacy source aliases for upstream backends. Keep the canonical floor
+    /// names and serialized calling convention IDs unchanged.
+    SPIR_FUNC = FLOOR_FUNC,
+    SPIR_KERNEL = FLOOR_KERNEL,
+
     /// Intel_OCL_BI - Calling conventions for Intel OpenCL built-ins
     Intel_OCL_BI = 77,
 
