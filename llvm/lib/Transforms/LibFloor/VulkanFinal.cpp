@@ -1063,10 +1063,6 @@ namespace {
 			
 			//const auto vulkan_version = get_vulkan_version(*M);
 			
-			// transform all ConstantExpr GEPs to normal GEPs,
-			// since we don't have this in Vulkan + require this to perform valid transforms later on
-			transform_constexpr_geps(F);
-			
 			// visit everything in this function
 			DBG(errs() << "> handling instructions ...\n";)
 			visit(F);
@@ -1319,7 +1315,14 @@ namespace {
 					llvm::ConstantInt::get(llvm::Type::getInt32Ty(*ctx), st_elem_idx),
 				};
 				auto& val = *fields[st_elem_idx].value;
-				libfloor_utils::for_all_users(val, [this, &root_st, &idx_list, &storage_class](User& user) {
+				
+				// if this is a GV, ensure that all dead (constant) users have been removed, before we try to fix up any users below
+				// NOTE: this is especially important in this case, since ConstantExpr lowering likely touched these GVs
+				if (auto GV = dyn_cast_or_null<GlobalValue>(&val); GV) {
+					GV->removeDeadConstantUsers();
+				}
+				
+				libfloor_utils::for_all_users(val, [this, &root_st, &idx_list, &storage_class, &val](User& user) {
 					if (auto instr = dyn_cast<Instruction>(&user); instr) {
 						if (auto load_instr = dyn_cast_or_null<LoadInst>(instr); load_instr) {
 							const auto cexpr_gep = dyn_cast_or_null<ConstantExpr>(load_instr->getOperand(0));
@@ -1383,10 +1386,20 @@ namespace {
 						} else if (auto BC = dyn_cast_or_null<BitCastInst>(instr); BC) {
 							auto dst_type = BC->getDestTy();
 							assert(dst_type->isPointerTy());
-							assert(dst_type->getPointerAddressSpace() != storage_class);
+							
+							auto src = BC->User::getOperand(0);
+							if (src == &val) {
+								// if the bitcast is directly referencing the original value, replace it with a GEP
+								SmallVector<Value*, 2> indices { idx_list[0], idx_list[1] };
+								auto pointee_type = root_st.getType()->getPointerElementType();
+								auto bc_gep_repl = llvm::GetElementPtrInst::Create(pointee_type, &root_st, indices, "", instr);
+								bc_gep_repl->setIsInBounds();
+								bc_gep_repl->setDebugLoc(instr->getDebugLoc());
+								src = bc_gep_repl;
+							}
+							
 							auto dst_elem_type = dst_type->getPointerElementType();
 							dst_type = dst_elem_type->getPointerTo(storage_class);
-							auto src = BC->User::getOperand(0);
 							auto repl_instr = new BitCastInst(src, dst_type, "", instr);
 							repl_instr->setDebugLoc(instr->getDebugLoc());
 							instr->replaceAllUsesWith(repl_instr, true /* allow address space change */);
@@ -1407,21 +1420,6 @@ namespace {
 			}
 			
 			return enclosed_type;
-		}
-		
-		void transform_constexpr_geps(Function& F) {
-			for (auto& BB : F) {
-				for (auto& I : BB) {
-					for (uint32_t op_idx = 0, op_count = I.getNumOperands(); op_idx < op_count; ++op_idx) {
-						auto op = I.getOperand(op_idx);
-						if (auto cexpr = dyn_cast_or_null<ConstantExpr>(op);
-							cexpr && cexpr->getOpcode() == Instruction::GetElementPtr) {
-							auto new_gep_instr = cexpr->getAsInstruction(&I);
-							I.setOperand(op_idx, new_gep_instr);
-						}
-					}
-				}
-			}
 		}
 		
 		llvm::Type* handle_ssbo_array_transforms(Function& F, Argument& arg) {
@@ -1809,10 +1807,10 @@ namespace {
 				if (lhs_const != nullptr && rhs_const != nullptr) {
 					// both are constant -> simply fold them
 					return folder.FoldAdd(lhs_const, rhs_const);
-				} else if(lhs_const != nullptr && lhs_const->getZExtValue() == 0) {
+				} else if (lhs_const != nullptr && lhs_const->getZExtValue() == 0) {
 					// lhs idx is 0
 					return rhs;
-				} else if(rhs_const != nullptr && rhs_const->getZExtValue() == 0) {
+				} else if (rhs_const != nullptr && rhs_const->getZExtValue() == 0) {
 					// rhs idx is 0
 					return lhs;
 				} else {
@@ -1881,6 +1879,7 @@ namespace {
 				
 				// fuse last valid base index + first (current) index
 				auto fuse_idx = idx_list.size() - 1;
+				uint32_t idx_divider = 0u;
 				if (auto st_type = dyn_cast_or_null<StructType>(GetElementPtrInst::getIndexedType(gep_ptr_type, ArrayRef { idx_list.data(), idx_list.size() - 1u }));
 					st_type) {
 					// if we're indexing a struct type, both indices must be constant and within range
@@ -1892,8 +1891,12 @@ namespace {
 						if (st_elem_idx < st_type->getNumElements()) {
 							// -> all good
 							traverse_up = false;
+						} else {
+							// OOB -> traverse up
+							
+							// we need to later divide the GEP index by the amount of struct fields
+							idx_divider = st_type->getNumElements();
 						}
-						// else: OOB -> traverse up
 					}
 					// else: either is dynamic -> traverse up
 					
@@ -1916,7 +1919,18 @@ namespace {
 						}
 					}
 				}
-				idx_list[fuse_idx] = fuse_index(idx_list[fuse_idx], gep->getOperand(1), gep);
+				auto rhs_index = gep->getOperand(1);
+				if (idx_divider != 0) {
+					// -> our rhs index is a multiple of its containing struct field count, divide
+					if (ConstantInt* rhs_const = dyn_cast_or_null<ConstantInt>(rhs_index); rhs_const) {
+						const auto rhs_index_value = rhs_const->getZExtValue();
+						assert((rhs_index_value % idx_divider) == 0u);
+						rhs_index = ConstantInt::get(rhs_const->getType(), rhs_index_value / idx_divider);
+					} else {
+						rhs_index = BinaryOperator::CreateUDiv(rhs_index, ConstantInt::get(rhs_const->getType(), idx_divider), ".gep.idx_div", gep);
+					}
+				}
+				idx_list[fuse_idx] = fuse_index(idx_list[fuse_idx], rhs_index, gep);
 				
 				// add current indices
 				for(uint32_t i = 2, count = gep->getNumIndices() + 1; i < count; ++i) {

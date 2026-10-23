@@ -384,7 +384,7 @@ namespace {
 				ld->replaceAllUsesWith(new_dst);
 				ld->eraseFromParent();
 			} else {
-				// -> non vector<->struct BC+load
+				// -> non vector<->struct(-array) BC+load
 				
 				// if the source size is larger, the source pointer likely orignates from a struct GEP at a higher level
 				// -> drill down
@@ -404,6 +404,14 @@ namespace {
 					
 					for (;;) {
 						auto src_st_type = dyn_cast_or_null<StructType>(src_type);
+						if (!src_st_type) {
+							if (auto arr_type = dyn_cast_or_null<ArrayType>(src_type); arr_type) {
+								// if this is an array, add one zero index / indirection, the element type must be a struct type either way
+								src_type = arr_type->getElementType();
+								src_st_type = dyn_cast_or_null<StructType>(src_type);
+								indices.emplace_back(ConstantInt::get(llvm::Type::getInt32Ty(*ctx), 0u));
+							}
+						}
 						if (!src_st_type) {
 							ctx->emitError(&BC, "invalid pointer bitcast: invalid src -> dst cast (src is not a struct type)");
 							return {};

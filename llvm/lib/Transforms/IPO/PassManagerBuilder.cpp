@@ -54,6 +54,7 @@
 #include "llvm/Transforms/Vectorize/SLPVectorizer.h"
 #include "llvm/Transforms/Vectorize/VectorCombine.h"
 #include "llvm/SPIRVerifier/SpirValidation.h"
+#include "llvm/../../projects/spirv/include/LLVMSPIRVLib.h"
 
 using namespace llvm;
 
@@ -1149,8 +1150,13 @@ void PassManagerBuilder::populateModulePassManager(
     // try to fix up allocas that were created during structurization
     MPM.add(createPromoteMemoryToRegisterPass());
 
+    // lower/remove all ConstantExpr expression, since these don't exist in Vulkan,
+    // and we require them to be lowered to perform valid transforms later on
+    MPM.add(createSPIRVLowerConstExprLegacy());
+
     // vulkanization
     MPM.add(createVulkanFinalPass());
+    MPM.add(createPointerBCFixupPass());
     MPM.add(createPropagateCoherencyPass());
     MPM.add(createVulkanFinalModuleCleanupPass());
   }
