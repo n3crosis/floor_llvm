@@ -1,0 +1,6 @@
+// Generated only from the fixed authored header bundle, never caller paths.
+struct EmbeddedHeader { const char *path; const char *content; };
+static constexpr EmbeddedHeader CompatibilityHeaders[] = {
+@AIR_COMPAT_BUNDLE_INITIALIZERS@
+};
+static constexpr const char CompatibilityHeaderSHA256[] = "@AIR_COMPAT_SHA256@";

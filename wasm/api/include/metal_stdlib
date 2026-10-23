@@ -1,0 +1,53 @@
+// Authored compatibility subset. Not Apple's SDK headers.
+// Missing types and operations are intentional compile errors, not stubs.
+#ifndef FLOOR_AIR_METAL_STDLIB
+#define FLOOR_AIR_METAL_STDLIB
+// Metal half is native; activate the inherited OpenCL gate after Sema's
+// external-source initialization has reset its extension state.
+#pragma OPENCL EXTENSION cl_khr_fp16 : enable
+#define kernel __attribute__((compute_kernel, kernel_dim(3)))
+#define vertex __attribute__((vertex_shader))
+#define fragment __attribute__((fragment_shader))
+#define device __attribute__((global_as))
+#define constant __attribute__((constant_as))
+#define thread __attribute__((private_as))
+namespace metal {
+typedef unsigned char uchar;
+typedef unsigned short ushort;
+typedef unsigned int uint;
+typedef unsigned long ulong;
+typedef __SIZE_TYPE__ size_t;
+#define AIR_VECTOR_TYPES(T) \
+  typedef T T##2 __attribute__((ext_vector_type(2))); \
+  typedef T T##3 __attribute__((ext_vector_type(3))); \
+  typedef T T##4 __attribute__((ext_vector_type(4)));
+AIR_VECTOR_TYPES(char)
+AIR_VECTOR_TYPES(uchar)
+AIR_VECTOR_TYPES(short)
+AIR_VECTOR_TYPES(ushort)
+AIR_VECTOR_TYPES(int)
+AIR_VECTOR_TYPES(uint)
+AIR_VECTOR_TYPES(long)
+AIR_VECTOR_TYPES(ulong)
+AIR_VECTOR_TYPES(half)
+AIR_VECTOR_TYPES(float)
+#undef AIR_VECTOR_TYPES
+namespace __vector_detail {
+template<uint N> struct unsupported_bool_vector;
+template<class T,uint N> struct storage {
+  static_assert(N >= 2 && N <= 4, "supported vector widths are 2, 3 and 4");
+  typedef T type __attribute__((ext_vector_type(N)));
+};
+template<uint N> struct storage<bool,N> { using type=unsupported_bool_vector<N>; };
+}
+template<class T,uint N> using vec=typename __vector_detail::storage<T,N>::type;
+}
+#include <metal_math>
+#include <metal_integer>
+#include <metal_control>
+#include <metal_simd>
+#include <metal_texture>
+#include <metal_depth>
+#include <metal_tessellation>
+#include <metal_atomic>
+#endif

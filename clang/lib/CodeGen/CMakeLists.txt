@@ -1,3 +1,9 @@
+# The optional floor SPIR-V project is not shipped in standalone AIR builds.
+option(CLANG_FLOOR_ENABLE_SPIRV "Enable the separately supplied floor SPIR-V writers" OFF)
+if(CLANG_FLOOR_ENABLE_SPIRV)
+  add_definitions(-DCLANG_FLOOR_ENABLE_SPIRV=1)
+endif()
+
 set(LLVM_LINK_COMPONENTS
   Analysis
   BitReader
@@ -26,11 +32,15 @@ set(LLVM_LINK_COMPONENTS
   ProfileData
   Remarks
   ScalarOpts
-  SPIRVLib
+  SelectionDAG
   Support
   Target
   TransformUtils
   )
+
+if(CLANG_FLOOR_ENABLE_SPIRV)
+  list(APPEND LLVM_LINK_COMPONENTS SPIRVLib)
+endif()
 
 add_clang_library(clangCodeGen
   BackendUtil.cpp

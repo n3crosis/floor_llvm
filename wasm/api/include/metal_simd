@@ -1,0 +1,65 @@
+// Authored SIMD compatibility subset. Not Apple's SDK headers.
+#ifndef FLOOR_AIR_METAL_SIMD
+#define FLOOR_AIR_METAL_SIMD
+namespace metal {
+namespace __simd_detail {
+ulong ballot(bool) __asm__("air.simd_ballot.i64") __attribute__((convergent));
+// Lane participation is observable: this is convergent, never const or pure.
+bool all(bool) __asm__("air.simd_all") __attribute__((convergent));
+// Pack only 16 payload bits into a positive, finite, normal float. This is not
+// a raw integer-to-float bitcast: all inputs have exponent 127 and sign zero,
+// so the selected fast-math profile cannot discard integer NaN bit patterns.
+inline __attribute__((always_inline)) uint shuffle16(uint x, ushort lane) {
+  float packet = as_type<float>(0x3f800000u | (x & 0xffffu));
+  return as_type<uint>(__control_detail::shuffle(packet, lane)) & 0xffffu;
+}
+}
+struct simd_vote {
+  using vote_t = ulong;
+  vote_t bits;
+  explicit operator vote_t() const { return bits; }
+};
+inline __attribute__((always_inline)) simd_vote simd_ballot(bool predicate) {
+  return {__simd_detail::ballot(predicate)};
+}
+// The compiler validates this supported subset as compute-only.
+inline __attribute__((always_inline)) bool simd_all(bool predicate) {
+  return __simd_detail::all(predicate);
+}
+inline __attribute__((always_inline)) ushort simd_shuffle(ushort x, ushort lane) {
+  return ushort(__simd_detail::shuffle16(uint(x), lane));
+}
+inline __attribute__((always_inline)) short simd_shuffle(short x, ushort lane) {
+  return as_type<short>(simd_shuffle(as_type<ushort>(x), lane));
+}
+inline __attribute__((always_inline)) uint simd_shuffle(uint x, ushort lane) {
+  return __simd_detail::shuffle16(x, lane) |
+         (__simd_detail::shuffle16(x >> 16, lane) << 16);
+}
+inline __attribute__((always_inline)) int simd_shuffle(int x, ushort lane) {
+  return as_type<int>(simd_shuffle(as_type<uint>(x), lane));
+}
+inline __attribute__((always_inline)) ulong simd_shuffle(ulong x, ushort lane) {
+  return ulong(simd_shuffle(uint(x), lane)) |
+         (ulong(simd_shuffle(uint(x >> 32), lane)) << 32);
+}
+inline __attribute__((always_inline)) long simd_shuffle(long x, ushort lane) {
+  return as_type<long>(simd_shuffle(as_type<ulong>(x), lane));
+}
+#define AIR_SIMD_VECTOR(T) \
+inline __attribute__((always_inline)) T##2 simd_shuffle(T##2 x, ushort lane) { \
+  return {simd_shuffle(x.x,lane),simd_shuffle(x.y,lane)}; } \
+inline __attribute__((always_inline)) T##3 simd_shuffle(T##3 x, ushort lane) { \
+  return {simd_shuffle(x.x,lane),simd_shuffle(x.y,lane),simd_shuffle(x.z,lane)}; } \
+inline __attribute__((always_inline)) T##4 simd_shuffle(T##4 x, ushort lane) { \
+  return {simd_shuffle(x.x,lane),simd_shuffle(x.y,lane),simd_shuffle(x.z,lane),simd_shuffle(x.w,lane)}; }
+AIR_SIMD_VECTOR(float)
+AIR_SIMD_VECTOR(short)
+AIR_SIMD_VECTOR(ushort)
+AIR_SIMD_VECTOR(int)
+AIR_SIMD_VECTOR(uint)
+AIR_SIMD_VECTOR(long)
+AIR_SIMD_VECTOR(ulong)
+#undef AIR_SIMD_VECTOR
+}
+#endif

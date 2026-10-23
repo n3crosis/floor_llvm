@@ -46,13 +46,19 @@
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/MemoryBuffer.h"
 #include "llvm/Support/PrettyStackTrace.h"
+#ifdef CLANG_FLOOR_ENABLE_SPIRV
 #include "llvm/../../projects/spirv/include/LLVMSPIRVLib.h"
+#endif
 #include "llvm/Support/TimeProfiler.h"
 #include "llvm/Support/Timer.h"
 #include "llvm/Support/ToolOutputFile.h"
 #include "llvm/Support/raw_ostream.h"
+#ifdef CLANG_FLOOR_ENABLE_SPIRV
 #include "llvm/../../projects/spirv/lib/SPIRV/SPIRVWriterPass.h"
+#endif
+#ifdef CLANG_FLOOR_ENABLE_SPIRV
 #include "llvm/../../projects/spirv/lib/SPIRV/SPIRVContainerWriterPass.h"
+#endif
 #include "llvm/Target/TargetMachine.h"
 #include "llvm/Target/TargetOptions.h"
 #include "llvm/Transforms/Coroutines.h"
@@ -1177,11 +1183,21 @@ void EmitAssemblyHelper::EmitAssemblyWithLegacyPassManager(
     break;
 
   case Backend_EmitSPIRV:
+#ifdef CLANG_FLOOR_ENABLE_SPIRV
     PerModulePasses.add(createSPIRVWriterPass(*OS, CodeGenOpts.SPIRVVersion));
+#else
+    TheModule->getContext().emitError("SPIR-V emission is unavailable in this AIR-only build");
+    return;
+#endif
     break;
 
   case Backend_EmitSPIRVContainer:
+#ifdef CLANG_FLOOR_ENABLE_SPIRV
     PerModulePasses.add(createSPIRVContainerWriterPass(*OS));
+#else
+    TheModule->getContext().emitError("SPIR-V emission is unavailable in this AIR-only build");
+    return;
+#endif
     break;
 
   case Backend_EmitMetalLib:
@@ -1641,11 +1657,21 @@ void EmitAssemblyHelper::RunOptimizationPipeline(
     break;
 
   case Backend_EmitSPIRV:
+#ifdef CLANG_FLOOR_ENABLE_SPIRV
     MPM.addPass(SPIRVWriterPass(*OS));
+#else
+    TheModule->getContext().emitError("SPIR-V emission is unavailable in this AIR-only build");
+    return;
+#endif
     break;
 
   case Backend_EmitSPIRVContainer:
+#ifdef CLANG_FLOOR_ENABLE_SPIRV
     MPM.addPass(SPIRVContainerWriterPass(*OS));
+#else
+    TheModule->getContext().emitError("SPIR-V emission is unavailable in this AIR-only build");
+    return;
+#endif
     break;
 
   case Backend_EmitMetalLib:

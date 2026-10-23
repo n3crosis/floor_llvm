@@ -17,14 +17,17 @@
 #include "llvm/Bitcode/BitcodeWriter.h"
 #include "../Writer140/ValueEnumerator140.h"
 #include "llvm/IR/DebugInfoMetadata.h"
+#include "llvm/IR/LegacyPassManager.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/PassManager.h"
 #include "llvm/Pass.h"
 #include "llvm/Support/Casting.h"
 #include "llvm/Support/FileSystem.h"
+#include "llvm/Support/ErrorHandling.h"
 #include "llvm/Support/MemoryBuffer.h"
 #include "llvm/Support/Path.h"
 #include "llvm/Support/VersionTuple.h"
+#include "llvm/Transforms/IPO.h"
 #include "llvm/Transforms/Utils/Cloning.h"
 #include "llvm/Transforms/LibFloor/MetalTypes.h"
 #include "llvm/Transforms/LibFloor/FloorUtils.h"
@@ -34,6 +37,7 @@
 #include "bzip2/bzlib.h"
 #include "tar/microtar.h"
 #include <string>
+#include <limits>
 #include <unordered_set>
 #include <unordered_map>
 #include <random>
@@ -182,6 +186,7 @@ struct metallib_program_info {
     } tess;
 
     std::vector<vertex_attribute> vertex_attributes;
+    std::vector<function_constant> function_constants;
 
     // reflection flatbuffer data
     std::vector<uint8_t> reflection_data;
@@ -355,19 +360,6 @@ struct metallib_program_info {
   vector<entry> entries;
 };
 
-//
-static bool is_used_in_function(const Function *F, const GlobalVariable *GV) {
-  bool used = false;
-  libfloor_utils::for_all_instruction_users(
-      *GV,
-      [&used](const Instruction &) {
-        // always true with restriction below
-        used = true;
-      },
-      F /* restrict to this function */);
-  return used;
-}
-
 // version -> { AIR version, language version }
 static const unordered_map<uint32_t,
                            pair<array<uint32_t, 3>, array<uint32_t, 3>>>
@@ -456,6 +448,17 @@ compress_source_archive(const void *archive_ptr, const uint32_t archive_size) {
     return {nullptr, 0};
   }
   return {std::move(dst), dst_len};
+}
+
+// Public/private metadata lengths exclude the four-byte length prefix.
+// Derive the payload length from emitted bytes, including ENDT and all strings,
+// rather than duplicate the serializer's variable-length arithmetic.
+static void finish_metadata_length(std::string &block) {
+  if (block.size() < 4 || block.size() - 4 > std::numeric_limits<uint32_t>::max())
+    report_fatal_error("Metal metadata block length is out of range");
+  const auto size = static_cast<uint32_t>(block.size() - 4);
+  for (unsigned i = 0; i != 4; ++i)
+    block[i] = static_cast<char>((size >> (8 * i)) & 0xff);
 }
 
 //
@@ -774,17 +777,9 @@ bool llvm::WriteMetalLibToFile(Module &M, raw_ostream &OS) {
 
     // clone the module with the current entry point function and any global
     // vars that we need
+    unordered_set<const Function *> funcs;
     ValueToValueMapTy VMap;
-    auto cloned_mod = CloneModule(M, VMap, [&func](const GlobalValue *GV) {
-      if (GV == func) {
-        return true;
-      }
-      // only clone global vars if they are needed in a specific function
-      if (const GlobalVariable *GVar = dyn_cast<GlobalVariable>(GV)) {
-        return is_used_in_function(func, GVar);
-      }
-      return false;
-    });
+    auto cloned_mod = CloneModule(M, VMap);
 
     // metallib uses the function name as the source file name
     cloned_mod->setSourceFileName(func->getName());
@@ -800,21 +795,30 @@ bool llvm::WriteMetalLibToFile(Module &M, raw_ostream &OS) {
     // unused vars to external linkage and unused funcs are declarations only
     // NOTE: this also removes entry points that are now unused (metadata is
     // removed later)
-    for (auto I = cloned_mod->begin(), E = cloned_mod->end(); I != E;) {
-      Function &F = *I++;
-      if (F.isDeclaration() && F.use_empty()) {
-        F.eraseFromParent();
-        continue;
-      }
-    }
+    llvm::legacy::PassManager mpm;
 
-    for (auto I = cloned_mod->global_begin(), E = cloned_mod->global_end();
-         I != E;) {
-      GlobalVariable &GV = *I++;
-      if (GV.isDeclaration() && GV.use_empty()) {
-        GV.eraseFromParent();
-        continue;
+    mpm.add(createInternalizePass([&func](const GlobalValue& GV) -> bool {
+        return GV.getName() == func->getName();
+    }));
+
+    mpm.add(createGlobalOptimizerPass());
+
+    mpm.run(*cloned_mod);
+
+    // * strip floor_* calling convention from all functions and their users (replace it with C CC)
+    for (auto func_iter = cloned_mod->begin(); func_iter != cloned_mod->end();) {
+      auto& func = *func_iter;
+
+      if (func.getCallingConv() != CallingConv::C) {
+        func.setCallingConv(CallingConv::C);
+        for (auto user : func.users()) {
+          if (auto CB = dyn_cast<CallBase>(user)) {
+            CB->setCallingConv(CallingConv::C);
+          }
+        }
       }
+
+      ++func_iter;
     }
 
     // clean up metadata
@@ -1032,6 +1036,55 @@ bool llvm::WriteMetalLibToFile(Module &M, raw_ostream &OS) {
       }
     }
 
+    // function constants
+    if (auto fc_md = cloned_mod->getNamedMetadata("air.function_constants");
+        fc_md && fc_md->getNumOperands() > 0) {
+      vector<MDNode *> kept_fcs;
+
+      for (auto op_iter = fc_md->op_begin();
+           op_iter != fc_md->op_end(); ++op_iter) {
+        auto node = dyn_cast_or_null<MDNode>(*op_iter);
+        if (!node ||
+            node->getOperand(0).get() == nullptr) {
+          continue;
+        }
+
+        kept_fcs.push_back(node);
+
+        auto cnst_idx =
+            dyn_cast_or_null<ConstantAsMetadata>(node->getOperand(3));
+        auto cnst_type =
+            dyn_cast_or_null<MDString>(node->getOperand(1));
+        auto cnst_name =
+            dyn_cast_or_null<MDString>(node->getOperand(2));
+        if (!cnst_idx || !cnst_type || !cnst_name) {
+          continue;
+        }
+        auto cnst_idx_int =
+            dyn_cast_or_null<ConstantInt>(cnst_idx->getValue());
+        if (!cnst_idx_int) {
+          continue;
+        }
+        function_constant cnst{
+            .name = cnst_name->getString().str(),
+            .index = (uint32_t)cnst_idx_int->getZExtValue(),
+            .type = data_type_from_string(cnst_type->getString().str()),
+            .active = true
+        };
+        entry.function_constants.emplace_back(std::move(cnst));
+      }
+
+      fc_md->dropAllReferences();
+      if (kept_fcs.empty()) {
+        fc_md->eraseFromParent();
+      }
+      else {
+        for (auto node : kept_fcs) {
+          fc_md->addOperand(node);
+        }
+      }
+    }
+
     // extract metadata and build reflection data from it
     entry.reflection_data = metal::reflection::create_reflection(*cloned_mod);
     if (entry.reflection_data.empty()) {
@@ -1056,20 +1109,40 @@ bool llvm::WriteMetalLibToFile(Module &M, raw_ostream &OS) {
     static const uint32_t tag_length = sizeof(TAG_TYPE);
 
     raw_string_ostream ext_md_stream{entry.extended_md_data};
-    uint32_t ext_md_length = tag_length + sizeof(uint32_t);
+    const uint32_t length_placeholder = 0;
+
+    uint16_t attr_count = 0;
+    uint16_t vatt_len = 0;
+    uint16_t vaty_len = 0;
+
     if (!entry.vertex_attributes.empty()) {
-      const auto attr_count = (uint16_t)entry.vertex_attributes.size();
-      ext_md_length += 2u * (tag_length + sizeof(uint16_t)); // VATT and VATY
-      uint16_t vatt_len = sizeof(uint16_t) /* attr count */ +
-                          2u * attr_count /* per-attr info */;
-      uint16_t vaty_len =
+      attr_count = (uint16_t)entry.vertex_attributes.size();
+      vatt_len =
+          sizeof(uint16_t) /* attr count */ +
+          2u * attr_count /* per-attr info */;
+      vaty_len =
           sizeof(uint16_t) /* attr count */ + attr_count /* per-attr type */;
       for (const auto &vattr : entry.vertex_attributes) {
         vatt_len += vattr.name.size() + 1u;
       }
-      ext_md_length += vatt_len + vaty_len;
-      ext_md_stream.write((const char *)&ext_md_length, sizeof(uint32_t));
+    }
 
+    uint16_t cnst_count = 0;
+    uint16_t cnst_len = 0;
+
+    if (!entry.function_constants.empty()) {
+      cnst_count = (uint16_t)entry.function_constants.size();
+      cnst_len =
+          sizeof(uint16_t) + /* cnst count */
+          ((sizeof(uint8_t) + sizeof(uint16_t) + sizeof(uint8_t)) * cnst_count) /* per-cnst info */;
+      for (const auto& cnst : entry.function_constants) {
+        cnst_len += cnst.name.size() + 1u;
+      }
+    }
+
+    ext_md_stream.write((const char *)&length_placeholder, sizeof(length_placeholder));
+
+    if (!entry.vertex_attributes.empty()) {
       static const auto vatt_tag = TAG_TYPE::VATT;
       static const auto vaty_tag = TAG_TYPE::VATY;
 
@@ -1094,22 +1167,34 @@ bool llvm::WriteMetalLibToFile(Module &M, raw_ostream &OS) {
       for (const auto &vattr : entry.vertex_attributes) {
         ext_md_stream.write((const char *)&vattr.type, sizeof(DATA_TYPE));
       }
-    } else {
-      ext_md_stream.write((const char *)&ext_md_length, sizeof(uint32_t));
     }
+
+    if (!entry.function_constants.empty()) {
+      static const auto cnst_tag = TAG_TYPE::CNST;
+
+      // CNST
+      ext_md_stream.write((const char *)&cnst_tag, tag_length);
+      ext_md_stream.write((const char *)&cnst_len, sizeof(cnst_len));
+      ext_md_stream.write((const char *)&cnst_count, sizeof(cnst_count));
+      for (const auto& cnst : entry.function_constants) {
+        ext_md_stream.write(cnst.name.c_str(), cnst.name.size());
+        ext_md_stream.write('\0');
+
+        ext_md_stream.write((const char *)&cnst.type, sizeof(DATA_TYPE));
+
+        uint16_t index = (uint16_t)cnst.index;
+        ext_md_stream.write((const char *)&index, sizeof(index));
+        ext_md_stream.write((const char *)&cnst.active, sizeof(uint8_t));
+      }
+    }
+
     ext_md_stream.write((const char *)&end_tag, tag_length);
     ext_md_stream.flush();
+    finish_metadata_length(entry.extended_md_data);
 
     raw_string_ostream dbg_stream{entry.debug_data};
+    dbg_stream.write((const char *)&length_placeholder, sizeof(length_placeholder));
     if (emit_debug_info) {
-      const uint32_t dep_length =
-          (dependent_bc_file_name.empty()
-               ? 0
-               : tag_length + 2 + dependent_bc_file_name.size());
-      const uint32_t dbg_length = 4u /* len */ + tag_length + 2 + 4 /* line */ +
-                                  src_file_name_length + dep_length +
-                                  tag_length;
-      dbg_stream.write((const char *)&dbg_length, sizeof(dbg_length));
       dbg_stream.write((const char *)&dbg_tag, tag_length);
       const uint16_t src_file_info_len = uint16_t(4u + src_file_name_length);
       dbg_stream.write((const char *)&src_file_info_len,
@@ -1130,12 +1215,10 @@ bool llvm::WriteMetalLibToFile(Module &M, raw_ostream &OS) {
         dbg_stream.write(dependent_bc_file_name.c_str(), dep_info_length - 1u);
         dbg_stream.write('\0');
       }
-    } else {
-      const uint32_t dbg_length = 4u /* len */ + tag_length;
-      dbg_stream.write((const char *)&dbg_length, sizeof(dbg_length));
     }
     dbg_stream.write((const char *)&end_tag, tag_length);
     dbg_stream.flush();
+    finish_metadata_length(entry.debug_data);
 
     // finish
     entry.update_length();

@@ -1,0 +1,136 @@
+// Authored experimental subset; no Apple SDK text.
+#ifndef FLOOR_AIR_METAL_MATH
+#define FLOOR_AIR_METAL_MATH
+namespace metal {
+namespace __air_detail {
+float sqrt(float) __asm__("air.fast_sqrt.f32") __attribute__((const));
+float rsqrt(float) __asm__("air.fast_rsqrt.f32") __attribute__((const));
+float exp2(float) __asm__("air.fast_exp2.f32") __attribute__((const));
+float log2(float) __asm__("air.fast_log2.f32") __attribute__((const));
+float sin(float) __asm__("air.fast_sin.f32") __attribute__((const));
+float cos(float) __asm__("air.fast_cos.f32") __attribute__((const));
+float ceil(float) __asm__("air.fast_ceil.f32") __attribute__((const));
+float floor(float) __asm__("air.fast_floor.f32") __attribute__((const));
+float trunc(float) __asm__("air.fast_trunc.f32") __attribute__((const));
+float rint(float) __asm__("air.fast_rint.f32") __attribute__((const));
+float fabs(float) __asm__("air.fast_fabs.f32") __attribute__((const));
+float fmin(float, float) __asm__("air.fast_fmin.f32") __attribute__((const));
+float fmax(float, float) __asm__("air.fast_fmax.f32") __attribute__((const));
+float fma(float,float,float) __asm__("air.fma.f32") __attribute__((const));
+float clamp(float,float,float) __asm__("air.fast_clamp.f32") __attribute__((const));
+}
+#define AIR_INLINE inline __attribute__((always_inline))
+AIR_INLINE float fma(float a,float b,float c) { return __air_detail::fma(a,b,c); }
+AIR_INLINE bool isnan(float x) { return (__builtin_bit_cast(uint,x) & 0x7fffffffU) > 0x7f800000U; }
+AIR_INLINE float select(float a,float b,bool c) { return c ? b : a; }
+AIR_INLINE int select(int a,int b,bool c) { return c ? b : a; }
+AIR_INLINE uint select(uint a,uint b,bool c) { return c ? b : a; }
+template<class To,class From> AIR_INLINE To as_type(From value) { static_assert(sizeof(To)==sizeof(From), "as_type requires equal size"); return __builtin_bit_cast(To,value); }
+AIR_INLINE int min(int a,int b) { return a < b ? a : b; }
+AIR_INLINE int max(int a,int b) { return a > b ? a : b; }
+AIR_INLINE int clamp(int x,int lo,int hi) { return min(max(x,lo),hi); }
+AIR_INLINE uint min(uint a,uint b) { return a < b ? a : b; }
+AIR_INLINE uint max(uint a,uint b) { return a > b ? a : b; }
+AIR_INLINE uint clamp(uint x,uint lo,uint hi) { return min(max(x,lo),hi); }
+template<class A,class B,class C> A fma(A,B,C) = delete;
+// Internal mask, not an MSL bool-vector storage/interface type.
+struct __bool_mask2 { bool lane[2]; };
+AIR_INLINE __bool_mask2 isnan(float2 x) { __bool_mask2 r; for(uint i=0;i<2;++i) r.lane[i]=isnan(x[i]); return r; }
+AIR_INLINE float2 select(float2 a,float2 b,__bool_mask2 mask) { float2 r; for(uint i=0;i<2;++i) r[i]=mask.lane[i]?b[i]:a[i]; return r; }
+// Internal mask, not an MSL bool-vector storage/interface type.
+struct __bool_mask3 { bool lane[3]; };
+AIR_INLINE __bool_mask3 isnan(float3 x) { __bool_mask3 r; for(uint i=0;i<3;++i) r.lane[i]=isnan(x[i]); return r; }
+AIR_INLINE float3 select(float3 a,float3 b,__bool_mask3 mask) { float3 r; for(uint i=0;i<3;++i) r[i]=mask.lane[i]?b[i]:a[i]; return r; }
+// Internal mask, not an MSL bool-vector storage/interface type.
+struct __bool_mask4 { bool lane[4]; };
+AIR_INLINE __bool_mask4 isnan(float4 x) { __bool_mask4 r; for(uint i=0;i<4;++i) r.lane[i]=isnan(x[i]); return r; }
+AIR_INLINE float4 select(float4 a,float4 b,__bool_mask4 mask) { float4 r; for(uint i=0;i<4;++i) r[i]=mask.lane[i]?b[i]:a[i]; return r; }
+namespace fast {
+template<class T> T sqrt(T) = delete;
+template<class T> T rsqrt(T) = delete;
+template<class T> T exp2(T) = delete;
+template<class T> T log2(T) = delete;
+template<class T> T sin(T) = delete;
+template<class T> T cos(T) = delete;
+template<class T> T ceil(T) = delete;
+template<class T> T floor(T) = delete;
+template<class T> T trunc(T) = delete;
+template<class T> T rint(T) = delete;
+template<class T> T abs(T) = delete;
+template<class A,class B> A min(A,B) = delete;
+template<class A,class B> A max(A,B) = delete;
+template<class A,class B,class C> A clamp(A,B,C) = delete;
+AIR_INLINE float sqrt(float x) { return __air_detail::sqrt(x); }
+AIR_INLINE float rsqrt(float x) { return __air_detail::rsqrt(x); }
+AIR_INLINE float exp2(float x) { return __air_detail::exp2(x); }
+AIR_INLINE float log2(float x) { return __air_detail::log2(x); }
+AIR_INLINE float sin(float x) { return __air_detail::sin(x); }
+AIR_INLINE float cos(float x) { return __air_detail::cos(x); }
+AIR_INLINE float ceil(float x) { return __air_detail::ceil(x); }
+AIR_INLINE float floor(float x) { return __air_detail::floor(x); }
+AIR_INLINE float trunc(float x) { return __air_detail::trunc(x); }
+AIR_INLINE float rint(float x) { return __air_detail::rint(x); }
+AIR_INLINE float abs(float x) { return __air_detail::fabs(x); }
+AIR_INLINE float min(float a,float b) { return __air_detail::fmin(a,b); }
+AIR_INLINE float max(float a,float b) { return __air_detail::fmax(a,b); }
+AIR_INLINE float clamp(float x,float lo,float hi) { return __air_detail::clamp(x,lo,hi); }
+AIR_INLINE float2 sqrt(float2 x) { float2 r; for(uint i=0;i<2;++i) r[i]=sqrt(x[i]); return r; }
+AIR_INLINE float2 rsqrt(float2 x) { float2 r; for(uint i=0;i<2;++i) r[i]=rsqrt(x[i]); return r; }
+AIR_INLINE float2 exp2(float2 x) { float2 r; for(uint i=0;i<2;++i) r[i]=exp2(x[i]); return r; }
+AIR_INLINE float2 log2(float2 x) { float2 r; for(uint i=0;i<2;++i) r[i]=log2(x[i]); return r; }
+AIR_INLINE float2 floor(float2 x) { float2 r; for(uint i=0;i<2;++i) r[i]=floor(x[i]); return r; }
+AIR_INLINE float2 trunc(float2 x) { float2 r; for(uint i=0;i<2;++i) r[i]=trunc(x[i]); return r; }
+AIR_INLINE float2 rint(float2 x) { float2 r; for(uint i=0;i<2;++i) r[i]=rint(x[i]); return r; }
+AIR_INLINE float2 abs(float2 x) { float2 r; for(uint i=0;i<2;++i) r[i]=abs(x[i]); return r; }
+AIR_INLINE float2 min(float2 a,float2 b) { float2 r; for(uint i=0;i<2;++i) r[i]=min(a[i],b[i]); return r; }
+AIR_INLINE float2 max(float2 a,float2 b) { float2 r; for(uint i=0;i<2;++i) r[i]=max(a[i],b[i]); return r; }
+AIR_INLINE float2 clamp(float2 x,float2 lo,float2 hi) { float2 r; for(uint i=0;i<2;++i) r[i]=clamp(x[i],lo[i],hi[i]); return r; }
+AIR_INLINE float2 clamp(float2 x,float lo,float hi) { return clamp(x,(float2)lo,(float2)hi); }
+AIR_INLINE float3 sqrt(float3 x) { float3 r; for(uint i=0;i<3;++i) r[i]=sqrt(x[i]); return r; }
+AIR_INLINE float3 rsqrt(float3 x) { float3 r; for(uint i=0;i<3;++i) r[i]=rsqrt(x[i]); return r; }
+AIR_INLINE float3 exp2(float3 x) { float3 r; for(uint i=0;i<3;++i) r[i]=exp2(x[i]); return r; }
+AIR_INLINE float3 log2(float3 x) { float3 r; for(uint i=0;i<3;++i) r[i]=log2(x[i]); return r; }
+AIR_INLINE float3 floor(float3 x) { float3 r; for(uint i=0;i<3;++i) r[i]=floor(x[i]); return r; }
+AIR_INLINE float3 trunc(float3 x) { float3 r; for(uint i=0;i<3;++i) r[i]=trunc(x[i]); return r; }
+AIR_INLINE float3 rint(float3 x) { float3 r; for(uint i=0;i<3;++i) r[i]=rint(x[i]); return r; }
+AIR_INLINE float3 abs(float3 x) { float3 r; for(uint i=0;i<3;++i) r[i]=abs(x[i]); return r; }
+AIR_INLINE float3 min(float3 a,float3 b) { float3 r; for(uint i=0;i<3;++i) r[i]=min(a[i],b[i]); return r; }
+AIR_INLINE float3 max(float3 a,float3 b) { float3 r; for(uint i=0;i<3;++i) r[i]=max(a[i],b[i]); return r; }
+AIR_INLINE float3 clamp(float3 x,float3 lo,float3 hi) { float3 r; for(uint i=0;i<3;++i) r[i]=clamp(x[i],lo[i],hi[i]); return r; }
+AIR_INLINE float3 clamp(float3 x,float lo,float hi) { return clamp(x,(float3)lo,(float3)hi); }
+AIR_INLINE float4 sqrt(float4 x) { float4 r; for(uint i=0;i<4;++i) r[i]=sqrt(x[i]); return r; }
+AIR_INLINE float4 rsqrt(float4 x) { float4 r; for(uint i=0;i<4;++i) r[i]=rsqrt(x[i]); return r; }
+AIR_INLINE float4 exp2(float4 x) { float4 r; for(uint i=0;i<4;++i) r[i]=exp2(x[i]); return r; }
+AIR_INLINE float4 log2(float4 x) { float4 r; for(uint i=0;i<4;++i) r[i]=log2(x[i]); return r; }
+AIR_INLINE float4 floor(float4 x) { float4 r; for(uint i=0;i<4;++i) r[i]=floor(x[i]); return r; }
+AIR_INLINE float4 trunc(float4 x) { float4 r; for(uint i=0;i<4;++i) r[i]=trunc(x[i]); return r; }
+AIR_INLINE float4 rint(float4 x) { float4 r; for(uint i=0;i<4;++i) r[i]=rint(x[i]); return r; }
+AIR_INLINE float4 abs(float4 x) { float4 r; for(uint i=0;i<4;++i) r[i]=abs(x[i]); return r; }
+AIR_INLINE float4 min(float4 a,float4 b) { float4 r; for(uint i=0;i<4;++i) r[i]=min(a[i],b[i]); return r; }
+AIR_INLINE float4 max(float4 a,float4 b) { float4 r; for(uint i=0;i<4;++i) r[i]=max(a[i],b[i]); return r; }
+AIR_INLINE float4 clamp(float4 x,float4 lo,float4 hi) { float4 r; for(uint i=0;i<4;++i) r[i]=clamp(x[i],lo[i],hi[i]); return r; }
+AIR_INLINE float4 clamp(float4 x,float lo,float hi) { return clamp(x,(float4)lo,(float4)hi); }
+}
+// Standard-namespace fast lowering is explicit, never silently enabled.
+#if defined(AIR_FAST_MATH) && AIR_FAST_MATH == 1
+using fast::sqrt;
+using fast::rsqrt;
+using fast::exp2;
+using fast::log2;
+using fast::sin;
+using fast::cos;
+using fast::ceil;
+using fast::floor;
+using fast::trunc;
+using fast::rint;
+using fast::abs;
+using fast::min;
+using fast::max;
+using fast::clamp;
+#endif
+AIR_INLINE float2 fma(float2 a,float2 b,float2 c) { float2 r; for(uint i=0;i<2;++i) r[i]=fma(a[i],b[i],c[i]); return r; }
+AIR_INLINE float3 fma(float3 a,float3 b,float3 c) { float3 r; for(uint i=0;i<3;++i) r[i]=fma(a[i],b[i],c[i]); return r; }
+AIR_INLINE float4 fma(float4 a,float4 b,float4 c) { float4 r; for(uint i=0;i<4;++i) r[i]=fma(a[i],b[i],c[i]); return r; }
+#undef AIR_INLINE
+}
+#endif
