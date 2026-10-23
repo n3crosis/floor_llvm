@@ -30,6 +30,7 @@
 #include "llvm/IR/Verifier.h"
 #include "llvm/InitializePasses.h"
 #include "llvm/Support/CommandLine.h"
+#include "llvm/Support/ErrorHandling.h"
 #include "llvm/Support/ManagedStatic.h"
 #include "llvm/Target/CGPassBuilderOption.h"
 #include "llvm/Transforms/AggressiveInstCombine/AggressiveInstCombine.h"
@@ -54,7 +55,9 @@
 #include "llvm/Transforms/Vectorize/SLPVectorizer.h"
 #include "llvm/Transforms/Vectorize/VectorCombine.h"
 #include "llvm/SPIRVerifier/SpirValidation.h"
+#ifdef CLANG_FLOOR_ENABLE_SPIRV
 #include "llvm/../../projects/spirv/include/LLVMSPIRVLib.h"
+#endif
 
 using namespace llvm;
 
@@ -1152,7 +1155,11 @@ void PassManagerBuilder::populateModulePassManager(
 
     // lower/remove all ConstantExpr expression, since these don't exist in Vulkan,
     // and we require them to be lowered to perform valid transforms later on
+#ifdef CLANG_FLOOR_ENABLE_SPIRV
     MPM.add(createSPIRVLowerConstExprLegacy());
+#else
+    report_fatal_error("Vulkan passes are unavailable in this AIR-only build");
+#endif
 
     // vulkanization
     MPM.add(createVulkanFinalPass());

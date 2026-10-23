@@ -1,0 +1,48 @@
+// Authored integer helpers and exact AIR integer intrinsics; no Apple SDK text.
+#ifndef FLOOR_AIR_METAL_INTEGER
+#define FLOOR_AIR_METAL_INTEGER
+namespace metal {
+namespace __integer_detail {
+int absolute_signed(int) __asm__("air.abs.s.i32");
+uint count_leading(uint,bool) __asm__("air.clz.i32");
+uint population(uint) __asm__("air.popcount.i32");
+uint reverse(uint) __asm__("air.reverse_bits.i32");
+}
+// Preserve the target intrinsic's signed edge behavior, including INT_MIN.
+// Do not negate a signed integer or convert it to floating point.
+inline __attribute__((always_inline)) int abs(int x) { return __integer_detail::absolute_signed(x); }
+inline __attribute__((always_inline)) uint clz(uint x) { return __integer_detail::count_leading(x,false); }
+inline __attribute__((always_inline)) int clz(int x) { return int(clz(uint(x))); }
+inline __attribute__((always_inline)) uint popcount(uint x) { return __integer_detail::population(x); }
+inline __attribute__((always_inline)) int popcount(int x) { return int(popcount(uint(x))); }
+// This subset reverses exactly 32 bits; reject other widths, never promote them.
+template<class T> T reverse_bits(T) = delete;
+inline __attribute__((always_inline)) uint reverse_bits(uint x) { return __integer_detail::reverse(x); }
+// Keep every bit, including the sign bit, without signed numeric conversion.
+inline __attribute__((always_inline)) int reverse_bits(int x) { return as_type<int>(reverse_bits(as_type<uint>(x))); }
+inline __attribute__((always_inline)) uint ctz(uint x) { return popcount((x & (0u-x))-1u); }
+inline __attribute__((always_inline)) int ctz(int x) { return int(ctz(uint(x))); }
+
+inline __attribute__((always_inline)) uint extract_bits(uint x, uint offset, uint count) {
+  if (count == 0) return 0;
+  if (count == 32) return x;
+  return (x >> offset) & ((1u << count) - 1u);
+}
+inline __attribute__((always_inline)) int extract_bits(int x, uint offset, uint count) {
+  if (count == 0) return 0;
+  if (count == 32) return x;
+  uint field = uint(x) >> offset;
+  uint shift = 32u - count;
+  return as_type<int>(field << shift) >> shift;
+}
+inline __attribute__((always_inline)) uint insert_bits(uint base, uint value, uint offset, uint count) {
+  if (count == 0) return base;
+  if (count == 32) return value;
+  uint mask = ((1u << count) - 1u) << offset;
+  return (base & ~mask) | ((value << offset) & mask);
+}
+inline __attribute__((always_inline)) int insert_bits(int base, int value, uint offset, uint count) {
+  return as_type<int>(insert_bits(uint(base), uint(value), offset, count));
+}
+}
+#endif

@@ -1,3 +1,10 @@
+# The optional floor SPIR-V project is not shipped in standalone AIR builds.
+option(CLANG_FLOOR_ENABLE_SPIRV "Enable the separately supplied floor SPIR-V writers" OFF)
+set(FLOOR_IPO_SPIRV_COMPONENT)
+if(CLANG_FLOOR_ENABLE_SPIRV)
+  set(FLOOR_IPO_SPIRV_COMPONENT SPIRVLib)
+endif()
+
 add_llvm_component_library(LLVMipo
   AlwaysInliner.cpp
   Annotation2Metadata.cpp
@@ -72,7 +79,7 @@ add_llvm_component_library(LLVMipo
   Object
   ProfileData
   Scalar
-  SPIRVLib
+  ${FLOOR_IPO_SPIRV_COMPONENT}
   SPIRVerifier
   Support
   TransformUtils
@@ -80,3 +87,7 @@ add_llvm_component_library(LLVMipo
   Instrumentation
   Scalar
   )
+
+if(CLANG_FLOOR_ENABLE_SPIRV)
+  target_compile_definitions(LLVMipo PRIVATE CLANG_FLOOR_ENABLE_SPIRV=1)
+endif()
