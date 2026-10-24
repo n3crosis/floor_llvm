@@ -212,9 +212,8 @@ jobs:
             --filter "$unit_filter" \
             --xunit-xml-output "$TEST_REPORTS/targeted-units.xml" \
             -o "$TEST_REPORTS/targeted-units.json" \
-            "$NATIVE_BUILD/unittests/IR" \
-            "$NATIVE_BUILD/tools/clang/unittests/AST" \
-            "$NATIVE_BUILD/tools/clang/unittests/ASTMatchers" \
+            "$NATIVE_BUILD/test/Unit" \
+            "$NATIVE_BUILD/tools/clang/test/Unit" \
             2>&1 | tee "$TEST_REPORTS/targeted-units.log"
           unit_status=("${PIPESTATUS[@]}")
           set -e
