@@ -1088,6 +1088,13 @@ endforeach()
 
 add_subdirectory(projects)
 
+# Projects can register LLVM components (including the in-tree SPIR-V
+# translator). Resolve their dependencies and generate llvm-config metadata
+# only after those components have been created, before configuring tools.
+set(LLVMCONFIGLIBRARYDEPENDENCIESINC "${LLVM_BINARY_DIR}/tools/llvm-config/LibraryDependencies.inc")
+LLVMBuildResolveComponentsLink()
+LLVMBuildGenerateCFragment(OUTPUT ${LLVMCONFIGLIBRARYDEPENDENCIESINC})
+
 if( LLVM_INCLUDE_TOOLS )
   add_subdirectory(tools)
 endif()

@@ -43,8 +43,6 @@ if (LLVM_INCLUDE_TESTS)
 endif()
 add_subdirectory(WindowsManifest)
 
-set(LLVMCONFIGLIBRARYDEPENDENCIESINC "${LLVM_BINARY_DIR}/tools/llvm-config/LibraryDependencies.inc")
-
 # Special components which don't have any source attached but aggregate other
 # components
 add_llvm_component_group(all-targets LINK_COMPONENTS ${LLVM_TARGETS_TO_BUILD})
@@ -59,6 +57,3 @@ else()
   add_llvm_component_group(NativeCodeGen)
 endif()
 
-# Component post-processing
-LLVMBuildResolveComponentsLink()
-LLVMBuildGenerateCFragment(OUTPUT ${LLVMCONFIGLIBRARYDEPENDENCIESINC})
