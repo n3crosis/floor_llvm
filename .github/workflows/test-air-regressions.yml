@@ -1,4 +1,4 @@
-name: Test native LLVM and Clang suites
+name: Verify exact native PR AIR regressions
 
 on:
   workflow_dispatch:
@@ -18,19 +18,22 @@ concurrency:
 
 env:
   PYTHON: /usr/bin/python3
+  NATIVE_SOURCE_COMMIT: 2bbf6d2134058ef19b257dcad1aa3f2dea33ea2c
+  NATIVE_SOURCE_TREE: d44942372cf3317d95cb14a9d452172da183d7e4
   PYTHONDONTWRITEBYTECODE: "1"
   CCACHE_MAXSIZE: 2G
   CCACHE_COMPILERCHECK: content
 
 jobs:
-  native-suites:
+  focused-lit:
     runs-on: ubuntu-24.04
-    timeout-minutes: 360
+    timeout-minutes: 210
     steps:
-      - name: Check out compiler and its pinned SPIR-V submodule
+      - name: Check out the exact native PR source and pinned SPIR-V submodule
         timeout-minutes: 5
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
+          ref: 2bbf6d2134058ef19b257dcad1aa3f2dea33ea2c
           fetch-depth: 1
           submodules: recursive
           persist-credentials: false
@@ -42,29 +45,24 @@ jobs:
           printf 'CCACHE_DIR=%s/floor-native-ccache\nNATIVE_BUILD=%s/floor-native-build\nTEST_REPORTS=%s/floor-native-test-reports\n' \
             "$RUNNER_TEMP" "$RUNNER_TEMP" "$RUNNER_TEMP" >> "$GITHUB_ENV"
           sudo apt-get update
-          sudo apt-get install --yes --no-install-recommends \
-            build-essential cmake ninja-build ccache python3 python3-psutil \
-            python3-yaml python3-pygments zlib1g-dev libxml2-dev libxml2-utils \
-            libedit-dev libncurses-dev
-          "$PYTHON" -c 'import psutil, yaml, pygments'
-          { df -h "$RUNNER_TEMP"; free -h; nproc; } \
-            | tee "$RUNNER_TEMP/floor-native-test-reports/runner-capacity.txt"
-      - name: Restore native compiler object cache
+          sudo apt-get install --yes --no-install-recommends build-essential cmake ninja-build ccache python3 python3-psutil
+      - name: Restore focused native compiler object cache
         timeout-minutes: 5
         id: objects
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/floor-native-ccache
-          key: floor-native-full-v1-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
-          restore-keys: |
-            floor-native-full-v1-${{ runner.os }}-${{ runner.arch }}-
-            floor-native-lit-v1-${{ runner.os }}-${{ runner.arch }}-
-      - name: Prepare the existing pinned SPIR-V headers dependency
+          key: floor-native-lit-v1-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
+          restore-keys: floor-native-lit-v1-${{ runner.os }}-${{ runner.arch }}-
+      - name: Verify exact source identity and prepare pinned SPIR-V headers
         timeout-minutes: 5
         run: |
           set -euo pipefail
           mkdir -p "$TEST_REPORTS"
-          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD)" = "$NATIVE_SOURCE_COMMIT"
+          test "$(git rev-parse HEAD^{tree})" = "$NATIVE_SOURCE_TREE"
+          git diff --exit-code
+          git diff --cached --exit-code
           spirv_ref="$(git ls-tree HEAD llvm/projects/spirv | awk '{print $3}')"
           test "$(git -C llvm/projects/spirv rev-parse HEAD)" = "$spirv_ref"
           headers_ref="$(tr -d '[:space:]' < llvm/projects/spirv/spirv-headers-tag.conf)"
@@ -74,14 +72,27 @@ jobs:
           git -C "$RUNNER_TEMP/spirv-headers" fetch --depth 1 origin "$headers_ref"
           git -C "$RUNNER_TEMP/spirv-headers" checkout --detach FETCH_HEAD
           test "$(git -C "$RUNNER_TEMP/spirv-headers" rev-parse HEAD)" = "$headers_ref"
-          {
-            printf 'repository=%s\ncommit=%s\ntree=%s\nspirv=%s\nspirv_headers=%s\n' \
-              "$GITHUB_REPOSITORY" "$GITHUB_SHA" "$(git rev-parse HEAD^{tree})" "$spirv_ref" "$headers_ref"
-            c++ --version
-            cmake --version
-            ninja --version
-          } > "$TEST_REPORTS/build-inputs.txt"
-      - name: Configure native compiler and upstream lit
+          export SPIRV_COMMIT="$spirv_ref" SPIRV_HEADERS_COMMIT="$headers_ref"
+          "$PYTHON" - <<'PY_SOURCE'
+          import json, os
+          from pathlib import Path
+          report = {
+              'repository': os.environ['GITHUB_REPOSITORY'],
+              'sourceCommit': os.environ['NATIVE_SOURCE_COMMIT'],
+              'sourceTree': os.environ['NATIVE_SOURCE_TREE'],
+              'workflowCommit': os.environ['GITHUB_SHA'],
+              'workflowRef': os.environ['GITHUB_WORKFLOW_REF'],
+              'runId': os.environ['GITHUB_RUN_ID'],
+              'runAttempt': os.environ['GITHUB_RUN_ATTEMPT'],
+              'spirvCommit': os.environ['SPIRV_COMMIT'],
+              'spirvHeadersCommit': os.environ['SPIRV_HEADERS_COMMIT'],
+          }
+          (Path(os.environ['TEST_REPORTS']) / 'source-provenance.json').write_text(json.dumps(report, indent=2) + '\n')
+          print(json.dumps(report, indent=2))
+          PY_SOURCE
+          { c++ --version; cmake --version; ninja --version; df -h "$RUNNER_TEMP"; free -h; } \
+            > "$TEST_REPORTS/build-inputs.txt"
+      - name: Configure focused native compiler and upstream lit
         timeout-minutes: 10
         run: |
           set -euo pipefail
@@ -101,54 +112,55 @@ jobs:
             -DCMAKE_C_COMPILER_LAUNCHER=ccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DLLVM_ENABLE_PROJECTS=clang \
-            -DLLVM_TARGETS_TO_BUILD=all \
+            -DLLVM_TARGETS_TO_BUILD= \
             -DLLVM_ENABLE_ASSERTIONS=ON \
             -DLLVM_INCLUDE_TESTS=ON \
             -DCLANG_INCLUDE_TESTS=ON \
-            -DLLVM_INCLUDE_TOOLS=ON \
             -DLLVM_INCLUDE_UTILS=ON \
             -DLLVM_BUILD_TESTS=OFF \
             -DLLVM_INCLUDE_EXAMPLES=OFF \
             -DLLVM_INCLUDE_BENCHMARKS=OFF \
-            -DLLVM_ENABLE_ZLIB=FORCE_ON \
-            -DLLVM_ENABLE_LIBXML2=FORCE_ON \
-            -DLLVM_ENABLE_LIBEDIT=ON \
+            -DLLVM_ENABLE_ZLIB=OFF \
+            -DLLVM_ENABLE_ZSTD=OFF \
+            -DLLVM_ENABLE_LIBXML2=OFF \
+            -DLLVM_ENABLE_LIBEDIT=OFF \
             -DLLVM_ENABLE_LIBPFM=OFF \
-            -DLLVM_ENABLE_TERMINFO=ON \
+            -DLLVM_ENABLE_TERMINFO=OFF \
             -DLLVM_ENABLE_CURL=OFF \
-            -DCLANG_ENABLE_ARCMT=ON \
-            -DCLANG_ENABLE_STATIC_ANALYZER=ON \
+            -DCLANG_ENABLE_ARCMT=OFF \
+            -DCLANG_ENABLE_STATIC_ANALYZER=OFF \
             -DLLVM_SPIRV_INCLUDE_TESTS=OFF \
             -DLLVM_EXTERNAL_SPIRV_HEADERS_SOURCE_DIR="$RUNNER_TEMP/spirv-headers" \
             -DLLVM_PARALLEL_COMPILE_JOBS="$jobs" \
             -DLLVM_PARALLEL_LINK_JOBS=1 \
             2>&1 | tee "$TEST_REPORTS/configure.log"
-          cp "$NATIVE_BUILD/CMakeCache.txt" "$TEST_REPORTS/CMakeCache.txt"
-      - name: Build the upstream LLVM and Clang suite dependencies
-        timeout-minutes: 180
+      - name: Build only the tools needed by the focused tests
+        timeout-minutes: 150
         id: build
         run: |
           set -euo pipefail
-          { df -h "$RUNNER_TEMP"; free -h; } | tee "$TEST_REPORTS/pre-build-capacity.txt"
           cmake --build "$NATIVE_BUILD" --parallel "$COMPILER_JOBS" \
-            --target llvm-test-depends clang-test-depends -- -k 0 \
+            --target clang opt FileCheck split-file count not llvm-config -- -k 0 \
             2>&1 | tee "$TEST_REPORTS/build.log"
           ccache --show-stats | tee "$TEST_REPORTS/ccache.txt"
-          { df -h "$RUNNER_TEMP"; du -sh "$NATIVE_BUILD" "$CCACHE_DIR"; } | tee "$TEST_REPORTS/post-build-capacity.txt"
-      - name: Save compiler objects even after a failed build
+      - name: Save compiler objects even if a later regression fails
         timeout-minutes: 5
-        if: ${{ !cancelled() && (steps.build.outcome == 'success' || steps.build.outcome == 'failure') && steps.objects.outputs.cache-hit != 'true' }}
+        if: ${{ !cancelled() && steps.build.outcome == 'success' && steps.objects.outputs.cache-hit != 'true' }}
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/floor-native-ccache
           key: ${{ steps.objects.outputs.cache-primary-key }}
-      - name: Check AIR and repaired regressions as a strict targeted gate
+      - name: Run all ten exact-PR AIR regressions and reject skips
         id: focused
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         timeout-minutes: 10
         run: |
           set -euo pipefail
           unset LIT_OPTS LIT_FILTER LIT_FILTER_OUT LIT_XFAIL LIT_XFAIL_NOT LIT_NUM_SHARDS LIT_RUN_SHARD
+          test "$(git rev-parse HEAD)" = "$NATIVE_SOURCE_COMMIT"
+          test "$(git rev-parse HEAD^{tree})" = "$NATIVE_SOURCE_TREE"
+          git diff --exit-code
+          git diff --cached --exit-code
           tests=(
             clang/test/SemaCXX/metal-interface-attributes.cpp
             clang/test/SemaCXX/metal-member-address-spaces.cpp
@@ -160,190 +172,59 @@ jobs:
             clang/test/CodeGenCXX/metal-function-constant-metadata-limits.ll
             llvm/test/Transforms/LibFloor/air-constant-vector-loads.ll
             llvm/test/Transforms/LibFloor/air-constant-vector-reject.ll
-            clang/test/CodeGen/2007-09-27-ComplexIntCompare.c
-            clang/test/CodeGen/RISCV/riscv32-ilp32d-abi.c
-            clang/test/CodeGen/RISCV/riscv32-ilp32f-ilp32d-abi.c
-            clang/test/CodeGen/RISCV/riscv64-lp64-abi.c
-            clang/test/CodeGen/RISCV/riscv64-lp64d-abi.c
-            clang/test/CodeGen/RISCV/riscv64-lp64f-lp64d-abi.c
-            clang/test/CodeGen/X86/x86_32-arguments-darwin.c
-            clang/test/CodeGen/decl.c
-            clang/test/CodeGen/func-return-member.c
-            clang/test/CodeGen/riscv32-ilp32d-abi.cpp
-            clang/test/CodeGenCXX/attr-musttail.cpp
-            clang/test/CodeGenCXX/cxx11-initializer-aggregate.cpp
-            clang/test/CodeGenCXX/debug-info-line.cpp
-            clang/test/CodeGenCXX/member-function-pointers.cpp
-            clang/test/CodeGenCXX/member-init-struct.cpp
-            clang/test/CodeGenCXX/microsoft-abi-member-pointers.cpp
-            clang/test/CodeGenCXX/ptr-to-member-function.cpp
-            clang/test/CodeGenCXX/type-cache-2.cpp
-            clang/test/CodeGenCXX/type-cache-3.cpp
-            llvm/test/Transforms/InstSimplify/known-non-zero-opaque-ptrs.ll
-            llvm/test/Transforms/SROA/allocated-type-opaque-ptrs.ll
-            llvm/test/tools/llvm-config/booleans.test
-            llvm/test/tools/llvm-config/system-libs.test
-          )
-          units=(
-            "Clang-Unit :: AST/./ASTTests/CompoundLiteralExpr.ParensCompoundVectorLiteralRange"
-            "Clang-Unit :: AST/./ASTTests/InitListExpr.VectorLiteralInitListParens"
-            "Clang-Unit :: ASTMatchers/./ASTMatchersTests/ASTMatchersTestCUDA.CUDAKernelCallExpr"
-            "Clang-Unit :: ASTMatchers/./ASTMatchersTests/ASTMatchersTestCUDA.HasAttrCUDA"
-            "LLVM-Unit :: IR/./IRTests/TypesTest.ContainsGraphicsIOType"
           )
           sha256sum "${tests[@]}" > "$TEST_REPORTS/test-sources.sha256"
-          printf '%s\n' "${units[@]}" > "$TEST_REPORTS/expected-unit-tests.txt"
-          unit_filter="$("$PYTHON" - "${units[@]}" <<'PY_FILTER'
-          import re, sys
-          print('^(?:' + '|'.join(re.escape(name) for name in sys.argv[1:]) + ')$')
-          PY_FILTER
-          )"
-          # Collect both groups even when one has a failure; these are not full-suite results.
           set +e
-          timeout --signal=TERM --kill-after=15s 4m \
+          timeout --signal=TERM --kill-after=30s 8m \
             "$PYTHON" "$NATIVE_BUILD/bin/llvm-lit" -v -j 2 --timeout=300 \
-            --param=USE_Z3_SOLVER=0 \
-            --xunit-xml-output "$TEST_REPORTS/targeted-files.xml" \
-            -o "$TEST_REPORTS/targeted-files.json" "${tests[@]}" \
-            2>&1 | tee "$TEST_REPORTS/targeted-files.log"
-          file_status=("${PIPESTATUS[@]}")
-          timeout --signal=TERM --kill-after=15s 4m \
-            "$PYTHON" "$NATIVE_BUILD/bin/llvm-lit" -v -j 2 --timeout=300 \
-            --filter "$unit_filter" \
-            --xunit-xml-output "$TEST_REPORTS/targeted-units.xml" \
-            -o "$TEST_REPORTS/targeted-units.json" \
-            "$NATIVE_BUILD/test/Unit" \
-            "$NATIVE_BUILD/tools/clang/test/Unit" \
-            2>&1 | tee "$TEST_REPORTS/targeted-units.log"
-          unit_status=("${PIPESTATUS[@]}")
+            --xunit-xml-output "$TEST_REPORTS/lit.xml" \
+            -o "$TEST_REPORTS/lit.json" "${tests[@]}" \
+            2>&1 | tee "$TEST_REPORTS/lit.log"
+          statuses=("${PIPESTATUS[@]}")
           set -e
-          printf '{"files": [%s, %s], "units": [%s, %s]}\n' \
-            "${file_status[@]}" "${unit_status[@]}" > "$TEST_REPORTS/targeted-exit-status.json"
-          "$PYTHON" - "${tests[@]}" <<'PY_VALIDATE'
+          printf '[%s, %s]\n' "${statuses[@]}" > "$TEST_REPORTS/lit-exit-status.json"
+          "$PYTHON" - "${tests[@]}" <<'PY_RESULT'
           import json, os, sys
           from pathlib import Path
           root = Path(os.environ['TEST_REPORTS'])
-          expected_files = [('Clang' if path.startswith('clang/') else 'LLVM') + ' :: ' + path.split('/test/', 1)[1] for path in sys.argv[1:]]
-          expected_units = (root / 'expected-unit-tests.txt').read_text().splitlines()
-          errors, counts = [], {}
-          for label, filename, expected in (
-              ('files', 'targeted-files.json', expected_files),
-              ('units', 'targeted-units.json', expected_units),
-          ):
-              if not expected or len(expected) != len(set(expected)):
-                  errors.append(f'{label}: empty or duplicate expected test identities')
-              try:
-                  tests = json.loads((root / filename).read_text())['tests']
-                  names = [test['name'] for test in tests]
-                  counts[label] = {'expected': len(expected), 'reported': len(tests), 'passed': sum(test['code'] == 'PASS' for test in tests)}
-                  if set(names) != set(expected) or len(names) != len(expected):
-                      errors.append(f'{label}: missing, duplicate, or unexpected test identities')
-                  if any(test['code'] != 'PASS' for test in tests):
-                      errors.append(f'{label}: every selected test must execute and PASS; skips are not success')
-              except (OSError, ValueError, KeyError, TypeError) as error:
-                  errors.append(f'{label}: missing or invalid report: {error}')
-          statuses = json.loads((root / 'targeted-exit-status.json').read_text())
-          if set(statuses) != {'files', 'units'} or any(len(codes) != 2 or any(codes) for codes in statuses.values()):
-              errors.append('A targeted test or logging process failed or timed out')
-          summary = {'commit': os.environ['GITHUB_SHA'], 'scope': 'Targeted regressions only; full suites run separately', 'counts': counts, 'expected': {'files': expected_files, 'units': expected_units}, 'exitStatus': statuses, 'errors': errors}
-          (root / 'targeted-summary.json').write_text(json.dumps(summary, indent=2) + '\n')
+          expected = [('Clang' if path.startswith('clang/') else 'LLVM') + ' :: ' + path.split('/test/', 1)[1] for path in sys.argv[1:]]
+          errors, tests = [], []
+          if len(expected) != 10 or len(set(expected)) != 10:
+              errors.append('Expected exactly ten distinct AIR regressions')
+          try:
+              tests = json.loads((root / 'lit.json').read_text())['tests']
+              names = [test['name'] for test in tests]
+              if set(names) != set(expected) or len(names) != len(expected):
+                  errors.append('Unexpected, duplicate or missing test results')
+              if any(test['code'] != 'PASS' for test in tests):
+                  errors.append('Every selected regression must execute and PASS; skips are not success')
+          except (OSError, ValueError, KeyError, TypeError) as error:
+              errors.append(f'Missing or invalid lit report: {error}')
+          statuses = json.loads((root / 'lit-exit-status.json').read_text())
+          if len(statuses) != 2 or any(statuses):
+              errors.append('A test or logging process failed or timed out')
+          summary = {
+              'sourceCommit': os.environ['NATIVE_SOURCE_COMMIT'],
+              'sourceTree': os.environ['NATIVE_SOURCE_TREE'],
+              'workflowCommit': os.environ['GITHUB_SHA'],
+              'scope': 'Ten focused AIR regressions from the exact native PR source; not full-suite coverage',
+              'expected': expected, 'reported': len(tests), 'exitStatus': statuses, 'errors': errors,
+          }
+          (root / 'focused-summary.json').write_text(json.dumps(summary, indent=2) + '\n')
           print(json.dumps(summary, indent=2))
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
-              output.write('Strict targeted regressions only, not full-suite success\n\n')
-              for label, count in counts.items(): output.write(f'{label}: {count}\n\n')
-              for error in errors: output.write(error + '\n')
+              output.write(f"Native source: {summary['sourceCommit']}\n\nWorkflow commit: {summary['workflowCommit']}\n\n")
+              output.write(summary['scope'] + '\n\n')
+              output.write('FAILED: ' + '; '.join(errors) if errors else 'All ten selected AIR regressions executed and passed')
           if errors: raise SystemExit(1)
-          print(f'All {len(expected_files) + len(expected_units)} selected targeted regressions executed and passed')
-          PY_VALIDATE
-      - name: Preserve targeted results before the full suites
-        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
-        timeout-minutes: 2
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: native-targeted-regression-results-${{ github.sha }}
-          path: |
-            ${{ runner.temp }}/floor-native-test-reports/targeted-*
-            ${{ runner.temp }}/floor-native-test-reports/expected-unit-tests.txt
-            ${{ runner.temp }}/floor-native-test-reports/test-sources.sha256
-          if-no-files-found: error
-          retention-days: 1
-      - name: Run both full configured suites independently
-        id: full
-        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
-        timeout-minutes: 120
-        run: |
-          set -euo pipefail
-          unset LIT_OPTS LIT_FILTER LIT_FILTER_OUT LIT_XFAIL LIT_XFAIL_NOT LIT_NUM_SHARDS LIT_RUN_SHARD
-          # Finish Clang even if LLVM has unexpected failures or a config error.
-          set +e
-          timeout --signal=TERM --kill-after=30s 55m \
-            "$PYTHON" "$NATIVE_BUILD/bin/llvm-lit" -v -j 2 --timeout=300 \
-            --xunit-xml-output "$TEST_REPORTS/llvm-full.xml" \
-            -o "$TEST_REPORTS/llvm-full.json" "$NATIVE_BUILD/test" \
-            2>&1 | tee "$TEST_REPORTS/llvm-full.log"
-          llvm_status=("${PIPESTATUS[@]}")
-          timeout --signal=TERM --kill-after=30s 55m \
-            "$PYTHON" "$NATIVE_BUILD/bin/llvm-lit" -v -j 2 --timeout=300 \
-            --param=USE_Z3_SOLVER=0 \
-            --xunit-xml-output "$TEST_REPORTS/clang-full.xml" \
-            -o "$TEST_REPORTS/clang-full.json" "$NATIVE_BUILD/tools/clang/test" \
-            2>&1 | tee "$TEST_REPORTS/clang-full.log"
-          clang_status=("${PIPESTATUS[@]}")
-          set -e
-          printf '{"LLVM": [%s, %s], "Clang": [%s, %s]}\n' \
-            "${llvm_status[@]}" "${clang_status[@]}" > "$TEST_REPORTS/full-exit-status.json"
-          for status in "${llvm_status[@]}" "${clang_status[@]}"; do
-            if [[ "$status" -ne 0 ]]; then exit 1; fi
-          done
-      - name: Report full-suite outcomes without hiding failures or skips
-        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
-        timeout-minutes: 1
-        run: |
-          set -euo pipefail
-          "$PYTHON" - <<'PY'
-          import collections, json, os
-          from pathlib import Path
-          root = Path(os.environ['TEST_REPORTS'])
-          counts, errors = {}, []
-          allowed = {'PASS', 'XFAIL', 'UNSUPPORTED', 'FLAKYPASS'}
-          for label, filename, expected in (
-              ('LLVM', 'llvm-full.json', {'LLVM', 'LLVM-Unit'}),
-              ('Clang', 'clang-full.json', {'Clang', 'Clang-Unit'}),
-          ):
-              path = root / filename
-              if not path.exists():
-                  errors.append(f'{label}: missing report; suite did not finish')
-                  continue
-              tests = json.loads(path.read_text())['tests']
-              suites = collections.defaultdict(collections.Counter)
-              for test in tests:
-                  suites[test['name'].split(' :: ', 1)[0]][test['code']] += 1
-              counts[label] = {suite: dict(codes) for suite, codes in suites.items()}
-              for suite in expected:
-                  if not suites[suite]: errors.append(f'{label}: missing {suite} results')
-              unexpected = {t['code'] for t in tests} - allowed
-              if unexpected: errors.append(f'{label}: unexpected outcomes {sorted(unexpected)}')
-          status_path = root / 'full-exit-status.json'
-          statuses = json.loads(status_path.read_text()) if status_path.exists() else {}
-          if not statuses or any(code for pipeline in statuses.values() for code in pipeline):
-              errors.append('A suite or logging process failed or did not finish')
-          summary = {'commit': os.environ['GITHUB_SHA'], 'counts': counts, 'exitStatus': statuses, 'errors': errors}
-          (root / 'full-suite-summary.json').write_text(json.dumps(summary, indent=2) + '\n')
-          print(json.dumps(summary, indent=2))
-          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
-              output.write('Full configured LLVM and Clang suite outcomes\n\n')
-              for project, suites in counts.items():
-                  for suite, outcomes in suites.items(): output.write(f'{suite}: {outcomes}\n\n')
-              output.write('UNSUPPORTED and XFAIL are upstream feature/expectation results; unexpected failures are not waived.\n')
-              for error in errors: output.write(error + '\n')
-          if errors: raise SystemExit(1)
-          PY
-      - name: Upload native regression logs and results
+          print('All ten selected exact-PR AIR regressions executed and passed')
+          PY_RESULT
+      - name: Upload exact native PR build and regression results
         timeout-minutes: 5
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: native-air-regression-results-${{ github.sha }}
+          name: native-pr-regression-results-${{ env.NATIVE_SOURCE_COMMIT }}-${{ github.sha }}
           path: ${{ runner.temp }}/floor-native-test-reports/
           if-no-files-found: warn
-          retention-days: 1
+          retention-days: 7
