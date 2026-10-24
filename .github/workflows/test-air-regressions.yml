@@ -142,9 +142,10 @@ jobs:
         with:
           path: ${{ runner.temp }}/floor-native-ccache
           key: ${{ steps.objects.outputs.cache-primary-key }}
-      - name: Keep all ten AIR regressions as a strict gate
+      - name: Check AIR and repaired regressions as a strict targeted gate
         id: focused
-        timeout-minutes: 5
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        timeout-minutes: 10
         run: |
           set -euo pipefail
           unset LIT_OPTS LIT_FILTER LIT_FILTER_OUT LIT_XFAIL LIT_XFAIL_NOT LIT_NUM_SHARDS LIT_RUN_SHARD
@@ -159,23 +160,114 @@ jobs:
             clang/test/CodeGenCXX/metal-function-constant-metadata-limits.ll
             llvm/test/Transforms/LibFloor/air-constant-vector-loads.ll
             llvm/test/Transforms/LibFloor/air-constant-vector-reject.ll
+            clang/test/CodeGen/2007-09-27-ComplexIntCompare.c
+            clang/test/CodeGen/RISCV/riscv32-ilp32d-abi.c
+            clang/test/CodeGen/RISCV/riscv32-ilp32f-ilp32d-abi.c
+            clang/test/CodeGen/RISCV/riscv64-lp64-abi.c
+            clang/test/CodeGen/RISCV/riscv64-lp64d-abi.c
+            clang/test/CodeGen/RISCV/riscv64-lp64f-lp64d-abi.c
+            clang/test/CodeGen/X86/x86_32-arguments-darwin.c
+            clang/test/CodeGen/decl.c
+            clang/test/CodeGen/func-return-member.c
+            clang/test/CodeGen/riscv32-ilp32d-abi.cpp
+            clang/test/CodeGenCXX/attr-musttail.cpp
+            clang/test/CodeGenCXX/cxx11-initializer-aggregate.cpp
+            clang/test/CodeGenCXX/debug-info-line.cpp
+            clang/test/CodeGenCXX/member-function-pointers.cpp
+            clang/test/CodeGenCXX/member-init-struct.cpp
+            clang/test/CodeGenCXX/microsoft-abi-member-pointers.cpp
+            clang/test/CodeGenCXX/ptr-to-member-function.cpp
+            clang/test/CodeGenCXX/type-cache-2.cpp
+            clang/test/CodeGenCXX/type-cache-3.cpp
+            llvm/test/Transforms/InstSimplify/known-non-zero-opaque-ptrs.ll
+            llvm/test/Transforms/SROA/allocated-type-opaque-ptrs.ll
+            llvm/test/tools/llvm-config/booleans.test
+            llvm/test/tools/llvm-config/system-libs.test
+          )
+          units=(
+            "Clang-Unit :: AST/./ASTTests/CompoundLiteralExpr.ParensCompoundVectorLiteralRange"
+            "Clang-Unit :: AST/./ASTTests/InitListExpr.VectorLiteralInitListParens"
+            "Clang-Unit :: ASTMatchers/./ASTMatchersTests/ASTMatchersTestCUDA.CUDAKernelCallExpr"
+            "Clang-Unit :: ASTMatchers/./ASTMatchersTests/ASTMatchersTestCUDA.HasAttrCUDA"
+            "LLVM-Unit :: IR/./IRTests/TypesTest.ContainsGraphicsIOType"
           )
           sha256sum "${tests[@]}" > "$TEST_REPORTS/test-sources.sha256"
-          "$PYTHON" "$NATIVE_BUILD/bin/llvm-lit" -v -j 2 --timeout=300 \
-            --xunit-xml-output "$TEST_REPORTS/lit.xml" \
-            -o "$TEST_REPORTS/lit.json" "${tests[@]}" \
-            2>&1 | tee "$TEST_REPORTS/lit.log"
-          "$PYTHON" - "${tests[@]}" <<'PY'
+          printf '%s\n' "${units[@]}" > "$TEST_REPORTS/expected-unit-tests.txt"
+          unit_filter="$("$PYTHON" - "${units[@]}" <<'PY_FILTER'
+          import re, sys
+          print('^(?:' + '|'.join(re.escape(name) for name in sys.argv[1:]) + ')$')
+          PY_FILTER
+          )"
+          # Collect both groups even when one has a failure; these are not full-suite results.
+          set +e
+          timeout --signal=TERM --kill-after=15s 4m \
+            "$PYTHON" "$NATIVE_BUILD/bin/llvm-lit" -v -j 2 --timeout=300 \
+            --param=USE_Z3_SOLVER=0 \
+            --xunit-xml-output "$TEST_REPORTS/targeted-files.xml" \
+            -o "$TEST_REPORTS/targeted-files.json" "${tests[@]}" \
+            2>&1 | tee "$TEST_REPORTS/targeted-files.log"
+          file_status=("${PIPESTATUS[@]}")
+          timeout --signal=TERM --kill-after=15s 4m \
+            "$PYTHON" "$NATIVE_BUILD/bin/llvm-lit" -v -j 2 --timeout=300 \
+            --filter "$unit_filter" \
+            --xunit-xml-output "$TEST_REPORTS/targeted-units.xml" \
+            -o "$TEST_REPORTS/targeted-units.json" \
+            "$NATIVE_BUILD/unittests/IR" \
+            "$NATIVE_BUILD/tools/clang/unittests/AST" \
+            "$NATIVE_BUILD/tools/clang/unittests/ASTMatchers" \
+            2>&1 | tee "$TEST_REPORTS/targeted-units.log"
+          unit_status=("${PIPESTATUS[@]}")
+          set -e
+          printf '{"files": [%s, %s], "units": [%s, %s]}\n' \
+            "${file_status[@]}" "${unit_status[@]}" > "$TEST_REPORTS/targeted-exit-status.json"
+          "$PYTHON" - "${tests[@]}" <<'PY_VALIDATE'
           import json, os, sys
           from pathlib import Path
-          report = json.loads((Path(os.environ['TEST_REPORTS']) / 'lit.json').read_text())
-          expected = {('Clang' if path.startswith('clang/') else 'LLVM') + ' :: ' + path.split('/test/', 1)[1] for path in sys.argv[1:]}
-          tests = report['tests']
-          assert {test['name'] for test in tests} == expected, 'Unexpected or missing test results'
-          assert len(tests) == len(expected), 'Duplicate test results'
-          assert all(test['code'] == 'PASS' for test in tests), 'Every selected regression must execute and pass; skips are not success'
-          print(f'All {len(tests)} selected native regressions executed and passed')
-          PY
+          root = Path(os.environ['TEST_REPORTS'])
+          expected_files = [('Clang' if path.startswith('clang/') else 'LLVM') + ' :: ' + path.split('/test/', 1)[1] for path in sys.argv[1:]]
+          expected_units = (root / 'expected-unit-tests.txt').read_text().splitlines()
+          errors, counts = [], {}
+          for label, filename, expected in (
+              ('files', 'targeted-files.json', expected_files),
+              ('units', 'targeted-units.json', expected_units),
+          ):
+              if not expected or len(expected) != len(set(expected)):
+                  errors.append(f'{label}: empty or duplicate expected test identities')
+              try:
+                  tests = json.loads((root / filename).read_text())['tests']
+                  names = [test['name'] for test in tests]
+                  counts[label] = {'expected': len(expected), 'reported': len(tests), 'passed': sum(test['code'] == 'PASS' for test in tests)}
+                  if set(names) != set(expected) or len(names) != len(expected):
+                      errors.append(f'{label}: missing, duplicate, or unexpected test identities')
+                  if any(test['code'] != 'PASS' for test in tests):
+                      errors.append(f'{label}: every selected test must execute and PASS; skips are not success')
+              except (OSError, ValueError, KeyError, TypeError) as error:
+                  errors.append(f'{label}: missing or invalid report: {error}')
+          statuses = json.loads((root / 'targeted-exit-status.json').read_text())
+          if set(statuses) != {'files', 'units'} or any(len(codes) != 2 or any(codes) for codes in statuses.values()):
+              errors.append('A targeted test or logging process failed or timed out')
+          summary = {'commit': os.environ['GITHUB_SHA'], 'scope': 'Targeted regressions only; full suites run separately', 'counts': counts, 'expected': {'files': expected_files, 'units': expected_units}, 'exitStatus': statuses, 'errors': errors}
+          (root / 'targeted-summary.json').write_text(json.dumps(summary, indent=2) + '\n')
+          print(json.dumps(summary, indent=2))
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
+              output.write('Strict targeted regressions only, not full-suite success\n\n')
+              for label, count in counts.items(): output.write(f'{label}: {count}\n\n')
+              for error in errors: output.write(error + '\n')
+          if errors: raise SystemExit(1)
+          print(f'All {len(expected_files) + len(expected_units)} selected targeted regressions executed and passed')
+          PY_VALIDATE
+      - name: Preserve targeted results before the full suites
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        timeout-minutes: 2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: native-targeted-regression-results-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/floor-native-test-reports/targeted-*
+            ${{ runner.temp }}/floor-native-test-reports/expected-unit-tests.txt
+            ${{ runner.temp }}/floor-native-test-reports/test-sources.sha256
+          if-no-files-found: error
+          retention-days: 1
       - name: Run both full configured suites independently
         id: full
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}

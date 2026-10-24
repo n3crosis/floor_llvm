@@ -804,12 +804,21 @@ macro(add_llvm_library name)
     ""
     ""
     ${ARGN})
+  # The pinned in-tree SPIR-V translator uses add_llvm_library, but LLVM IPO
+  # depends on it as a component. Register it with the component metadata while
+  # its original LINK_COMPONENTS are still available to llvm_add_library.
+  if("${name}" STREQUAL "LLVMSPIRVLib")
+    list(APPEND ARG_UNPARSED_ARGUMENTS COMPONENT_LIB)
+  endif()
   if(ARG_MODULE)
     llvm_add_library(${name} MODULE ${ARG_UNPARSED_ARGUMENTS})
   elseif( BUILD_SHARED_LIBS OR ARG_SHARED )
     llvm_add_library(${name} SHARED ${ARG_UNPARSED_ARGUMENTS})
   else()
     llvm_add_library(${name} ${ARG_UNPARSED_ARGUMENTS})
+  endif()
+  if("${name}" STREQUAL "LLVMSPIRVLib")
+    set_property(TARGET ${name} PROPERTY LLVM_COMPONENT_NAME SPIRVLib)
   endif()
 
   # Libraries that are meant to only be exposed via the build tree only are

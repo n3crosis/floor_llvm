@@ -4407,12 +4407,12 @@ AllocaInst *SROAPass::rewritePartition(AllocaInst &AI, AllocaSlices &AS,
 // -> for these kind of non-power-of-two ranges, add dummy slices consisting of the actual ("unused") member ranges, which will then make SROA choose sane alloca types (e.g. i32 + i16 for the above)
 static inline void fill_npot_holes(AllocaInst& AI, AllocaSlices& AS, const DataLayout& DL, const uint64_t AllocaSize, bool& IsSorted) {
 	// must be a struct
-	const auto alloca_type = AI.getType();
-	if (!alloca_type->isPointerTy() || !alloca_type->getPointerElementType()->isStructTy()) {
+	const auto alloca_type = AI.getAllocatedType();
+	if (!alloca_type->isStructTy()) {
 		return;
 	}
 	
-	const auto alloca_st_type = cast<StructType>(alloca_type->getPointerElementType());
+	const auto alloca_st_type = cast<StructType>(alloca_type);
 	const StructLayout* st_layout = DL.getStructLayout(alloca_st_type);
 	if (!st_layout || st_layout->getSizeInBytes() != AllocaSize || alloca_st_type->getNumElements() == 0) {
 		// shouldn't happen, but let's be conservative here

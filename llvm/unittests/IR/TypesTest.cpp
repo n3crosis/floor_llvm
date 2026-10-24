@@ -26,6 +26,37 @@ TEST(TypesTest, StructType) {
   EXPECT_FALSE(Struct->hasName());
 }
 
+TEST(TypesTest, ContainsGraphicsIOType) {
+  LLVMContext C;
+  Type *Int32 = Type::getInt32Ty(C);
+  StructType *GraphicsIO = StructType::create(C, "struct.floor.io.vertex");
+  GraphicsIO->setBody(Int32);
+
+  EXPECT_TRUE(GraphicsIO->containsGraphicsIOType());
+  EXPECT_TRUE(PointerType::getUnqual(GraphicsIO)->containsGraphicsIOType());
+  EXPECT_TRUE(ArrayType::get(GraphicsIO, 2)->containsGraphicsIOType());
+  EXPECT_TRUE(PointerType::getUnqual(ArrayType::get(GraphicsIO, 2))
+                  ->containsGraphicsIOType());
+  EXPECT_TRUE(ArrayType::get(PointerType::getUnqual(GraphicsIO), 2)
+                  ->containsGraphicsIOType());
+
+  StructType *Literal = StructType::get(Int32);
+  StructType *Unnamed = StructType::create(C);
+  StructType *Other = StructType::create(C, "struct.floor.other");
+  StructType *NearMatch = StructType::create(C, "struct.floor.io");
+  EXPECT_FALSE(Literal->containsGraphicsIOType());
+  EXPECT_FALSE(Unnamed->containsGraphicsIOType());
+  EXPECT_FALSE(Other->containsGraphicsIOType());
+  EXPECT_FALSE(NearMatch->containsGraphicsIOType());
+  EXPECT_FALSE(Int32->containsGraphicsIOType());
+  EXPECT_FALSE(PointerType::getUnqual(Literal)->containsGraphicsIOType());
+  EXPECT_FALSE(ArrayType::get(Literal, 2)->containsGraphicsIOType());
+  EXPECT_FALSE(PointerType::getUnqual(ArrayType::get(Literal, 2))
+                   ->containsGraphicsIOType());
+  EXPECT_FALSE(ArrayType::get(PointerType::getUnqual(Literal), 2)
+                   ->containsGraphicsIOType());
+}
+
 TEST(TypesTest, LayoutIdenticalEmptyStructs) {
   LLVMContext C;
 

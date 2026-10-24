@@ -363,10 +363,10 @@ TEST(CompoundLiteralExpr, CompoundVectorLiteralRange) {
 
 TEST(CompoundLiteralExpr, ParensCompoundVectorLiteralRange) {
   RangeVerifier<CompoundLiteralExpr> Verifier;
-  Verifier.expectRange(2, 20, 2, 31);
+  Verifier.expectRange(2, 40, 2, 51);
   EXPECT_TRUE(Verifier.match(
                   "typedef int int2 __attribute__((ext_vector_type(2)));\n"
-                  "constant int2 i2 = (int2)(1, 2);", 
+                  "__attribute__((constant_as)) int2 i2 = (int2)(1, 2);", 
                   compoundLiteralExpr(), Lang_OpenCL));
 }
 
@@ -380,10 +380,10 @@ TEST(InitListExpr, VectorLiteralListBraceRange) {
 
 TEST(InitListExpr, VectorLiteralInitListParens) {
   RangeVerifier<InitListExpr> Verifier;
-  Verifier.expectRange(2, 26, 2, 31);
+  Verifier.expectRange(2, 46, 2, 51);
   EXPECT_TRUE(Verifier.match(
                   "typedef int int2 __attribute__((ext_vector_type(2)));\n"
-                  "constant int2 i2 = (int2)(1, 2);", initListExpr(), Lang_OpenCL));
+                  "__attribute__((constant_as)) int2 i2 = (int2)(1, 2);", initListExpr(), Lang_OpenCL));
 }
 
 class TemplateAngleBracketLocRangeVerifier : public RangeVerifier<TypeLoc> {

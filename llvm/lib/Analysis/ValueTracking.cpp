@@ -2194,9 +2194,12 @@ static bool isKnownNonNullFromDominatingCondition(const Value *V,
     NumUsesExplored++;
 
     // If the value is used as an argument to a call or invoke, then argument
-    // attributes may provide an answer about null-ness.
+    // attributes may provide an answer about null-ness. With opaque pointers,
+    // the callee may have more formal parameters than the call has arguments.
+    // Do not inspect formal attributes for such a mismatched call.
     if (const auto *CB = dyn_cast<CallBase>(U))
-      if (auto *CalledFunc = CB->getCalledFunction())
+      if (auto *CalledFunc = CB->getCalledFunction();
+          CalledFunc && CalledFunc->arg_size() <= CB->arg_size())
         for (const Argument &Arg : CalledFunc->args())
           if (CB->getArgOperand(Arg.getArgNo()) == V &&
               Arg.hasNonNullAttr(/* AllowUndefOrPoison */ false) &&

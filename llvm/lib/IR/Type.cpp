@@ -373,7 +373,8 @@ bool Type::isMeshGridPropertiesType() const {
 
 bool Type::containsGraphicsIOType() const {
 	if (isStructTy()) {
-		return getStructName().startswith("struct.floor.io.");
+		return cast<StructType>(this)->hasName() &&
+		       getStructName().startswith("struct.floor.io.");
 	} else if (isPointerTy()) {
 		return getPointerElementType()->containsGraphicsIOType();
 	} else if (isArrayTy()) {
