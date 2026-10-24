@@ -1044,10 +1044,14 @@ bool llvm::WriteMetalLibToFile(Module &M, raw_ostream &OS) {
       for (auto op_iter = fc_md->op_begin();
            op_iter != fc_md->op_end(); ++op_iter) {
         auto node = dyn_cast_or_null<MDNode>(*op_iter);
-        if (!node ||
-            node->getOperand(0).get() == nullptr) {
-          continue;
+        // Named metadata is not shape-checked by the IR verifier. Validate
+        // before indexing; reflection's later validation cannot protect this loop.
+        if (!node || node->getNumOperands() != 5u) {
+          M.getContext().emitError("invalid Metal function constant metadata");
+          return false;
         }
+        if (node->getOperand(0).get() == nullptr)
+          continue;
 
         kept_fcs.push_back(node);
 
@@ -1062,8 +1066,9 @@ bool llvm::WriteMetalLibToFile(Module &M, raw_ostream &OS) {
         }
         auto cnst_idx_int =
             dyn_cast_or_null<ConstantInt>(cnst_idx->getValue());
-        if (!cnst_idx_int) {
-          continue;
+        if (!cnst_idx_int || cnst_idx_int->getValue().getActiveBits() > 16u) {
+          M.getContext().emitError("invalid Metal function constant metadata");
+          return false;
         }
         function_constant cnst{
             .name = cnst_name->getString().str(),
@@ -1131,13 +1136,29 @@ bool llvm::WriteMetalLibToFile(Module &M, raw_ostream &OS) {
     uint16_t cnst_len = 0;
 
     if (!entry.function_constants.empty()) {
-      cnst_count = (uint16_t)entry.function_constants.size();
-      cnst_len =
-          sizeof(uint16_t) + /* cnst count */
-          ((sizeof(uint8_t) + sizeof(uint16_t) + sizeof(uint8_t)) * cnst_count) /* per-cnst info */;
-      for (const auto& cnst : entry.function_constants) {
-        cnst_len += cnst.name.size() + 1u;
+      // CNST has 16-bit count and payload-length fields. Do not let either
+      // wrap while still writing the complete records into the container.
+      constexpr size_t max_cnst_field = std::numeric_limits<uint16_t>::max();
+      const size_t count = entry.function_constants.size();
+      auto reject_cnst_size = [&]() {
+        M.getContext().emitError("Metal function constant metadata exceeds CNST limits");
+        return false;
+      };
+      if (count > max_cnst_field)
+        return reject_cnst_size();
+      size_t length = sizeof(uint16_t) +
+          (sizeof(uint8_t) + sizeof(uint16_t) + sizeof(uint8_t)) * count;
+      if (length > max_cnst_field)
+        return reject_cnst_size();
+      for (const auto &cnst : entry.function_constants) {
+        // Include the terminator without allowing size_t addition to overflow.
+        if (length == max_cnst_field ||
+            cnst.name.size() > max_cnst_field - length - 1u)
+          return reject_cnst_size();
+        length += cnst.name.size() + 1u;
       }
+      cnst_count = static_cast<uint16_t>(count);
+      cnst_len = static_cast<uint16_t>(length);
     }
 
     ext_md_stream.write((const char *)&length_placeholder, sizeof(length_placeholder));

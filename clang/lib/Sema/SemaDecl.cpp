@@ -10173,7 +10173,7 @@ Sema::ActOnFunctionDeclarator(Scope *S, Declarator &D, DeclContext *DC,
         HasExplicitMSL |= Inspect(Base.getType()->getAsCXXRecordDecl(), Invalid);
       for (const auto *F : R->fields()) {
         HasExplicitMSL |= F->hasAttr<MetalVertexAttributeAttr>() ||
-                          F->hasAttr<MetalUserVaryingAttr>() || (F->hasAttr<MetalInterpolationAttr>() || F->hasAttr<GraphicsInterpolateFlatAttr>()) || F->hasAttr<MetalInvariantAttr>();
+                          F->hasAttr<MetalUserVaryingAttr>() || F->hasAttr<MetalInterpolationAttr>() || F->hasAttr<MetalInvariantAttr>();
         if (F->hasAttr<GraphicsVertexPositionAttr>()) {
           const auto *V = F->getType()->getAs<VectorType>();
           if (!V || V->getNumElements() != 4 ||
