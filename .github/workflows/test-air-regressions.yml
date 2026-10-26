@@ -18,8 +18,8 @@ concurrency:
 
 env:
   PYTHON: /usr/bin/python3
-  NATIVE_SOURCE_COMMIT: 2bbf6d2134058ef19b257dcad1aa3f2dea33ea2c
-  NATIVE_SOURCE_TREE: d44942372cf3317d95cb14a9d452172da183d7e4
+  NATIVE_SOURCE_COMMIT: 938bd6cebd70e6c136dd9423817cf0df8632ea9e
+  NATIVE_SOURCE_TREE: ccb6d1ae3cd2e4bdeda1bb342038c2a07f4dbeb6
   PYTHONDONTWRITEBYTECODE: "1"
   CCACHE_MAXSIZE: 2G
   CCACHE_COMPILERCHECK: content
@@ -33,7 +33,7 @@ jobs:
         timeout-minutes: 5
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
-          ref: 2bbf6d2134058ef19b257dcad1aa3f2dea33ea2c
+          ref: 938bd6cebd70e6c136dd9423817cf0df8632ea9e
           fetch-depth: 1
           submodules: recursive
           persist-credentials: false
@@ -150,7 +150,7 @@ jobs:
         with:
           path: ${{ runner.temp }}/floor-native-ccache
           key: ${{ steps.objects.outputs.cache-primary-key }}
-      - name: Run all ten exact-PR AIR regressions and reject skips
+      - name: Run all twelve exact-PR AIR regressions and reject skips
         id: focused
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         timeout-minutes: 10
@@ -170,6 +170,8 @@ jobs:
             clang/test/CodeGenCXX/metal-interface-errors.cpp
             clang/test/CodeGenCXX/metal-legacy-flat.cpp
             clang/test/CodeGenCXX/metal-function-constant-metadata-limits.ll
+            clang/test/CodeGenCXX/metal-function-constants-per-entry.ll
+            clang/test/CodeGenCXX/metal-function-constant-predicate-per-entry.ll
             llvm/test/Transforms/LibFloor/air-constant-vector-loads.ll
             llvm/test/Transforms/LibFloor/air-constant-vector-reject.ll
           )
@@ -189,8 +191,8 @@ jobs:
           root = Path(os.environ['TEST_REPORTS'])
           expected = [('Clang' if path.startswith('clang/') else 'LLVM') + ' :: ' + path.split('/test/', 1)[1] for path in sys.argv[1:]]
           errors, tests = [], []
-          if len(expected) != 10 or len(set(expected)) != 10:
-              errors.append('Expected exactly ten distinct AIR regressions')
+          if len(expected) != 12 or len(set(expected)) != 12:
+              errors.append('Expected exactly twelve distinct AIR regressions')
           try:
               tests = json.loads((root / 'lit.json').read_text())['tests']
               names = [test['name'] for test in tests]
@@ -207,7 +209,7 @@ jobs:
               'sourceCommit': os.environ['NATIVE_SOURCE_COMMIT'],
               'sourceTree': os.environ['NATIVE_SOURCE_TREE'],
               'workflowCommit': os.environ['GITHUB_SHA'],
-              'scope': 'Ten focused AIR regressions from the exact native PR source; not full-suite coverage',
+              'scope': 'Twelve focused AIR regressions from the exact native PR source; not full-suite coverage',
               'expected': expected, 'reported': len(tests), 'exitStatus': statuses, 'errors': errors,
           }
           (root / 'focused-summary.json').write_text(json.dumps(summary, indent=2) + '\n')
@@ -215,9 +217,9 @@ jobs:
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
               output.write(f"Native source: {summary['sourceCommit']}\n\nWorkflow commit: {summary['workflowCommit']}\n\n")
               output.write(summary['scope'] + '\n\n')
-              output.write('FAILED: ' + '; '.join(errors) if errors else 'All ten selected AIR regressions executed and passed')
+              output.write('FAILED: ' + '; '.join(errors) if errors else 'All twelve selected AIR regressions executed and passed')
           if errors: raise SystemExit(1)
-          print('All ten selected exact-PR AIR regressions executed and passed')
+          print('All twelve selected exact-PR AIR regressions executed and passed')
           PY_RESULT
       - name: Upload exact native PR build and regression results
         timeout-minutes: 5
