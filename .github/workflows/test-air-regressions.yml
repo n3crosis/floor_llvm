@@ -18,7 +18,7 @@ concurrency:
 
 env:
   PYTHON: /usr/bin/python3
-  NATIVE_SOURCE_COMMIT: 2816ede42967d38465d433731c570b105055413c
+  NATIVE_SOURCE_COMMIT: dafba7961f82e23a2b55dde6d2303b2d345dad06
   NATIVE_SOURCE_TREE: c62dcc4b7b55f5c08b3fbcc6cd3a6a86b6863cb5
   PYTHONDONTWRITEBYTECODE: "1"
   CCACHE_MAXSIZE: 2G
@@ -33,7 +33,7 @@ jobs:
         timeout-minutes: 5
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
-          ref: 2816ede42967d38465d433731c570b105055413c
+          ref: dafba7961f82e23a2b55dde6d2303b2d345dad06
           fetch-depth: 1
           submodules: recursive
           persist-credentials: false
