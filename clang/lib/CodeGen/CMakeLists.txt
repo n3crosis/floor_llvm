@@ -27,7 +27,6 @@ set(LLVM_LINK_COMPONENTS
   Remarks
   ScalarOpts
   SelectionDAG
-  SPIRVLib
   Support
   Target
   TransformUtils

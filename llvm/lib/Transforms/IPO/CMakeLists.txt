@@ -73,7 +73,6 @@ add_llvm_component_library(LLVMipo
   Object
   ProfileData
   Scalar
-  SPIRVLib
   SPIRVerifier
   Support
   TransformUtils

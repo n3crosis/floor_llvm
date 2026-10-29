@@ -1,0 +1,119 @@
+name: Build AIR WASM
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: "Optional NEW prerelease tag (for example v0.2.0); leave empty to build artifacts only"
+        required: false
+        type: string
+  push:
+    branches: [wasm]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: air-wasm-${{ inputs.release_version || github.ref }}
+  cancel-in-progress: false
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+  AIR_RELEASE_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.release_version || '' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    permissions:
+      contents: write
+    steps:
+      - name: Check out the exact workflow source commit
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Set up Node 24 without package-manager caching
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: "24"
+          package-manager-cache: false
+      - name: Test build and release helper behavior
+        run: python3 -m unittest discover -s wasm/release -p 'test_*.py' -v
+      - name: Verify source hashes and build resources
+        id: source
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 wasm/release/release.py preflight --work "$RUNNER_TEMP/air-release"
+      - name: Prepare the pinned official Emscripten SDK
+        run: |
+          git clone --depth 1 --branch 4.0.20 https://github.com/emscripten-core/emsdk.git "$RUNNER_TEMP/air-emsdk"
+          test "$(git -C "$RUNNER_TEMP/air-emsdk" rev-parse HEAD)" = e4fe26ef59168ff44f4c23c466e497bf60b3411e
+      - name: Cache only official SDK downloads in this repository
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/air-emsdk/downloads
+          key: air-emsdk-downloads-v1-${{ runner.os }}-${{ runner.arch }}-ubuntu24-4.0.20-e4fe26ef59168ff44f4c23c466e497bf60b3411e
+      - name: Prepare a bounded content-checked object cache
+        id: objects_setup
+        env:
+          RECIPE_SHA: ${{ hashFiles('wasm/build.mjs', 'wasm/api/CMakeLists.txt') }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends ccache cmake ninja-build
+          cat > "$RUNNER_TEMP/air-ccache.conf" <<EOF
+          cache_dir = $RUNNER_TEMP/air-ccache
+          max_size = 2GiB
+          compiler_check = content
+          direct_mode = false
+          depend_mode = false
+          sloppiness =
+          remote_storage =
+          EOF
+          ccache_sha="$(sha256sum /usr/bin/ccache | cut -d ' ' -f1)"
+          [[ "$ccache_sha" =~ ^[a-f0-9]{64}$ ]]
+          printf 'prefix=air-objects-v1-Linux-X64-ubuntu24-emsdk4.0.20-e4fe26ef-%s-%s-\n' "$RECIPE_SHA" "$ccache_sha" >> "$GITHUB_OUTPUT"
+      - name: Restore same-repository compatible compiler objects, not finished binaries
+        id: objects
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/air-ccache
+          key: ${{ steps.objects_setup.outputs.prefix }}${{ steps.source.outputs.source_fingerprint }}
+          restore-keys: ${{ steps.objects_setup.outputs.prefix }}
+      - name: Build the compiler and require fresh ABI/header/smoke probes
+        id: build
+        env:
+          EMSDK_KEEP_DOWNLOADS: "1"
+          CCACHE_CONFIGPATH: ${{ runner.temp }}/air-ccache.conf
+          EM_COMPILER_WRAPPER: /usr/bin/ccache
+        run: |
+          "$RUNNER_TEMP/air-emsdk/emsdk" install 4.0.20
+          "$RUNNER_TEMP/air-emsdk/emsdk" activate 4.0.20
+          source "$RUNNER_TEMP/air-emsdk/emsdk_env.sh"
+          emcc --version | grep -E '^emcc .* 4[.]0[.]20([[:space:]]|$)'
+          /usr/bin/ccache --zero-stats
+          python3 wasm/release/release.py build --work "$RUNNER_TEMP/air-release"
+          /usr/bin/ccache --cleanup
+          /usr/bin/ccache --show-stats
+      - name: Save objects only after compiler validation succeeds
+        if: ${{ !cancelled() && steps.build.outcome == 'success' && steps.objects.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/air-ccache
+          key: ${{ steps.objects.outputs.cache-primary-key }}
+      - name: Package the exact source commit, runtime and build-input disclosure
+        run: python3 wasm/release/release.py package --work "$RUNNER_TEMP/air-release"
+      - name: Upload verified compiler artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: air-wasm-${{ steps.source.outputs.version }}-${{ github.sha }}
+          path: ${{ runner.temp }}/air-release/release/*
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
+          overwrite: false
+      - name: Publish only an explicitly requested new prerelease
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.release_version != '' }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 wasm/release/release.py publish --work "$RUNNER_TEMP/air-release"
