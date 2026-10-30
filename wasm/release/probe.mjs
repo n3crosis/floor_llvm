@@ -1,5 +1,6 @@
 // CI-only release integrity check. Each compilation gets a fresh process.
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { lstat, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
@@ -16,7 +17,12 @@ const requiredExports = [
 ];
 // Original synthetic input, not a compatibility corpus or application shader.
 const source = "#include <metal_stdlib>\nusing namespace metal;\nkernel void smoke_write(device unsigned int *output [[buffer(0)]]) { output[0] = 1u; }\n";
+const fixture = async name => readFile(new URL(`./fixtures/${name}`, import.meta.url), "utf8");
 const cases = [
+  { name: "vertex-no-arguments", source: await fixture("vertex-no-arguments.metal"), ios: 18, status: 0 },
+  { name: "vertex-live-argument", source: await fixture("vertex-live-argument.metal"), ios: 18, status: 0 },
+  { name: "d2r-ordinary-canary", source: "#define SCALE 2.0f\n" + await fixture("d2r-vertex.metal"), ios: 18, status: 0, math: 1 },
+  { name: "d2r-patch-canary", source: await fixture("d2r-patch.metal"), ios: 18, status: 0, math: 1 },
   { name: "kernel-metallib", source, ios: 18, status: 0 },
   { name: "invalid-source", source: "kernel void broken( {\n", ios: 18, status: 3 },
   { name: "bad-options", source, ios: 0, status: 2 },
@@ -89,7 +95,7 @@ async function runCase(build, name) {
   let result = 0;
   try {
     heapSlice(module, pointer, bytes.length, 4096).set(bytes);
-    result = module._air_compile_v2(pointer, bytes.length, test.ios, 0, 0);
+    result = module._air_compile_v2(pointer, bytes.length, test.ios, 0, test.math ?? 0);
     assert(result, "Compilation returned no result");
     const status = module._air_result_status(result);
     const output = heapSlice(module, module._air_result_data(result), module._air_result_size(result), outputLimit);
@@ -104,7 +110,10 @@ async function runCase(build, name) {
       assert.equal(output.length, 0, "Rejected input produced output");
       assert(diagnostics.length > 0, "Rejected input has no diagnostic");
     }
-    return { name, passed: true, status, outputBytes: output.length, diagnosticBytes: diagnostics.length };
+    return { name, passed: true, status, iosMajor: test.ios, mathProfile: test.math ?? 0,
+      sourceSha256: createHash("sha256").update(bytes).digest("hex"),
+      observedOutputSha256: createHash("sha256").update(output).digest("hex"),
+      outputBytes: output.length, diagnosticBytes: diagnostics.length };
   } finally {
     if (result) module._air_result_free(result);
     module._free(pointer);

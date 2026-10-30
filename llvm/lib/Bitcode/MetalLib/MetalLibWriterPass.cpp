@@ -1147,24 +1147,32 @@ bool llvm::WriteMetalLibToFile(Module &M, raw_ostream &OS) {
       for (auto op_iter = tess_func_md->op_begin() + 1;
            op_iter != tess_func_md->op_end(); ++op_iter) {
         auto node = dyn_cast_or_null<MDNode>(*op_iter);
-        if (!node) {
+        // Ordinary return/argument lists may be empty (e.g. a no-argument vertex).
+        if (!node || node->getNumOperands() == 0) {
           continue;
         }
         if (auto first_md = dyn_cast_or_null<MDString>(node->getOperand(0));
             first_md && first_md->getString().equals("air.patch")) {
+          if (node->getNumOperands() < 4) {
+            errs() << "invalid air.patch metadata: expected at least four operands\n";
+            return false;
+          }
           auto prim_md = dyn_cast_or_null<MDString>(node->getOperand(1));
           if (!prim_md) {
-            continue;
+            errs() << "invalid air.patch primitive metadata\n";
+            return false;
           }
           auto ctrl_pnts_md =
               dyn_cast_or_null<ConstantAsMetadata>(node->getOperand(3));
           if (!ctrl_pnts_md) {
-            continue;
+            errs() << "invalid air.patch control-point metadata\n";
+            return false;
           }
           auto ctrl_pnts =
               dyn_cast_or_null<ConstantInt>(ctrl_pnts_md->getValue());
           if (!ctrl_pnts) {
-            continue;
+            errs() << "invalid air.patch control-point count\n";
+            return false;
           }
 
           auto prim_str = prim_md->getString();
@@ -1172,9 +1180,17 @@ bool llvm::WriteMetalLibToFile(Module &M, raw_ostream &OS) {
             entry.tess.info.primitive_type = 1u;
           } else if (prim_str.startswith("quad")) {
             entry.tess.info.primitive_type = 2u;
+          } else {
+            errs() << "invalid air.patch primitive kind\n";
+            return false;
           }
-          entry.tess.info.control_point_count = min(
-              (uint32_t)ctrl_pnts->getValue().getZExtValue(), 63u /* 6 bits */);
+          // Saturating conversion cannot assert on an oversized APInt.
+          const auto count = ctrl_pnts->getValue().getLimitedValue(64);
+          if (count == 0 || count > 63) {
+            errs() << "invalid air.patch control-point count range\n";
+            return false;
+          }
+          entry.tess.info.control_point_count = (uint32_t)count;
         } else if (auto ctrl_pnt_md =
                        dyn_cast_or_null<MDNode>(node->getOperand(0));
                    ctrl_pnt_md) {

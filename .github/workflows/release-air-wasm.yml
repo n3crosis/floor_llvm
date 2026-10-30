@@ -1,32 +1,27 @@
-name: Build AIR WASM
+name: Test AIR WASM empty vertex arguments
 
 on:
   workflow_dispatch:
-    inputs:
-      release_version:
-        description: "Optional NEW prerelease tag (for example v0.2.0); leave empty to build artifacts only"
-        required: false
-        type: string
   push:
-    branches: [wasm]
+    branches: [fix/metallib-empty-vertex-args]
 
 permissions:
   contents: read
 
 concurrency:
-  group: air-wasm-${{ inputs.release_version || github.ref }}
+  group: air-wasm-empty-args-${{ github.ref }}
   cancel-in-progress: false
 
 env:
   PYTHONDONTWRITEBYTECODE: "1"
-  AIR_RELEASE_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.release_version || '' }}
+  AIR_RELEASE_VERSION: ""
 
 jobs:
   build:
     runs-on: ubuntu-24.04
     timeout-minutes: 180
     permissions:
-      contents: write
+      contents: read
     steps:
       - name: Check out the exact workflow source commit
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
@@ -101,19 +96,23 @@ jobs:
         with:
           path: ${{ runner.temp }}/air-ccache
           key: ${{ steps.objects.outputs.cache-primary-key }}
+      - name: Run real malformed-metadata writer regressions
+        run: |
+          source "$RUNNER_TEMP/air-emsdk/emsdk_env.sh"
+          cmake --build "$RUNNER_TEMP/air-release/compiler/build-wasm" --target LLVMAsmParser --parallel 1
+          emcmake cmake -S wasm/release/metadata-tests -B "$RUNNER_TEMP/air-metadata-tests" -G Ninja -DCMAKE_BUILD_TYPE=Release -DLLVM_DIR="$RUNNER_TEMP/air-release/compiler/build-wasm/lib/cmake/llvm"
+          cmake --build "$RUNNER_TEMP/air-metadata-tests" --parallel 1
+          timeout --signal=KILL 120s node --max-old-space-size=192 "$RUNNER_TEMP/air-metadata-tests/metadata-regressions.mjs" > "$RUNNER_TEMP/air-release/metadata-regressions.json"
       - name: Package the exact source commit, runtime and build-input disclosure
         run: python3 wasm/release/release.py package --work "$RUNNER_TEMP/air-release"
       - name: Upload verified compiler artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: air-wasm-${{ steps.source.outputs.version }}-${{ github.sha }}
-          path: ${{ runner.temp }}/air-release/release/*
+          path: |
+            ${{ runner.temp }}/air-release/release/*
+            ${{ runner.temp }}/air-release/metadata-regressions.json
           if-no-files-found: error
           compression-level: 0
           retention-days: 30
           overwrite: false
-      - name: Publish only an explicitly requested new prerelease
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.release_version != '' }}
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: python3 wasm/release/release.py publish --work "$RUNNER_TEMP/air-release"
