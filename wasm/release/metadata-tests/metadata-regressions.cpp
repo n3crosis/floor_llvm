@@ -12,6 +12,12 @@
 #include "no-arguments-ir.inc"
 
 int main() {
+  static constexpr const char *Names[11] = {
+    "no-arguments", "patch-truncated-1", "patch-truncated-2", "patch-truncated-3",
+    "patch-primitive-wrong-type", "patch-count-wrong-metadata",
+    "patch-count-wrong-constant", "patch-primitive-unknown",
+    "patch-count-i128-high-bit", "patch-count-zero", "patch-count-64"
+  };
   unsigned passed = 0;
   for (unsigned test = 0; test != 11; ++test) {
     llvm::LLVMContext context;
@@ -61,7 +67,12 @@ int main() {
     }
     ++passed;
   }
-  llvm::outs() << "{\"schemaVersion\":1,\"realWriterCasesPassed\":" << passed
-               << ",\"deviceQualified\":false}\n";
+  llvm::outs() << "{\"schemaVersion\":1,\"cases\":[";
+  for (unsigned i = 0; i != passed; ++i) {
+    if (i) llvm::outs() << ",";
+    llvm::outs() << "{\"name\":\"" << Names[i] << "\",\"passed\":true}";
+  }
+  llvm::outs() << "],\"realWriterCasesPassed\":" << passed
+               << ",\"failures\":0,\"deviceQualified\":false}\n";
   return 0;
 }
