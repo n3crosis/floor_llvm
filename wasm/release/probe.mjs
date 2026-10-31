@@ -6,6 +6,7 @@ import { lstat, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import process from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { checkMathIR } from "./math-ir-check.mjs";
 
 const expectedHeader = "694371baef693289d23f75c9b5721227b8290281c513dc81cc6f8f696b3ec7eb";
 const outputLimit = 64 * 1024 * 1024;
@@ -26,7 +27,35 @@ const cases = [
   { name: "kernel-metallib", source, ios: 18, status: 0 },
   { name: "invalid-source", source: "kernel void broken( {\n", ios: 18, status: 3 },
   { name: "bad-options", source, ios: 0, status: 2 },
+  ...[0, 1].map(output => ({
+    name: `conservative-rejects-casted-fast-call-output${output}`,
+    fixture: "conservative-casted-fast-call-reject.metal", ios: 18, math: 0,
+    output, status: 4, finalPolicy: true,
+  })),
+  ...["reassociation", "contraction", "contract-on", "optimized-away",
+      "macro-pragma", "template", "constexpr", "comparison", "implicit-cast",
+      "call"].flatMap(kind => [0, 1].map(output => ({
+    name: `conservative-rejects-${kind}-output${output}`,
+    fixture: `conservative-${kind}-reject.metal`, ios: 18, math: 0, output,
+    status: 4, sourcePolicy: true,
+  }))),
+  ...["restored-off", "explicit-fma"].flatMap(kind => [18, 26].flatMap(ios =>
+    [0, 1].map(output => ({
+      name: `conservative-${kind}-ios${ios}-output${output}`,
+      fixture: `conservative-${kind}.metal`, ios, math: 0, output, status: 0,
+      explicitFma: kind === "explicit-fma",
+    })))),
+  ...[18, 26].flatMap(ios => [0, 1].flatMap(math => [0, 1].map(output => ({
+    name: `math-policy-ios${ios}-profile${math}-output${output}`,
+    source: null, ios, math, output, status: 0, mathRegression: true,
+  })))),
 ];
+const arithmetic = await fixture("conservative-math.metal");
+for (const test of cases) {
+  if (test.mathRegression) test.source = arithmetic;
+  if (test.fixture) test.source = await fixture(test.fixture);
+}
+assert.equal(cases.length, 45, "Unexpected compiler policy coverage count");
 
 function options(args) {
   const result = {};
@@ -95,7 +124,7 @@ async function runCase(build, name) {
   let result = 0;
   try {
     heapSlice(module, pointer, bytes.length, 4096).set(bytes);
-    result = module._air_compile_v2(pointer, bytes.length, test.ios, 0, test.math ?? 0);
+    result = module._air_compile_v2(pointer, bytes.length, test.ios, test.output ?? 0, test.math ?? 0);
     assert(result, "Compilation returned no result");
     const status = module._air_result_status(result);
     const output = heapSlice(module, module._air_result_data(result), module._air_result_size(result), outputLimit);
@@ -105,12 +134,24 @@ async function runCase(build, name) {
       `${test.name}: ${new TextDecoder().decode(diagnostics).slice(0, 2048)}`);
     if (status === 0) {
       assert(output.length > 4, "Empty compiled library");
-      assert.deepEqual(Array.from(output.subarray(0, 4)), [77, 84, 76, 66], "Missing MTLB magic");
+      if ((test.output ?? 0) === 0)
+        assert.deepEqual(Array.from(output.subarray(0, 4)), [77, 84, 76, 66], "Missing MTLB magic");
+      else checkMathIR(new TextDecoder().decode(output), test.math, test.ios, {
+        arithmetic: test.mathRegression === true, explicitFma: test.explicitFma === true,
+      });
     } else {
       assert.equal(output.length, 0, "Rejected input produced output");
       assert(diagnostics.length > 0, "Rejected input has no diagnostic");
+      if (test.sourcePolicy) assert(new TextDecoder().decode(diagnostics).includes(
+        "effective frontend FP options exceed conservative math policy"),
+        "Expected effective-AST policy rejection, not an unrelated frontend/final-IR failure");
+      if (test.finalPolicy) assert(new TextDecoder().decode(diagnostics).includes(
+        "Final AIR exceeds conservative math policy"), "Expected final-IR callee policy rejection");
     }
     return { name, passed: true, status, iosMajor: test.ios, mathProfile: test.math ?? 0,
+      outputKind: test.output ?? 0, mathPolicyChecked: Boolean(test.mathRegression),
+      sourcePolicyChecked: Boolean(test.sourcePolicy), explicitFmaChecked: Boolean(test.explicitFma),
+      finalPolicyChecked: Boolean(test.finalPolicy),
       sourceSha256: createHash("sha256").update(bytes).digest("hex"),
       observedOutputSha256: createHash("sha256").update(output).digest("hex"),
       outputBytes: output.length, diagnosticBytes: diagnostics.length };

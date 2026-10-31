@@ -1,15 +1,15 @@
-name: Test AIR WASM empty vertex arguments
+name: Test AIR WASM conservative math on Linux
 
 on:
   workflow_dispatch:
   push:
-    branches: [fix/metallib-empty-vertex-args]
+    branches: [fix/linux-conservative-metal]
 
 permissions:
   contents: read
 
 concurrency:
-  group: air-wasm-empty-args-${{ github.ref }}
+  group: air-wasm-linux-conservative-metal-${{ github.ref }}
   cancel-in-progress: false
 
 env:
@@ -36,7 +36,7 @@ jobs:
       - name: Test build and release helper behavior
         run: |
           python3 -m unittest discover -s wasm/release -p 'test_*.py' -v
-          node --test wasm/release/run-metadata-tests.test.mjs
+          node --test wasm/release/run-metadata-tests.test.mjs wasm/release/math-ir-check.test.mjs
       - name: Verify source hashes and build resources
         id: source
         env:

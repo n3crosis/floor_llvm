@@ -39,12 +39,13 @@
     "llvm/lib/Transforms/LibFloor/MetalFinal.cpp": "b7f8c3d17df3fddea4e87cd8a6fc2ac6ed0d53531714f9403b73ab72f3c39973",
     "llvm/lib/Transforms/LibFloor/MetalImage.cpp": "89f4dda86f2e0d8acf73f4413693bb9de0cf20e0c22159d6263cc66fe1f25448",
     "llvm/lib/Transforms/LibFloor/PointerBCFixup.cpp": "5ff6ab1d033e138ab99ccbd8c5f5a0ec7d359b7d619a1d087700f1db791d7c95",
-    "llvm/lib/Transforms/LibFloor/VulkanFinal.cpp": "375d11589f70100361d1213f2dee0abbe8dfbf82b8b47017afa8bf804c395e30"
+    "llvm/lib/Transforms/LibFloor/VulkanFinal.cpp": "375d11589f70100361d1213f2dee0abbe8dfbf82b8b47017afa8bf804c395e30",
+    "clang/lib/CodeGen/CodeGenFunction.cpp": "3770b18a903cd10e49c3355bdf39062acda6d0c022de68f9232e961dff57eb52"
   },
   "schemaVersion": 1,
   "sdkFiles": {
     "api/CMakeLists.txt": "cef13f2ca9dd36e165cfaca994acb0ed3397ac53140d0876f862fd97e32ab3c5",
-    "api/air_compiler.cpp": "5d06207b69e57435934bec8e4e67e71c014d6c890fe2ff625e96cc1d4dc7a448",
+    "api/air_compiler.cpp": "aa5c42c8c8525d3ee15d03a369f8d3fec820f8b47368399ede92b2805c4c5265",
     "api/air_compiler.h": "74637c4b063c9c86b97c74c8415c17c04e3738dd70def3be486d356ffeaef741",
     "api/atomic_trust.inc": "6a4fdd23dea5447e055ccd69a5fd6ed359724362d58713e7a2b894e62ba0d2b1",
     "api/compat_header.inc.in": "50f62efc6c9c0c879bb8532c2830ac85d5078b852508bb9a915e7eb195cbefa5",
@@ -61,7 +62,24 @@
     "api/include/simd/simd.h": "bfe1cbfa9254467cac99645914a5b9a4c9f3cef3a39bc4daf721b71569b3ac28",
     "api/texture_trust.inc": "acb7f40468b59aa9f7bd9fef9416e79184e1698ca7811607f5703c21c8c805ca",
     "api/wasm_entry.cpp": "be596edd81506cce311364b9e16f1f26e73d6a25453b1c742f6188291bb7bee8",
-    "build.mjs": "24873e60f10385fe21482b4818e20c85b960a7d8be04cdfbf513d6a633fe306f"
+    "build.mjs": "24873e60f10385fe21482b4818e20c85b960a7d8be04cdfbf513d6a633fe306f",
+    "release/probe.mjs": "eead0e6452bc81c66c992bdb6ec705ba79be8b0c250c5e70f48be127e4447095",
+    "release/math-ir-check.mjs": "8a4edc84ac8ad4ba93dec4f9dfe8170b5aa45beb35b3c3cd32cb32f9251ee0e4",
+    "release/math-ir-check.test.mjs": "8de666df16becd5a4dfe6a95f91d20aa6440974d7cfbf3f344843a55eae03b9c",
+    "release/fixtures/conservative-math.metal": "1c9c09d188c7ebb6c93692c010a318613d9fdb7479a91b77b1aa51da71f9f4cc",
+    "release/fixtures/conservative-reassociation-reject.metal": "7da68cca83db90f96ce2a2b0eb729c43044da55c45d18f27cd47dc753b68e107",
+    "release/fixtures/conservative-contraction-reject.metal": "a4379945d55cd2bf12e82e1d5bd1ac6b7523ed95cd351f57303b1fdd8e434af3",
+    "release/fixtures/conservative-macro-pragma-reject.metal": "b083b92cb931d5516feb7055a46b00d463444693989c22f0f124d7b4ff7084bd",
+    "release/fixtures/conservative-explicit-fma.metal": "1ce0f702666a18852a75f432f2d6ff397096b5008efbab64e945589b10fd4edc",
+    "release/fixtures/conservative-implicit-cast-reject.metal": "ed51f9e6bc5fee01538fbf5391257f2dd1166a4f0a8099432320ed1197420194",
+    "release/fixtures/conservative-template-reject.metal": "070aa256379977a07c340c34dd20a9cff18f14c5fc53d66e69cf475afa1fde85",
+    "release/fixtures/conservative-contract-on-reject.metal": "1bcbb7d1f6894fb5cd9bbec09b6667a158c798f9473a637e33c4d1cfae779975",
+    "release/fixtures/conservative-optimized-away-reject.metal": "4a1a60e302ac4ab5f985bc35de1298236b5f7bdf0d4e4b50310108b3a17b86ee",
+    "release/fixtures/conservative-comparison-reject.metal": "cc770605fc10a11c96feb57824651e3705df643061fcf3d961ef1364187cb871",
+    "release/fixtures/conservative-call-reject.metal": "7bb4dd82cc714ade75939b323b806363314902fa55694f2f8251d50c25b056df",
+    "release/fixtures/conservative-restored-off.metal": "0af357ba047e4b7be0ddbb14459efde6684071635d959650a88cbce215ad5355",
+    "release/fixtures/conservative-constexpr-reject.metal": "956f9cc552798a5180116565f8a2ae6ce22abe7a6b4e6c6e7a056909bf992a58",
+    "release/fixtures/conservative-casted-fast-call-reject.metal": "0cfb07a6354d6bbee8e1c5f98819970cfc054b7174494bda4962f9792db8c4fe"
   },
   "upstream": {
     "commit": "5d7d40b3a9c592b3766f42668ca2caafd36f59c8",

@@ -660,8 +660,24 @@ void CodeGenFunction::EmitOpenCLKernelMetadata(const FunctionDecl *FD,
 		  
 		  // insert compile options
 		  llvm::NamedMDNode *AIRCompOpts = CGM.getModule().getOrInsertNamedMetadata("air.compile_options");
-		  AIRCompOpts->addOperand(llvm::MDNode::get(Context, llvm::MDString::get(Context, "air.compile.denorms_disable")));
-		  AIRCompOpts->addOperand(llvm::MDNode::get(Context, llvm::MDString::get(Context, "air.compile.fast_math_enable")));
+          // AIR options are compiler policy, not unconditional decorations.
+          // One global denormal tag cannot represent mixed widths or asymmetric
+          // input/output modes. Reject those instead of silently broadening FTZ.
+          const auto &CGOpts = CGM.getCodeGenOpts();
+          const auto Denorm = CGOpts.FPDenormalMode;
+          const auto F32Denorm = CGOpts.FP32DenormalMode;
+          if (!Denorm.isValid() || !Denorm.isSimple() ||
+              Denorm != F32Denorm) {
+            CGM.Error(FD->getLocation(),
+                      "Metal AIR requires a uniform symmetric denormal mode");
+            return;
+          }
+          if (Denorm != llvm::DenormalMode::getIEEE())
+            AIRCompOpts->addOperand(llvm::MDNode::get(
+                Context, llvm::MDString::get(Context, "air.compile.denorms_disable")));
+          if (CGM.getLangOpts().FastMath)
+            AIRCompOpts->addOperand(llvm::MDNode::get(
+                Context, llvm::MDString::get(Context, "air.compile.fast_math_enable")));
 		  AIRCompOpts->addOperand(llvm::MDNode::get(Context, llvm::MDString::get(Context, "air.compile.framebuffer_fetch_enable")));
 		  
 		  // emit debug info

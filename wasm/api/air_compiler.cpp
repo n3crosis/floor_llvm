@@ -2,6 +2,7 @@
 #include "clang/Basic/Diagnostic.h"
 #include "clang/Basic/SourceManager.h"
 #include "clang/AST/Attr.h"
+#include "clang/AST/Expr.h"
 #include "clang/AST/RecursiveASTVisitor.h"
 #include "clang/CodeGen/CodeGenAction.h"
 #include "clang/Frontend/CompilerInstance.h"
@@ -19,6 +20,7 @@
 #include "llvm/IR/Instructions.h"
 #include "llvm/ADT/SmallPtrSet.h"
 #include "llvm/IR/Verifier.h"
+#include "llvm/IR/Operator.h"
 #include "llvm/Support/MemoryBuffer.h"
 #include "llvm/Support/VirtualFileSystem.h"
 #include "llvm/Support/raw_ostream.h"
@@ -147,8 +149,35 @@ public:
   bool VisitGCCAsmStmt(clang::GCCAsmStmt *) { rejected = true; return false; }
   bool VisitMSAsmStmt(clang::MSAsmStmt *) { rejected = true; return false; }
 };
+// Inspect effective frontend options, not source spelling or surviving IR.
+// Constant folding and later optimization can erase every flagged instruction.
+// Generic Expr dispatch also checks comparisons, casts and calls with non-FP
+// result types. Clang has already applied #pragma and macro _Pragma overrides.
+class RejectUnsafeFP final : public clang::RecursiveASTVisitor<RejectUnsafeFP> {
+  const clang::LangOptions &options;
+public:
+  explicit RejectUnsafeFP(const clang::LangOptions &o) : options(o) {}
+  bool rejected = false;
+  clang::SourceLocation location;
+  bool shouldVisitTemplateInstantiations() const { return true; }
+  bool shouldVisitImplicitCode() const { return true; }
+  bool VisitExpr(clang::Expr *expression) {
+    const auto fp = expression->getFPFeaturesInEffect(options);
+    if (fp.getFPContractMode() != clang::LangOptions::FPM_Off ||
+        fp.getAllowFPReassociate() || fp.getNoHonorNaNs() ||
+        fp.getNoHonorInfs() || fp.getNoSignedZero() ||
+        fp.getAllowReciprocal() || fp.getAllowApproxFunc()) {
+      rejected = true;
+      location = expression->getExprLoc();
+    }
+    return !rejected;
+  }
+};
 class ValidateSource final : public clang::ASTConsumer {
   clang::DiagnosticsEngine &diagnostics;
+  const clang::LangOptions &options;
+  const bool conservative;
+  bool &policyRejected;
   bool rejected = false;
   bool check(clang::Decl *decl) {
     if (rejected) return false;
@@ -160,10 +189,22 @@ class ValidateSource final : public clang::ASTConsumer {
           clang::DiagnosticsEngine::Error,
           "assembly and assembly symbol labels are unsupported"));
     }
+    if (!rejected && conservative) {
+      RejectUnsafeFP fp(options);
+      fp.TraverseDecl(decl);
+      if (fp.rejected) {
+        rejected = policyRejected = true;
+        diagnostics.Report(fp.location, diagnostics.getCustomDiagID(
+            clang::DiagnosticsEngine::Error,
+            "effective frontend FP options exceed conservative math policy"));
+      }
+    }
     return !rejected;
   }
 public:
-  explicit ValidateSource(clang::DiagnosticsEngine &d) : diagnostics(d) {}
+  ValidateSource(clang::DiagnosticsEngine &d, const clang::LangOptions &o,
+                 bool c, bool &p)
+      : diagnostics(d), options(o), conservative(c), policyRejected(p) {}
   bool HandleTopLevelDecl(clang::DeclGroupRef group) override {
     for (auto *decl : group) if (!check(decl)) return false;
     return true;
@@ -193,9 +234,11 @@ public:
   }
 };
 class CheckedLLVMAction final : public clang::EmitLLVMOnlyAction {
+  const bool conservative;
+  bool &policyRejected;
 public:
-  explicit CheckedLLVMAction(llvm::LLVMContext *context)
-      : clang::EmitLLVMOnlyAction(context) {}
+  CheckedLLVMAction(llvm::LLVMContext *context, bool c, bool &p)
+      : clang::EmitLLVMOnlyAction(context), conservative(c), policyRejected(p) {}
 protected:
   std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(
       clang::CompilerInstance &compiler, llvm::StringRef file) override {
@@ -204,7 +247,11 @@ protected:
     auto codegen = clang::EmitLLVMOnlyAction::CreateASTConsumer(compiler, file);
     if (!codegen) return nullptr;
     std::vector<std::unique_ptr<clang::ASTConsumer>> consumers;
-    consumers.push_back(std::make_unique<ValidateSource>(compiler.getDiagnostics()));
+    // Validation receives both top-level and translation-unit callbacks before
+    // CodeGen. The final pass revisits implicit/template bodies before LLVM
+    // optimization; final-IR validation below remains a separate backstop.
+    consumers.push_back(std::make_unique<ValidateSource>(compiler.getDiagnostics(),
+        compiler.getLangOpts(), conservative, policyRejected));
     consumers.push_back(std::move(codegen));
     return std::make_unique<clang::MultiplexConsumer>(std::move(consumers));
   }
@@ -403,6 +450,32 @@ bool hasEntry(const llvm::Module &module) {
 }
 }
 
+// Refuse source-level overrides or lowering that escaped the requested policy.
+// This never clears flags, edits metadata, or repairs an already optimized IR.
+static bool conservativeMathIR(const llvm::Module &module) {
+  for (const auto &function : module) {
+    for (const auto *name : {"unsafe-fp-math", "approx-func-fp-math",
+                            "no-nans-fp-math", "no-infs-fp-math",
+                            "no-signed-zeros-fp-math"}) {
+      const auto attr = function.getFnAttribute(name);
+      if (attr.isStringAttribute() && attr.getValueAsString() == "true")
+        return false;
+    }
+    for (const auto &block : function) for (const auto &instruction : block) {
+      if (const auto *fp = llvm::dyn_cast<llvm::FPMathOperator>(&instruction))
+        if (fp->getFastMathFlags().any()) return false;
+      if (const auto *call = llvm::dyn_cast<llvm::CallBase>(&instruction)) {
+        const auto *callee = llvm::dyn_cast<llvm::Function>(
+            call->getCalledOperand()->stripPointerCasts());
+        if (!callee || callee->getName().startswith("air.fast_") ||
+                       callee->getName().startswith("llvm.fmuladd."))
+          return false;
+      }
+    }
+  }
+  return true;
+}
+
 static air_result *compile(const uint8_t *source, size_t source_size,
                                      uint32_t ios_major, uint32_t output_kind, uint32_t math_profile) {
   auto result = std::unique_ptr<air_result>(new (std::nothrow) air_result());
@@ -429,6 +502,14 @@ static air_result *compile(const uint8_t *source, size_t source_size,
     "-Werror=unknown-attributes", "-Werror=ignored-attributes",
     "-Werror=unknown-pragmas", "-ferror-limit", "20", "/input/shader.metal"
   };
+  // Never infer conservative contraction or denormal behavior from language
+  // defaults. Both profiles preserve the existing IEEE denormal policy; fast
+  // arithmetic is separate from an explicit flush-to-zero policy.
+  for (const char *flag : {"-fdenormal-fp-math=ieee",
+                           "-fdenormal-fp-math-f32=ieee"})
+    args.insert(args.end() - 1, flag);
+  if (math_profile == 0)
+    args.insert(args.end() - 1, "-ffp-contract=off");
   if (math_profile == 1) {
     for (const char *flag : {"-DAIR_FAST_MATH=1", "-cl-single-precision-constant", "-ffast-math", "-ffp-contract=fast",
         "-fno-signed-zeros", "-menable-no-infs", "-menable-no-nans"}) args.insert(args.end() - 1, flag);
@@ -455,9 +536,10 @@ static air_result *compile(const uint8_t *source, size_t source_size,
   compiler.createFileManager(filesystem);
   compiler.createSourceManager(compiler.getFileManager());
   llvm::LLVMContext context;
-  CheckedLLVMAction action(&context);
+  bool policyRejected = false;
+  CheckedLLVMAction action(&context, math_profile == 0, policyRejected);
   if (!compiler.ExecuteAction(action) || compiler.getDiagnostics().hasErrorOccurred()) {
-    result->status = AIR_FRONTEND_FAILED;
+    result->status = policyRejected ? AIR_INVALID_IR : AIR_FRONTEND_FAILED;
     return result.release();
   }
   auto module = action.takeModule();
@@ -510,6 +592,11 @@ static air_result *compile(const uint8_t *source, size_t source_size,
       appendDiagnostic(*result, "\n");
       return result.release();
     }
+  }
+  if (math_profile == 0 && !conservativeMathIR(*module)) {
+    result->status = AIR_INVALID_IR;
+    appendDiagnostic(*result, "Final AIR exceeds conservative math policy.\n");
+    return result.release();
   }
   Output output(result->data);
   bool writerSucceeded = true;
