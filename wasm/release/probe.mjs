@@ -6,7 +6,7 @@ import { resolve } from "node:path";
 import process from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-const expectedHeader = "694371baef693289d23f75c9b5721227b8290281c513dc81cc6f8f696b3ec7eb";
+const expectedHeader = "49c8a2e52b0b65489cf85e2da3c1bacfd5cf05993b84a1397cd77daa72415f7b";
 const outputLimit = 64 * 1024 * 1024;
 const requiredExports = [
   "malloc", "free", "air_compile_v1", "air_compile_v2", "air_result_status",
@@ -40,6 +40,31 @@ for (const ios of [18, 26]) for (const math of [0, 1]) {
     }
   }
 }
+
+// Authored math and color-side regressions. No title inputs or SDK headers.
+const mathBody = `kernel void exact_math(device uint* out [[buffer(0)]]) {
+  out[0]=all(int4(-1,-2,-3,-4)); out[1]=all(int4(-1,0,-1,-1));
+  out[2]=all(int4(1,1,1,1));
+  out[3]=as_type<uint>(saturate(as_type<float>(0x7fc12345u)));
+  out[4]=as_type<uint>(saturate(-0.0f)); out[5]=as_type<uint>(saturate(0.5f));
+  out[6]=as_type<uint>(floor(-1.25f)); out[7]=as_type<uint>(floor(-0.0f));
+  out[8]=as_type<uint>(floor(as_type<float>(0x7fc12345u)));
+}`;
+const colorBody = `#pragma clang fp contract(off)
+struct Out { float4 color [[color(0)]]; };
+constant bool enabled [[function_constant(200)]];
+fragment Out color_side(float4 current [[color(0),function_constant(enabled)]], constant uint4* mask [[buffer(29)]]) {
+  Out o; o.color=float4(0.5f);
+  if(enabled && !all(mask[0]==uint4(0u))) o.color=floor(saturate(current)*255.0f+0.5f)/255.0f;
+  return o;
+}`;
+for (const ios of [18,26]) for(const math of [0,1]) {
+  cases.push({name:`color-side-ios${ios}-math${math}`,source:metalHeader+colorBody,ios,math,status:0});
+  cases.push({name:`math-helpers-ios${ios}-math${math}`,source:metalHeader+mathBody,ios,math,status:0});
+  cases.push({name:`reject-integer-saturate-ios${ios}-math${math}`,
+    source:metalHeader+'kernel void bad(device int* out [[buffer(0)]]) { out[0]=saturate(2); }',ios,math,status:3});
+}
+cases.push({name:'exact-math-ir',source:metalHeader+mathBody,ios:18,math:0,kind:1,shader:'exact-math',status:0});
 
 function options(args) {
   const result = {};
@@ -118,7 +143,13 @@ async function runCase(build, name) {
       `${test.name}: ${new TextDecoder().decode(diagnostics).slice(0, 2048)}`);
     if (status === 0) {
       assert(output.length > 4, "Empty compiled library");
-      if (test.kind === 1) {
+      if (test.kind === 1 && test.shader === "exact-math") {
+        const ir = new TextDecoder("utf-8", { fatal: true }).decode(output);
+        assert(ir.includes("!air.kernel"), "Missing AIR compute metadata");
+        assert(!ir.includes("air.fast_floor"), "Conservative floor used fast intrinsic");
+        for (const constant of ["1056964608", "-1073741824", "-2147483648", "2143363909"])
+          assert(ir.includes(constant), "Missing exact math result " + constant);
+      } else if (test.kind === 1) {
         const ir = new TextDecoder("utf-8", { fatal: true }).decode(output);
         assert(ir.includes("!air.vertex"), "Missing AIR vertex metadata");
         assert.match(ir, /!\d+ = !\{\}/, "Expected empty return/argument metadata");

@@ -131,6 +131,47 @@ using fast::clamp;
 AIR_INLINE float2 fma(float2 a,float2 b,float2 c) { float2 r; for(uint i=0;i<2;++i) r[i]=fma(a[i],b[i],c[i]); return r; }
 AIR_INLINE float3 fma(float3 a,float3 b,float3 c) { float3 r; for(uint i=0;i<3;++i) r[i]=fma(a[i],b[i],c[i]); return r; }
 AIR_INLINE float4 fma(float4 a,float4 b,float4 c) { float4 r; for(uint i=0;i<4;++i) r[i]=fma(a[i],b[i],c[i]); return r; }
+// Exact IEEE-754 binary32 floor without assuming a fast-math AIR intrinsic.
+#if !defined(AIR_FAST_MATH) || AIR_FAST_MATH != 1
+template<class T> T floor(T) = delete;
+AIR_INLINE float floor(float x) {
+  uint bits=as_type<uint>(x), magnitude=bits & 0x7fffffffU;
+  int exponent=int((bits >> 23) & 255u)-127;
+  if (exponent < 0) return bits >> 31 ? (magnitude ? -1.0f : x) : 0.0f;
+  if (exponent >= 23) return x; // Integral finite values, infinities and NaNs.
+  uint unit=1u << uint(23-exponent), fraction=unit-1u;
+  if (!(bits & fraction)) return x;
+  if (bits >> 31) bits += unit;
+  return as_type<float>(bits & ~fraction);
+}
+#define AIR_FLOOR_VECTOR(N) \
+  AIR_INLINE float##N floor(float##N x) { float##N r; for(uint i=0;i<N;++i) r[i]=floor(x[i]); return r; }
+AIR_FLOOR_VECTOR(2)
+AIR_FLOOR_VECTOR(3)
+AIR_FLOOR_VECTOR(4)
+#undef AIR_FLOOR_VECTOR
+#endif
+// Saturation is an exact ordered clamp: NaN and either signed zero become +0.
+// It does not opt into fast AIR intrinsics or flush subnormal inputs.
+template<class T> T saturate(T) = delete;
+AIR_INLINE float saturate(float x) { return !(x > 0.0f) ? 0.0f : x >= 1.0f ? 1.0f : x; }
+#define AIR_SATURATE_VECTOR(N) \
+  AIR_INLINE float##N saturate(float##N x) { float##N r; for(uint i=0;i<N;++i) r[i]=saturate(x[i]); return r; }
+AIR_SATURATE_VECTOR(2)
+AIR_SATURATE_VECTOR(3)
+AIR_SATURATE_VECTOR(4)
+#undef AIR_SATURATE_VECTOR
+// Clang's vector comparisons produce signed all-bits-set/zero masks, not
+// MSL bool-vector storage. Reduce their sign bits, as with OpenCL all().
+template<class T> bool all(T) = delete;
+AIR_INLINE bool all(bool x) { return x; }
+#define AIR_ALL_MASK(N) \
+  AIR_INLINE bool all(int##N x) { bool r=true; for(uint i=0;i<N;++i) r=r && x[i]<0; return r; } \
+  AIR_INLINE bool all(__bool_mask##N x) { bool r=true; for(uint i=0;i<N;++i) r=r && x.lane[i]; return r; }
+AIR_ALL_MASK(2)
+AIR_ALL_MASK(3)
+AIR_ALL_MASK(4)
+#undef AIR_ALL_MASK
 #undef AIR_INLINE
 }
 #endif

@@ -27,3 +27,5 @@ in both LLVM IR and metallib output, including a void vertex that writes to a
 buffer. These checks do not establish Apple loader, GPU, or device acceptance.
 The local regression suite (`python3 -m unittest discover -s wasm/release -v`)
 tests helper behavior with synthetic source/artifact fixtures, not the compiler.
+
+The authored math regressions also cover signed comparison-mask `all`, float/float-vector `saturate`, exact conservative float `floor`, and color function-constant entries. Integer saturation is intentionally rejected. The header fingerprint changes with these additions; no device or GPU execution is claimed.
