@@ -32,6 +32,29 @@ AIR_VECTOR_TYPES(ulong)
 AIR_VECTOR_TYPES(half)
 AIR_VECTOR_TYPES(float)
 #undef AIR_VECTOR_TYPES
+// Packed vertex words have scalar alignment and no float3-style tail padding.
+// These authored storage records convert by value; they are not vector aliases.
+struct __attribute__((packed, aligned(4))) packed_uint2 {
+  uint x, y;
+  operator uint2() const device { return uint2(x, y); }
+  operator uint2() const constant { return uint2(x, y); }
+  operator uint2() const thread { return uint2(x, y); }
+};
+struct __attribute__((packed, aligned(4))) packed_uint3 {
+  uint x, y, z;
+  operator uint3() const device { return uint3(x, y, z); }
+  operator uint3() const constant { return uint3(x, y, z); }
+  operator uint3() const thread { return uint3(x, y, z); }
+};
+struct __attribute__((packed, aligned(4))) packed_uint4 {
+  uint x, y, z, w;
+  operator uint4() const device { return uint4(x, y, z, w); }
+  operator uint4() const constant { return uint4(x, y, z, w); }
+  operator uint4() const thread { return uint4(x, y, z, w); }
+};
+static_assert(sizeof(packed_uint2)==8 && alignof(packed_uint2)==4, "packed_uint2 layout");
+static_assert(sizeof(packed_uint3)==12 && alignof(packed_uint3)==4, "packed_uint3 layout");
+static_assert(sizeof(packed_uint4)==16 && alignof(packed_uint4)==4, "packed_uint4 layout");
 namespace __vector_detail {
 template<uint N> struct unsupported_bool_vector;
 template<class T,uint N> struct storage {

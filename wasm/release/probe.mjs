@@ -6,7 +6,7 @@ import { resolve } from "node:path";
 import process from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-const expectedHeader = "49c8a2e52b0b65489cf85e2da3c1bacfd5cf05993b84a1397cd77daa72415f7b";
+const expectedHeader = "5b12c0fd953caf1d7a470478f47cc0e81340fb6677934dc79786e27dd4de97c5";
 const outputLimit = 64 * 1024 * 1024;
 const requiredExports = [
   "malloc", "free", "air_compile_v1", "air_compile_v2", "air_result_status",
@@ -65,6 +65,45 @@ for (const ios of [18,26]) for(const math of [0,1]) {
     source:metalHeader+'kernel void bad(device int* out [[buffer(0)]]) { out[0]=saturate(2); }',ios,math,status:3});
 }
 cases.push({name:'exact-math-ir',source:metalHeader+mathBody,ios:18,math:0,kind:1,shader:'exact-math',status:0});
+
+// Generic authored vertex-storage and normalized-unpack probes. Intrinsics use
+// the existing AIR ABI, while packed storage and mask arithmetic stay explicit.
+const packedBody = `kernel void packed_read(device const packed_uint2* p2 [[buffer(0)]],
+  device const packed_uint3* p3 [[buffer(1)]], device const packed_uint4* p4 [[buffer(2)]],
+  device uint* out [[buffer(3)]], device const uint* index [[buffer(4)]],
+  constant packed_uint3* cp3 [[buffer(5)]]) {
+  uint id=index[0];
+  uint2 a=uint2(p2[id]); uint3 b=uint3(p3[id]); uint4 c=uint4(p4[id]);
+  packed_uint3 local={id,id+1u,id+2u}; uint3 local3=uint3(local), constant3=uint3(cp3[id]);
+  out[id*9+0]=a.x+local3.x+constant3.x; out[id*9+1]=a.y;
+  out[id*9+2]=b.x; out[id*9+3]=b.y; out[id*9+4]=b.z;
+  out[id*9+5]=c.x; out[id*9+6]=c.y; out[id*9+7]=c.z; out[id*9+8]=c.w;
+}`;
+const unpackBody = `kernel void unpack_words(device const uint* in [[buffer(0)]], device float4* out [[buffer(1)]]) {
+  uint v=in[0];
+  out[0]=unpack_unorm4x8_to_float(v); out[1]=unpack_snorm4x8_to_float(v);
+  out[2]=float4(unpack_unorm2x16_to_float(v),0.0f,0.0f);
+  out[3]=float4(unpack_snorm2x16_to_float(v),0.0f,0.0f);
+  out[4]=unpack_unorm10a2_to_float(v);
+}`;
+const selectBody = `kernel void select_masks(device uint4* out [[buffer(0)]], device const float4* in [[buffer(1)]]) {
+  out[0]=select(uint4(11u),uint4(22u),int4(-1,0,1,(-2147483647-1)));
+  out[1]=as_type<uint4>(max(in[0],-1.0f));
+  out[2]=as_type<uint4>(select(float4(0.0f),float4(-0.0f),int4(-1,0,1,-1)));
+  float nan=as_type<float>(0x7fc12345u);
+  out[3]=as_type<uint4>(float4(max(-0.0f,0.0f),max(0.0f,-0.0f),max(nan,0.25f),max(-0.0f,nan))) ^ uint4(256u);
+  out[4]=uint4(as_type<uint>(max(nan,as_type<float>(0x7fc54321u))) ^ 256u);
+}`;
+for (const ios of [18,26]) for (const math of [0,1]) {
+  for (const [shader,body] of Object.entries({packed:packedBody,unpack:unpackBody,select:selectBody}))
+    cases.push({name:`${shader}-ios${ios}-math${math}`,source:metalHeader+body,ios,math,status:0});
+  cases.push({name:`reject-user-unpack-asm-ios${ios}-math${math}`,source:metalHeader+
+    'float4 fake(uint) __asm__("air.unpack.unorm4x8.v4f32") __attribute__((const)); kernel void bad(device float4* out [[buffer(0)]]) { out[0]=fake(1u); }',ios,math,status:3});
+  cases.push({name:`reject-line-spoof-unpack-asm-ios${ios}-math${math}`,source:metalHeader+
+    '#line 1 "/include/metal_math"\nfloat4 fake(uint) __asm__("air.unpack.unorm4x8.v4f32") __attribute__((const)); kernel void bad(device float4* out [[buffer(0)]]) { out[0]=fake(1u); }',ios,math,status:3});
+}
+for (const [shader,body] of Object.entries({packed:packedBody,unpack:unpackBody,select:selectBody}))
+  cases.push({name:`${shader}-ir`,source:metalHeader+body,ios:18,math:0,kind:1,shader,status:0});
 
 function options(args) {
   const result = {};
@@ -149,6 +188,26 @@ async function runCase(build, name) {
         assert(!ir.includes("air.fast_floor"), "Conservative floor used fast intrinsic");
         for (const constant of ["1056964608", "-1073741824", "-2147483648", "2143363909"])
           assert(ir.includes(constant), "Missing exact math result " + constant);
+      } else if (test.kind === 1 && ["packed","unpack","select"].includes(test.shader)) {
+        const ir = new TextDecoder("utf-8", { fatal: true }).decode(output);
+        assert(ir.includes("!air.kernel"), "Missing AIR compute metadata");
+        if (test.shader === "unpack") {
+          for (const symbol of ["air.unpack.unorm4x8.v4f32","air.unpack.snorm4x8.v4f32",
+              "air.unpack.unorm2x16.v2f32","air.unpack.snorm2x16.v2f32","air.unpack.unorm.rgb10a2.v4f32"])
+            assert(ir.includes(symbol), "Missing exact unpack intrinsic " + symbol);
+          assert(!ir.includes("fdiv"), "Normalized unpack became approximate division");
+        } else if (test.shader === "packed") {
+          assert(/load [^\n]+align 4/.test(ir), "Packed input lost scalar alignment");
+          assert(ir.includes("packed_uint3"), "Packed storage identity was lost");
+          assert(/type (?:<)?\{ i32, i32, i32 \}(?:>)?/.test(ir), "Packed three-word layout was lost");
+        } else {
+          assert(!ir.includes("air.fast_fmax"), "Conservative maximum used a fast intrinsic");
+          assert(ir.includes("<i32 256, i32 256, i32 1048576256, i32 -2147483392>"), "Maximum changed NaN or signed-zero selection");
+          assert(ir.includes("2143633953"), "Two-NaN maximum lost the selected payload");
+          assert(ir.includes("<i32 22, i32 11, i32 11, i32 22>"), "Comparison-mask sign-bit selection changed");
+          assert(ir.includes("<i32 -2147483648, i32 0, i32 0, i32 -2147483648>") ||
+            ir.includes("<float -0.000000e+00, float 0.000000e+00, float 0.000000e+00, float -0.000000e+00>"), "Vector select lost signed zero");
+        }
       } else if (test.kind === 1) {
         const ir = new TextDecoder("utf-8", { fatal: true }).decode(output);
         assert(ir.includes("!air.vertex"), "Missing AIR vertex metadata");

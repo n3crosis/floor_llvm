@@ -29,3 +29,5 @@ The local regression suite (`python3 -m unittest discover -s wasm/release -v`)
 tests helper behavior with synthetic source/artifact fixtures, not the compiler.
 
 The authored math regressions also cover signed comparison-mask `all`, float/float-vector `saturate`, exact conservative float `floor`, and color function-constant entries. Integer saturation is intentionally rejected. The header fingerprint changes with these additions; no device or GPU execution is claimed.
+
+The vertex-storage probes cover authored packed unsigned-word vectors, five exact normalized-unpack AIR calls, signed vector comparison-mask selection, and conservative vector/scalar maximum. IR checks preserve three-word storage and scalar alignment and reject user assembly labels even under a forged `#line` filename. These tests exercise the compiler ABI, not device vertex-fetch numerical equivalence.

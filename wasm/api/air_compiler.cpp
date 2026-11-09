@@ -122,6 +122,22 @@ class RejectAssembly final : public clang::RecursiveASTVisitor<RejectAssembly> {
       if (name == "air.simd_shuffle.f32") return function->getNumParams()==2 && is(function->getParamDecl(0)->getType(),clang::BuiltinType::Float) && is(function->getParamDecl(1)->getType(),clang::BuiltinType::UShort);
       return false;
     }
+    // Only these exact unsigned-word to float-vector unpack signatures from
+    // the physical embedded math header are trusted. User asm remains rejected.
+    unsigned unpackWidth = 0;
+    if (name == "air.unpack.unorm4x8.v4f32" ||
+        name == "air.unpack.snorm4x8.v4f32" ||
+        name == "air.unpack.unorm.rgb10a2.v4f32") unpackWidth = 4;
+    if (name == "air.unpack.unorm2x16.v2f32" ||
+        name == "air.unpack.snorm2x16.v2f32") unpackWidth = 2;
+    if (unpackWidth) {
+      const auto *vector = function->getReturnType()->getAs<clang::VectorType>();
+      return file->getName() == "/include/metal_math" &&
+          function->hasAttr<clang::ConstAttr>() && function->getNumParams() == 1 &&
+          function->getParamDecl(0)->getType()->isSpecificBuiltinType(clang::BuiltinType::UInt) &&
+          vector && vector->getNumElements() == unpackWidth &&
+          vector->getElementType()->isSpecificBuiltinType(clang::BuiltinType::Float);
+    }
     unsigned count = 0;
     for (const auto candidate : {"air.fast_sqrt.f32", "air.fast_rsqrt.f32",
           "air.fast_exp2.f32", "air.fast_log2.f32", "air.fast_sin.f32",

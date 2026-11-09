@@ -2,6 +2,13 @@
 #ifndef FLOOR_AIR_METAL_MATH
 #define FLOOR_AIR_METAL_MATH
 namespace metal {
+// Exact normalized-unpack AIR operations. Do not approximate with division:
+// normalized vertex fetch has specified rounding that fast arithmetic can alter.
+float4 unpack_unorm4x8_to_float(uint) __asm__("air.unpack.unorm4x8.v4f32") __attribute__((const));
+float4 unpack_snorm4x8_to_float(uint) __asm__("air.unpack.snorm4x8.v4f32") __attribute__((const));
+float2 unpack_unorm2x16_to_float(uint) __asm__("air.unpack.unorm2x16.v2f32") __attribute__((const));
+float2 unpack_snorm2x16_to_float(uint) __asm__("air.unpack.snorm2x16.v2f32") __attribute__((const));
+float4 unpack_unorm10a2_to_float(uint) __asm__("air.unpack.unorm.rgb10a2.v4f32") __attribute__((const));
 namespace __air_detail {
 float sqrt(float) __asm__("air.fast_sqrt.f32") __attribute__((const));
 float rsqrt(float) __asm__("air.fast_rsqrt.f32") __attribute__((const));
@@ -33,6 +40,15 @@ AIR_INLINE uint min(uint a,uint b) { return a < b ? a : b; }
 AIR_INLINE uint max(uint a,uint b) { return a > b ? a : b; }
 AIR_INLINE uint clamp(uint x,uint lo,uint hi) { return min(max(x,lo),hi); }
 template<class A,class B,class C> A fma(A,B,C) = delete;
+// Integer comparison masks select by the high bit of each lane.
+#define AIR_SELECT_MASK(N) \
+  AIR_INLINE uint##N select(uint##N a,uint##N b,int##N mask) { uint##N r; for(uint i=0;i<N;++i) r[i]=mask[i]<0?b[i]:a[i]; return r; } \
+  AIR_INLINE int##N select(int##N a,int##N b,int##N mask) { int##N r; for(uint i=0;i<N;++i) r[i]=mask[i]<0?b[i]:a[i]; return r; } \
+  AIR_INLINE float##N select(float##N a,float##N b,int##N mask) { float##N r; for(uint i=0;i<N;++i) r[i]=mask[i]<0?b[i]:a[i]; return r; }
+AIR_SELECT_MASK(2)
+AIR_SELECT_MASK(3)
+AIR_SELECT_MASK(4)
+#undef AIR_SELECT_MASK
 // Internal mask, not an MSL bool-vector storage/interface type.
 struct __bool_mask2 { bool lane[2]; };
 AIR_INLINE __bool_mask2 isnan(float2 x) { __bool_mask2 r; for(uint i=0;i<2;++i) r.lane[i]=isnan(x[i]); return r; }
@@ -84,6 +100,7 @@ AIR_INLINE float2 rint(float2 x) { float2 r; for(uint i=0;i<2;++i) r[i]=rint(x[i
 AIR_INLINE float2 abs(float2 x) { float2 r; for(uint i=0;i<2;++i) r[i]=abs(x[i]); return r; }
 AIR_INLINE float2 min(float2 a,float2 b) { float2 r; for(uint i=0;i<2;++i) r[i]=min(a[i],b[i]); return r; }
 AIR_INLINE float2 max(float2 a,float2 b) { float2 r; for(uint i=0;i<2;++i) r[i]=max(a[i],b[i]); return r; }
+AIR_INLINE float2 max(float2 a,float b) { return max(a,float2(b)); }
 AIR_INLINE float2 clamp(float2 x,float2 lo,float2 hi) { float2 r; for(uint i=0;i<2;++i) r[i]=clamp(x[i],lo[i],hi[i]); return r; }
 AIR_INLINE float2 clamp(float2 x,float lo,float hi) { return clamp(x,(float2)lo,(float2)hi); }
 AIR_INLINE float3 sqrt(float3 x) { float3 r; for(uint i=0;i<3;++i) r[i]=sqrt(x[i]); return r; }
@@ -96,6 +113,7 @@ AIR_INLINE float3 rint(float3 x) { float3 r; for(uint i=0;i<3;++i) r[i]=rint(x[i
 AIR_INLINE float3 abs(float3 x) { float3 r; for(uint i=0;i<3;++i) r[i]=abs(x[i]); return r; }
 AIR_INLINE float3 min(float3 a,float3 b) { float3 r; for(uint i=0;i<3;++i) r[i]=min(a[i],b[i]); return r; }
 AIR_INLINE float3 max(float3 a,float3 b) { float3 r; for(uint i=0;i<3;++i) r[i]=max(a[i],b[i]); return r; }
+AIR_INLINE float3 max(float3 a,float b) { return max(a,float3(b)); }
 AIR_INLINE float3 clamp(float3 x,float3 lo,float3 hi) { float3 r; for(uint i=0;i<3;++i) r[i]=clamp(x[i],lo[i],hi[i]); return r; }
 AIR_INLINE float3 clamp(float3 x,float lo,float hi) { return clamp(x,(float3)lo,(float3)hi); }
 AIR_INLINE float4 sqrt(float4 x) { float4 r; for(uint i=0;i<4;++i) r[i]=sqrt(x[i]); return r; }
@@ -108,6 +126,7 @@ AIR_INLINE float4 rint(float4 x) { float4 r; for(uint i=0;i<4;++i) r[i]=rint(x[i
 AIR_INLINE float4 abs(float4 x) { float4 r; for(uint i=0;i<4;++i) r[i]=abs(x[i]); return r; }
 AIR_INLINE float4 min(float4 a,float4 b) { float4 r; for(uint i=0;i<4;++i) r[i]=min(a[i],b[i]); return r; }
 AIR_INLINE float4 max(float4 a,float4 b) { float4 r; for(uint i=0;i<4;++i) r[i]=max(a[i],b[i]); return r; }
+AIR_INLINE float4 max(float4 a,float b) { return max(a,float4(b)); }
 AIR_INLINE float4 clamp(float4 x,float4 lo,float4 hi) { float4 r; for(uint i=0;i<4;++i) r[i]=clamp(x[i],lo[i],hi[i]); return r; }
 AIR_INLINE float4 clamp(float4 x,float lo,float hi) { return clamp(x,(float4)lo,(float4)hi); }
 }
@@ -133,6 +152,21 @@ AIR_INLINE float3 fma(float3 a,float3 b,float3 c) { float3 r; for(uint i=0;i<3;+
 AIR_INLINE float4 fma(float4 a,float4 b,float4 c) { float4 r; for(uint i=0;i<4;++i) r[i]=fma(a[i],b[i],c[i]); return r; }
 // Exact IEEE-754 binary32 floor without assuming a fast-math AIR intrinsic.
 #if !defined(AIR_FAST_MATH) || AIR_FAST_MATH != 1
+// Conservative maximum preserves finite operands and chooses +0 over -0.
+// One NaN selects the numeric operand; two NaNs retain the second payload.
+AIR_INLINE float max(float a,float b) {
+  if (isnan(a)) return b;
+  if (isnan(b)) return a;
+  if (a==b) return as_type<float>(as_type<uint>(a) & as_type<uint>(b));
+  return a>b?a:b;
+}
+#define AIR_MAX_VECTOR(N) \
+  AIR_INLINE float##N max(float##N a,float##N b) { float##N r; for(uint i=0;i<N;++i) r[i]=max(a[i],b[i]); return r; } \
+  AIR_INLINE float##N max(float##N a,float b) { return max(a,float##N(b)); }
+AIR_MAX_VECTOR(2)
+AIR_MAX_VECTOR(3)
+AIR_MAX_VECTOR(4)
+#undef AIR_MAX_VECTOR
 template<class T> T floor(T) = delete;
 AIR_INLINE float floor(float x) {
   uint bits=as_type<uint>(x), magnitude=bits & 0x7fffffffU;
