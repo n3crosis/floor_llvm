@@ -21,5 +21,9 @@ them. Ordinary builds never republish `v0.1.0`.
 
 The workflow keeps Emscripten 4.0.20 pinned, checks source hashes, compiles the
 compiler, and runs fresh ABI, header, and compile-smoke probes before packaging.
+The probes include 32 authored vertex, fragment, and compute regressions across
+iOS 18/26 and both math profiles. Empty vertex return/argument metadata is tested
+in both LLVM IR and metallib output, including a void vertex that writes to a
+buffer. These checks do not establish Apple loader, GPU, or device acceptance.
 The local regression suite (`python3 -m unittest discover -s wasm/release -v`)
 tests helper behavior with synthetic source/artifact fixtures, not the compiler.

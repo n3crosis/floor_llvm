@@ -1147,7 +1147,10 @@ bool llvm::WriteMetalLibToFile(Module &M, raw_ostream &OS) {
       for (auto op_iter = tess_func_md->op_begin() + 1;
            op_iter != tess_func_md->op_end(); ++op_iter) {
         auto node = dyn_cast_or_null<MDNode>(*op_iter);
-        if (!node) {
+        // Vertex return and argument lists may legitimately be empty (for
+        // example a rasterization-disabled void vertex or a no-input vertex).
+        // Neither list carries tessellation attributes in that case.
+        if (!node || node->getNumOperands() == 0u) {
           continue;
         }
         if (auto first_md = dyn_cast_or_null<MDString>(node->getOperand(0));

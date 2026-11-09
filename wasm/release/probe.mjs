@@ -21,6 +21,25 @@ const cases = [
   { name: "invalid-source", source: "kernel void broken( {\n", ios: 18, status: 3 },
   { name: "bad-options", source, ios: 0, status: 2 },
 ];
+// Authored vertex regressions exercise empty AIR return/argument metadata.
+// They are intentionally independent of any game's shader or SDK files.
+const metalHeader = "#include <metal_stdlib>\nusing namespace metal;\n";
+const vertexCases = {
+  "void-vertex-write": "vertex void capture_vertex(device uint* output [[buffer(0)]], uint id [[vertex_id]]) { output[id] = id; }",
+  "void-vertex-empty": "vertex void empty_vertex() {}",
+  "position-vertex-no-arguments": "struct Out { float4 position [[position]]; }; vertex Out constant_vertex() { Out o; o.position = float4(0.0f,0.0f,0.0f,1.0f); return o; }",
+  "position-vertex-input": "struct In { float4 position [[attribute(0)]]; }; struct Out { float4 position [[position]]; }; vertex Out passthrough_vertex(In input [[stage_in]]) { Out o; o.position = input.position; return o; }",
+  "compute-write": "kernel void fill(device uint* output [[buffer(0)]]) { output[0] = 1u; }",
+  "fragment-color": "fragment float4 color_fragment() { return float4(1.0f); }",
+};
+for (const ios of [18, 26]) for (const math of [0, 1]) {
+  for (const [shader, body] of Object.entries(vertexCases)) {
+    for (const kind of shader.startsWith("void-vertex") ? [0, 1] : [0]) {
+      cases.push({ name: `${shader}-ios${ios}-math${math}-kind${kind}`,
+        source: metalHeader + body, ios, math, kind, shader, status: 0 });
+    }
+  }
+}
 
 function options(args) {
   const result = {};
@@ -89,7 +108,7 @@ async function runCase(build, name) {
   let result = 0;
   try {
     heapSlice(module, pointer, bytes.length, 4096).set(bytes);
-    result = module._air_compile_v2(pointer, bytes.length, test.ios, 0, 0);
+    result = module._air_compile_v2(pointer, bytes.length, test.ios, test.kind ?? 0, test.math ?? 0);
     assert(result, "Compilation returned no result");
     const status = module._air_result_status(result);
     const output = heapSlice(module, module._air_result_data(result), module._air_result_size(result), outputLimit);
@@ -99,7 +118,17 @@ async function runCase(build, name) {
       `${test.name}: ${new TextDecoder().decode(diagnostics).slice(0, 2048)}`);
     if (status === 0) {
       assert(output.length > 4, "Empty compiled library");
-      assert.deepEqual(Array.from(output.subarray(0, 4)), [77, 84, 76, 66], "Missing MTLB magic");
+      if (test.kind === 1) {
+        const ir = new TextDecoder("utf-8", { fatal: true }).decode(output);
+        assert(ir.includes("!air.vertex"), "Missing AIR vertex metadata");
+        assert.match(ir, /!\d+ = !\{\}/, "Expected empty return/argument metadata");
+        if (test.shader === "void-vertex-write") {
+          assert.match(ir, /define void @capture_vertex\(/, "Missing void vertex entry");
+          assert.match(ir, /store i32 %id,/, "Vertex output write was lost");
+        }
+      } else {
+        assert.deepEqual(Array.from(output.subarray(0, 4)), [77, 84, 76, 66], "Missing MTLB magic");
+      }
     } else {
       assert.equal(output.length, 0, "Rejected input produced output");
       assert(diagnostics.length > 0, "Rejected input has no diagnostic");
