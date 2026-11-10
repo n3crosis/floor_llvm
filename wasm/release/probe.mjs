@@ -5,6 +5,7 @@ import { conditionalColorSource, assertConditionalColorIR } from "./conditional-
 import { integerVectorCases, assertIntegerVectorIR } from "./integer-vector.mjs";
 import { derivativeVectorCases, assertDerivativeVectorIR } from "./derivative-vector.mjs";
 import { commonFunctionCases, assertCommonFunctionIR } from "./common-functions.mjs";
+import { msl41AtomicCases, assertMSL41AtomicIR, assertMSL41AtomicMetallib, assertMSL41AtomicDiagnostic } from "./msl41-atomics.mjs";
 import { msl41BarrierCases, assertMSL41BarrierIR, assertMSL41BarrierMetallib, assertMSL41BarrierDiagnostic } from "./msl41-barriers.mjs";
 import { placementGPUCases } from "./gpu/placement/placement-gpu.mjs";
 import { msl41PlacementCases, assertMSL41PlacementIR, assertMSL41PlacementMetallib, assertMSL41PlacementDiagnostic } from "./msl41-placement.mjs";
@@ -17,7 +18,7 @@ import { resolve } from "node:path";
 import process from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-const expectedHeader = "ebe6ca078d555d3fd109bb9bcb5e4ab2bf953c4a2779c271f499e977d8428ea2";
+const expectedHeader = "b3324230d5808decdcda4b8f1d19304b675f46c4cf4168a737f650b0fc4bfed9";
 const outputLimit = 64 * 1024 * 1024;
 const requiredExports = [
   "malloc", "free", "air_compile_v1", "air_compile_v2", "air_compile_v3", "air_result_status",
@@ -190,7 +191,7 @@ for (const ios of [18,26]) for (const math of [0,1]) for (const kind of [0,1])
     source:conditionalColorSource,ios,math,kind,shader:'conditional-color',status:0});
 
 // Generic authored MSL coverage, independent of application shader corpora.
-cases.push(...integerVectorCases, ...derivativeVectorCases, ...commonFunctionCases, ...metalLanguageCases(), ...msl41BitInterleaveCases, ...msl41PlacementCases, ...placementGPUCases(), ...msl41TextureReadCases, ...msl41BarrierCases);
+cases.push(...integerVectorCases, ...derivativeVectorCases, ...commonFunctionCases, ...metalLanguageCases(), ...msl41BitInterleaveCases, ...msl41PlacementCases, ...placementGPUCases(), ...msl41TextureReadCases, ...msl41BarrierCases, ...msl41AtomicCases);
 assert.equal(new Set(cases.map(test => test.name)).size, cases.length, "Duplicate probe names");
 assert(cases.every(test => new TextEncoder().encode(test.source).length <= 4096), "Probe source exceeds bound");
 
@@ -280,6 +281,11 @@ async function runCase(build, name) {
       if (test.msl41PlacementGPU) {
         assert.equal(test.kind, 0, "Placement GPU compile contract requires metallib output");
         metadata = assertMSL41PlacementMetallib(output, test);
+      } else if (test.msl41Atomic) {
+        if (test.kind === 1)
+          assertMSL41AtomicIR(new TextDecoder('utf-8',{fatal:true}).decode(output), test);
+        else
+          metadata = assertMSL41AtomicMetallib(output, test);
       } else if (test.msl41Barrier) {
         if (test.kind === 1)
           assertMSL41BarrierIR(new TextDecoder('utf-8',{fatal:true}).decode(output), test);
@@ -389,6 +395,8 @@ async function runCase(build, name) {
     } else {
       assert.equal(output.length, 0, "Rejected input produced output");
       assert(diagnostics.length > 0, "Rejected input has no diagnostic");
+      if (test.msl41Atomic)
+        assertMSL41AtomicDiagnostic(new TextDecoder('utf-8',{fatal:true}).decode(diagnostics), test);
       if (test.msl41Barrier)
         assertMSL41BarrierDiagnostic(new TextDecoder('utf-8',{fatal:true}).decode(diagnostics), test);
       if (test.msl41Placement && test.status === 3)

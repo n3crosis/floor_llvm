@@ -1,0 +1,1891 @@
+{
+  "scope": "Apple source acceptance and AIR only; no FLOOR or GPU claims",
+  "sourceSha256": "462d87db352906bb89ef4096ce9251280e28c7a1574a1dae6462f93b8a5e1ff7",
+  "cases": [
+    {
+      "name": "device-add-relaxed-0",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_relaxed",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "8859476e94b2bfa982487262c8d7ce56254ec679995c43e9e0a01c430abc9975",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 0, i32 2, i32 0, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "device-add-relaxed-1",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_relaxed",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "4dda59a9c238d8681ca394c327559bc3b3af58da27770f9977a4bcc9d590062f",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 0, i32 2, i32 1, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "device-add-acquire-0",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_acquire",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:15: error: no matching function for call to 'atomic_fetch_add_explicit'"
+    },
+    {
+      "name": "device-add-acquire-1",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_acquire",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "43518eac71263c5c24a570c3cc1606f072f9b009354becdcb39ddc5d091b5df8",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 2, i32 2, i32 1, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "device-add-release-0",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_release",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:15: error: no matching function for call to 'atomic_fetch_add_explicit'"
+    },
+    {
+      "name": "device-add-release-1",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_release",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "a75ad5cae5964374d2a3f0deeb1e4646d1e90fb8c8475b00a0bf5f31e8293131",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 3, i32 2, i32 1, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "device-add-acq_rel-0",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:15: error: no matching function for call to 'atomic_fetch_add_explicit'"
+    },
+    {
+      "name": "device-add-acq_rel-1",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "f5f9b8a7048bc4d08d0fef6f7fea11aedc1a5d2ded3c9d22e958c1f36df82157",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 4, i32 2, i32 1, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "device-add-seq_cst-0",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_seq_cst",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:15: error: no matching function for call to 'atomic_fetch_add_explicit'"
+    },
+    {
+      "name": "device-add-seq_cst-1",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_seq_cst",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "671baaf1fe4049b27a1e8dda11dc67f30fdabb28eab6ec9ad6adf008ebf88097",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 5, i32 2, i32 1, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "device-min-relaxed-0",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "min",
+      "order": "memory_order_relaxed",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "9c991e361d187dfe5aeca462681a77c26a9bcd360e444c43d355316540cb0200",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.min.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 0, i32 2, i32 0, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.min.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "device-min-relaxed-1",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "min",
+      "order": "memory_order_relaxed",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "5219f6ad8bee92fd2f2099d4cc43971dcae33db05dd1a02c2575c048afce05cb",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.min.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 0, i32 2, i32 1, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.min.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "device-min-acquire-0",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "min",
+      "order": "memory_order_acquire",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:15: error: no matching function for call to 'atomic_fetch_min_explicit'"
+    },
+    {
+      "name": "device-min-acquire-1",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "min",
+      "order": "memory_order_acquire",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "bfa29c89a4e168fcdd1e37894183fb1ebe4285a47ba12c4d1f66d17490d9ac8e",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.min.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 2, i32 2, i32 1, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.min.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "device-min-release-0",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "min",
+      "order": "memory_order_release",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:15: error: no matching function for call to 'atomic_fetch_min_explicit'"
+    },
+    {
+      "name": "device-min-release-1",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "min",
+      "order": "memory_order_release",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "65a58ec8b37e91c600efd7b448eafa2a406876edeed82039388b6e54a11e14c4",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.min.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 3, i32 2, i32 1, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.min.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "device-min-acq_rel-0",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "min",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:15: error: no matching function for call to 'atomic_fetch_min_explicit'"
+    },
+    {
+      "name": "device-min-acq_rel-1",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "min",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "85a5eee408ac315cf20eae9effed1148f0c05f75b82940c41dc70de620934256",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.min.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 4, i32 2, i32 1, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.min.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "device-min-seq_cst-0",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "min",
+      "order": "memory_order_seq_cst",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:15: error: no matching function for call to 'atomic_fetch_min_explicit'"
+    },
+    {
+      "name": "device-min-seq_cst-1",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "min",
+      "order": "memory_order_seq_cst",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "7654610d863f7bab2bcd56bc8f4129d0de99a01242a4d7fcb2b04a1ca888bf21",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.min.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 5, i32 2, i32 1, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.min.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-add-relaxed-0",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_relaxed",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "93b73008e9d9af3ac268268d9618e9bc6adf83f93e95a0044116e5e3df8be7b1",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 0, i32 1, i32 0, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-add-relaxed-1",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_relaxed",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "693f89db226c3bae88239751ef40e1c6aab308480e2bd3e566de9a0f7bbcb111",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 0, i32 1, i32 2, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-add-acquire-0",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_acquire",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:15: error: no matching function for call to 'atomic_fetch_add_explicit'"
+    },
+    {
+      "name": "threadgroup-add-acquire-1",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_acquire",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "e40e9b29ad98ffee1e58acb1457e774b0f91efbaff2d6b3d9cfdc8cb6c42a46e",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 2, i32 1, i32 2, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-add-release-0",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_release",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:15: error: no matching function for call to 'atomic_fetch_add_explicit'"
+    },
+    {
+      "name": "threadgroup-add-release-1",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_release",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "4bdcae223e05109006214c0bddb2a3dd4faf8ade089471b0e4f77f8ffb4d0327",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 3, i32 1, i32 2, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-add-acq_rel-0",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:15: error: no matching function for call to 'atomic_fetch_add_explicit'"
+    },
+    {
+      "name": "threadgroup-add-acq_rel-1",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "0811d4579e364e369fb3d1b92ea8e42b97896991d2ff1fb595443e3b04c83d89",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 4, i32 1, i32 2, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-add-seq_cst-0",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_seq_cst",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:15: error: no matching function for call to 'atomic_fetch_add_explicit'"
+    },
+    {
+      "name": "threadgroup-add-seq_cst-1",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_seq_cst",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "e7dc5ecd209e9f9edf8c46800b616785ec78f51c95200b8f4d8f2606d0a1017c",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 5, i32 1, i32 2, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-min-relaxed-0",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "min",
+      "order": "memory_order_relaxed",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "23fb8480acfe08497562e4d0c4770f569c3557699ab1f96d9e526bd12c214c8c",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.min.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 0, i32 1, i32 0, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.min.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-min-relaxed-1",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "min",
+      "order": "memory_order_relaxed",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "6ada7c46f3010001fae9c8339cac228008437950a9e44a33386bd5cd21802ade",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.min.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 0, i32 1, i32 2, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.min.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-min-acquire-0",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "min",
+      "order": "memory_order_acquire",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:15: error: no matching function for call to 'atomic_fetch_min_explicit'"
+    },
+    {
+      "name": "threadgroup-min-acquire-1",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "min",
+      "order": "memory_order_acquire",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "c121dc248c09f1f2cecd381828c4997b15a3c7f32cc35cfea8a8a6946730b018",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.min.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 2, i32 1, i32 2, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.min.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-min-release-0",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "min",
+      "order": "memory_order_release",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:15: error: no matching function for call to 'atomic_fetch_min_explicit'"
+    },
+    {
+      "name": "threadgroup-min-release-1",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "min",
+      "order": "memory_order_release",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "25db205ed27c04d2f58d5dbb10afc93b1b617684bffda14f7bbd800a2aeb1cc4",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.min.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 3, i32 1, i32 2, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.min.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-min-acq_rel-0",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "min",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:15: error: no matching function for call to 'atomic_fetch_min_explicit'"
+    },
+    {
+      "name": "threadgroup-min-acq_rel-1",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "min",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "a5842eca06bb24609706fc4cc3b142b450649fd6c2e8d972474f7b0bca6036de",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.min.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 4, i32 1, i32 2, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.min.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-min-seq_cst-0",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "min",
+      "order": "memory_order_seq_cst",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:15: error: no matching function for call to 'atomic_fetch_min_explicit'"
+    },
+    {
+      "name": "threadgroup-min-seq_cst-1",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "min",
+      "order": "memory_order_seq_cst",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "a278894e73d3e68ff1d04b13f8587912e0849fea25a34fb7154e7dcc44de0e02",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.min.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 5, i32 1, i32 2, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.min.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-max-relaxed-0",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "max",
+      "order": "memory_order_relaxed",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "703820ccb79efd476e7e896f971de39af30fbd13fd8176e1c4ebf418ae044b7b",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.max.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 0, i32 1, i32 0, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.max.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-max-relaxed-1",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "max",
+      "order": "memory_order_relaxed",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "99186da42c5a65d4cf9ac35bc5fb2c08b80e377b52479d793744510a1ee0721b",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.max.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 0, i32 1, i32 2, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.max.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-max-acquire-0",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "max",
+      "order": "memory_order_acquire",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:15: error: no matching function for call to 'atomic_fetch_max_explicit'"
+    },
+    {
+      "name": "threadgroup-max-acquire-1",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "max",
+      "order": "memory_order_acquire",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "834818b91735880a24d576cc320254fde16ef04c1f9c6dd4f327295fe384097e",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.max.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 2, i32 1, i32 2, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.max.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-max-release-0",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "max",
+      "order": "memory_order_release",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:15: error: no matching function for call to 'atomic_fetch_max_explicit'"
+    },
+    {
+      "name": "threadgroup-max-release-1",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "max",
+      "order": "memory_order_release",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "7fee59781a74892c1c934bebbd2c682abd80914d0f5b0fe97bcbd507c7766251",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.max.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 3, i32 1, i32 2, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.max.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-max-acq_rel-0",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "max",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:15: error: no matching function for call to 'atomic_fetch_max_explicit'"
+    },
+    {
+      "name": "threadgroup-max-acq_rel-1",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "max",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "d8a8c362deacf45690bbc7a5e00e41f657dc59fb6a5bcf929c8f4d4cda464f69",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.max.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 4, i32 1, i32 2, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.max.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-max-seq_cst-0",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "max",
+      "order": "memory_order_seq_cst",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:15: error: no matching function for call to 'atomic_fetch_max_explicit'"
+    },
+    {
+      "name": "threadgroup-max-seq_cst-1",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "max",
+      "order": "memory_order_seq_cst",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "b2a9e4c732ffc19ac3df11e39037c5ae412fb5477989dfe3f3081688f4e72623",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.max.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 5, i32 1, i32 2, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.max.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "device-flags-mem_none",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags::mem_none",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "7655fed53be087fdcc48812ebde96e9fa374213ba47f4998c5cd8d4d419ad2f0",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 4, i32 2, i32 0, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "device-flags-mem_device",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "f5f9b8a7048bc4d08d0fef6f7fea11aedc1a5d2ded3c9d22e958c1f36df82157",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 4, i32 2, i32 1, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "device-flags-mem_threadgroup",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "26459e5d24ccd7bbe731b78995e03ca5f4e419efb150df4c2f465e0071ee9672",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 4, i32 2, i32 2, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "device-flags-mem_texture",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags::mem_texture",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "a5a378abbf4faf9efc5550d3525e2e32620c3efefa492b6279348ba3dd24bd3c",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 4, i32 2, i32 4, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "device-flags-mem_threadgroup_imageblock",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags::mem_threadgroup_imageblock",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "a9a25d8b2fd23a7d782d4d36aceb9a5c3cb9102e2e258ca58f4c5f20ee4cdddb",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 4, i32 2, i32 8, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "device-flags-mem_object_data",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags::mem_object_data",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "521a9c0f579929059f13e432797e87fcc28d56c37021b4e3443f76fc3c3a6bf5",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 4, i32 2, i32 16, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "device-combined",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags(31)",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "a96edb84a12965cd00d299cca89b74a3ec909ab3995599e7c2482c70ed4829a3",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 4, i32 2, i32 31, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "device-bad-order",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order(1)",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "4bba5ab008cc7f5cc6f96940ade760d1ff8e8ed3e913d21be933d321381e0024",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 1, i32 2, i32 1, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "device-bad-flags",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags(32)",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "6e4d73c0815eab13fd809caff824891bfb891b121d800d6258555312bbbb8644",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 4, i32 2, i32 32, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "device-dynamic-order",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order(input[0])",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "c58218b166c9e2b350badac19b64d2f89eea9bea9254e545ef6464fb3b9c9955",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 %4, i32 2, i32 1, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "device-dynamic-flags",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags(input[0])",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "1d3d2d176b7bcdac5f9bece29801378f1876e3d588b748eace136d2d2a03ef1f",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 4, i32 2, i32 %4, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "device-volatile",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": true,
+      "volatile": true,
+      "returncode": 0,
+      "irSha256": "4868a6ff84c9169048332967c0a9187713234318f3f43b241585cf3c44bbe3c6",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 4, i32 2, i32 1, i1 true) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-flags-mem_none",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags::mem_none",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "6cc34ce5077d713684df4e49a5ec0b80dbc24dd61fcff8f59d1b15da3c05af7e",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 4, i32 1, i32 0, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-flags-mem_device",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "1d3617be0a22b2a9d55019b823b9e09838ce62800cd3db59d7e8114c0682dfc8",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 4, i32 1, i32 1, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-flags-mem_threadgroup",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "0811d4579e364e369fb3d1b92ea8e42b97896991d2ff1fb595443e3b04c83d89",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 4, i32 1, i32 2, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-flags-mem_texture",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags::mem_texture",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "4bdf26fcc9e1ac6c68147176ff857fe12f3fa4c1641506e93def8bfebaf37734",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 4, i32 1, i32 4, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-flags-mem_threadgroup_imageblock",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags::mem_threadgroup_imageblock",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "9583a0c5a990b99185dc5e6df12b6c883551dc440cd9b34f0b2f5e88097ceee7",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 4, i32 1, i32 8, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-flags-mem_object_data",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags::mem_object_data",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "6cdbc439d46eba4db4319d884812162f9507f7a62797384e5421119a35abfc7e",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 4, i32 1, i32 16, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-combined",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags(31)",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "78f6e0a09095f20fe4754fdf7ae01f45e0e4a437c24982050797cdf4805897bd",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 4, i32 1, i32 31, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-bad-order",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order(1)",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "fd9c43404b68cde73af5b369f9c83a00e88b32fca815a749f5c180dba18e59c0",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 1, i32 1, i32 1, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-bad-flags",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags(32)",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "945ecbb4ddc098374763c7ec288d7c3f7d61ee6cf96b761d71034d5c5d50fb84",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 4, i32 1, i32 32, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-dynamic-order",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order(input[0])",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "3d26249c94e48509b26d961a7392d85f6981b3cc6619669c6d1043a73ee25716",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 %4, i32 1, i32 1, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-dynamic-flags",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags(input[0])",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "bf9811e9169155e8f34d1a5b252e983589760335433b92de76d7a96a355488c5",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 4, i32 1, i32 %4, i1 false) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "threadgroup-volatile",
+      "metalVersion": "4.1",
+      "ios": 27,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_acq_rel",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": true,
+      "volatile": true,
+      "returncode": 0,
+      "irSha256": "ae9d5dea6a6ba47b5f5f0216d116b4033aa294b674d138aa627d2983016d5903",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 4, i32 1, i32 2, i1 true) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "metal3.2-device-legacy-relaxed",
+      "metalVersion": "3.2",
+      "ios": 18,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_relaxed",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "fcb3a7af969fce1969b8501b43eaa7d35ba297a819e070f9d4b1d60c12c3a83b",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 0, i32 2, i1 true) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "metal3.2-device-ordered",
+      "metalVersion": "3.2",
+      "ios": 18,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_acquire",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:43: error: use of undeclared identifier 'memory_order_acquire'; did you mean 'memory_order_relaxed'?"
+    },
+    {
+      "name": "metal3.2-device-new-overload",
+      "metalVersion": "3.2",
+      "ios": 18,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_relaxed",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:15: error: no matching function for call to 'atomic_fetch_add_explicit'"
+    },
+    {
+      "name": "metal3.2-threadgroup-legacy-relaxed",
+      "metalVersion": "3.2",
+      "ios": 18,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_relaxed",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "4ffaebfc42afcf86d6d85826d73b00acec30d93028c0121065755526886b636c",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 0, i32 1, i1 true) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "metal3.2-threadgroup-ordered",
+      "metalVersion": "3.2",
+      "ios": 18,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_acquire",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:43: error: use of undeclared identifier 'memory_order_acquire'; did you mean 'memory_order_relaxed'?"
+    },
+    {
+      "name": "metal3.2-threadgroup-new-overload",
+      "metalVersion": "3.2",
+      "ios": 18,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_relaxed",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:15: error: no matching function for call to 'atomic_fetch_add_explicit'"
+    },
+    {
+      "name": "metal4.0-device-legacy-relaxed",
+      "metalVersion": "4.0",
+      "ios": 26,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_relaxed",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "1595dbe33ff63ea2d379fb125872e34dcbf4f3921313f5cbc22cbc31ce1f61ad",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture %5, i32 %4, i32 0, i32 2, i1 true) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.global.add.u.i32(i32 addrspace(1)* nocapture, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 1, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "metal4.0-device-ordered",
+      "metalVersion": "4.0",
+      "ios": 26,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_acquire",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:43: error: use of undeclared identifier 'memory_order_acquire'; did you mean 'memory_order_relaxed'?"
+    },
+    {
+      "name": "metal4.0-device-new-overload",
+      "metalVersion": "4.0",
+      "ios": 26,
+      "space": "device",
+      "op": "add",
+      "order": "memory_order_relaxed",
+      "flags": "mem_flags::mem_device",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:15: error: no matching function for call to 'atomic_fetch_add_explicit'"
+    },
+    {
+      "name": "metal4.0-threadgroup-legacy-relaxed",
+      "metalVersion": "4.0",
+      "ios": 26,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_relaxed",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 0,
+      "irSha256": "c7c93e398df549664b9309e484d93d7af386fdf57d3322db525ac53a0b7f523a",
+      "calls": [
+        "%6 = tail call i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture %5, i32 %4, i32 0, i32 1, i1 true) #2"
+      ],
+      "declarations": [
+        "declare i32 @air.atomic.local.add.u.i32(i32 addrspace(3)* nocapture, i32, i32, i32, i1) local_unnamed_addr #1"
+      ],
+      "objectMetadata": [
+        "!12 = !{i32 0, !\"air.buffer\", !\"air.location_index\", i32 0, i32 1, !\"air.read_write\", !\"air.address_space\", i32 3, !\"air.struct_type_info\", !13, !\"air.arg_type_size\", i32 4, !\"air.arg_type_align_size\", i32 4, !\"air.arg_type_name\", !\"metal::_atomic\", !\"air.arg_name\", !\"object\"}"
+      ],
+      "compiler": [
+        "!19 = !{!\"Apple metal version 32023.922 (metalfe-32023.922.4)\"}"
+      ],
+      "diagnosticExcerpt": ""
+    },
+    {
+      "name": "metal4.0-threadgroup-ordered",
+      "metalVersion": "4.0",
+      "ios": 26,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_acquire",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": false,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:43: error: use of undeclared identifier 'memory_order_acquire'; did you mean 'memory_order_relaxed'?"
+    },
+    {
+      "name": "metal4.0-threadgroup-new-overload",
+      "metalVersion": "4.0",
+      "ios": 26,
+      "space": "threadgroup",
+      "op": "add",
+      "order": "memory_order_relaxed",
+      "flags": "mem_flags::mem_threadgroup",
+      "explicitFlags": true,
+      "volatile": false,
+      "returncode": 1,
+      "diagnosticExcerpt": "<TASK>/native41-packages/atomic-batch/inputs/reference/probe-atomics.metal:28:15: error: no matching function for call to 'atomic_fetch_add_explicit'"
+    }
+  ],
+  "accepted": 58,
+  "rejected": 28,
+  "referenceArchiveSha256": "616dbdc1edae54b9f0a7fda90b9c51b6e8ee2105b745897942931a2a61413c56",
+  "compilerVersion": "Apple metal version 32023.922 (metalfe-32023.922.4)",
+  "specification": {
+    "url": "https://developer.apple.com/metal/Metal-Shading-Language-Specification.pdf",
+    "version": "4.1",
+    "date": "2026-06-04",
+    "sections": [
+      "6.16.1",
+      "6.16.4.5"
+    ]
+  }
+}

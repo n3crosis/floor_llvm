@@ -1,4 +1,4 @@
-// Authored relaxed unsigned-32 atomics and versioned barriers, matching reference AIR calls.
+// Authored unsigned-32 atomics and versioned barriers, matching reference AIR calls.
 #ifndef FLOOR_AIR_METAL_ATOMIC
 #define FLOOR_AIR_METAL_ATOMIC
 #include <metal_stdlib>
@@ -29,11 +29,21 @@ constexpr mem_flags operator|(mem_flags a, mem_flags b) {
 }
 #endif
 namespace __atomic_detail {
+// Apple 32023.922: MSL 4.1 inserts flags before the volatile operand.
+// Earlier language modes retain the five-argument ABI, including volatile=true.
+#if defined(__METAL_VERSION__) && __METAL_VERSION__ >= 410
+uint global_add(device uint*,uint,uint,uint,uint,bool) __asm__("air.atomic.global.add.u.i32");
+uint global_min(device uint*,uint,uint,uint,uint,bool) __asm__("air.atomic.global.min.u.i32");
+uint local_add(threadgroup uint*,uint,uint,uint,uint,bool) __asm__("air.atomic.local.add.u.i32");
+uint local_min(threadgroup uint*,uint,uint,uint,uint,bool) __asm__("air.atomic.local.min.u.i32");
+uint local_max(threadgroup uint*,uint,uint,uint,uint,bool) __asm__("air.atomic.local.max.u.i32");
+#else
 uint global_add(device uint*,uint,uint,uint,bool) __asm__("air.atomic.global.add.u.i32");
 uint global_min(device uint*,uint,uint,uint,bool) __asm__("air.atomic.global.min.u.i32");
 uint local_add(threadgroup uint*,uint,uint,uint,bool) __asm__("air.atomic.local.add.u.i32");
 uint local_min(threadgroup uint*,uint,uint,uint,bool) __asm__("air.atomic.local.min.u.i32");
 uint local_max(threadgroup uint*,uint,uint,uint,bool) __asm__("air.atomic.local.max.u.i32");
+#endif
 #if defined(__METAL_VERSION__) && __METAL_VERSION__ >= 410
 void barrier(uint,uint,uint) __asm__("air.wg.barrier") __attribute__((convergent));
 void simd_barrier(uint,uint,uint) __asm__("air.simdgroup.barrier") __attribute__((convergent));
@@ -41,16 +51,45 @@ void simd_barrier(uint,uint,uint) __asm__("air.simdgroup.barrier") __attribute__
 void barrier(uint,uint) __asm__("air.wg.barrier") __attribute__((convergent));
 #endif
 }
+#if defined(__METAL_VERSION__) && __METAL_VERSION__ >= 410
+#define AIR_ATOMIC_RELAXED_CALL(AS, SCOPE, INTRINSIC) \
+  __atomic_detail::INTRINSIC(reinterpret_cast<AS uint*>(p), value, 0u, SCOPE, 0u, false)
+#else
+#define AIR_ATOMIC_RELAXED_CALL(AS, SCOPE, INTRINSIC) \
+  __atomic_detail::INTRINSIC(reinterpret_cast<AS uint*>(p), value, 0u, SCOPE, true)
+#endif
 #define AIR_ATOMIC_OP(OP, AS, SCOPE, INTRINSIC) \
 inline __attribute__((always_inline)) uint atomic_fetch_##OP##_explicit(AS atomic_uint *p, uint value, memory_order order) \
 __attribute__((diagnose_if(!__builtin_constant_p(order) || order != memory_order_relaxed, "only constant relaxed atomic order is supported", "error"))) { \
-  return __atomic_detail::INTRINSIC(reinterpret_cast<AS uint*>(p), value, 0u, SCOPE, true); }
+  return AIR_ATOMIC_RELAXED_CALL(AS, SCOPE, INTRINSIC); }
 AIR_ATOMIC_OP(add,device,2u,global_add)
 AIR_ATOMIC_OP(min,device,2u,global_min)
 AIR_ATOMIC_OP(add,threadgroup,1u,local_add)
 AIR_ATOMIC_OP(min,threadgroup,1u,local_min)
 AIR_ATOMIC_OP(max,threadgroup,1u,local_max)
 #undef AIR_ATOMIC_OP
+#undef AIR_ATOMIC_RELAXED_CALL
+#if defined(__METAL_VERSION__) && __METAL_VERSION__ >= 410
+// Non-relaxed orders require the explicit fourth mem_flags argument. Do not
+// give flags a default: Apple's three-argument form remains relaxed-only.
+// This bounded subset requires valid compile-time controls, even though the
+// reference compiler forwards dynamic/unknown controls into textual AIR.
+#define AIR_ATOMIC_FLAGS_OP(OP, AS, SCOPE, INTRINSIC, CV, VOLATILE) \
+inline __attribute__((always_inline)) uint atomic_fetch_##OP##_explicit(AS CV atomic_uint *p, uint value, memory_order order, mem_flags flags) \
+__attribute__((diagnose_if(!__builtin_constant_p(order) || (order != memory_order_relaxed && order != memory_order_acquire && order != memory_order_release && order != memory_order_acq_rel && order != memory_order_seq_cst), "atomics require constant valid atomic memory order", "error"))) \
+__attribute__((diagnose_if(!__builtin_constant_p(flags) || (uint(flags) & ~31u), "atomics require constant valid atomic memory flags", "error"))) { \
+  return __atomic_detail::INTRINSIC(reinterpret_cast<AS uint*>(const_cast<AS atomic_uint*>(p)), value, uint(order), SCOPE, uint(flags), VOLATILE); }
+#define AIR_ATOMIC_FLAGS_OVERLOADS(OP, AS, SCOPE, INTRINSIC) \
+  AIR_ATOMIC_FLAGS_OP(OP, AS, SCOPE, INTRINSIC, , false) \
+  AIR_ATOMIC_FLAGS_OP(OP, AS, SCOPE, INTRINSIC, volatile, true)
+AIR_ATOMIC_FLAGS_OVERLOADS(add,device,2u,global_add)
+AIR_ATOMIC_FLAGS_OVERLOADS(min,device,2u,global_min)
+AIR_ATOMIC_FLAGS_OVERLOADS(add,threadgroup,1u,local_add)
+AIR_ATOMIC_FLAGS_OVERLOADS(min,threadgroup,1u,local_min)
+AIR_ATOMIC_FLAGS_OVERLOADS(max,threadgroup,1u,local_max)
+#undef AIR_ATOMIC_FLAGS_OVERLOADS
+#undef AIR_ATOMIC_FLAGS_OP
+#endif
 #if defined(__METAL_VERSION__) && __METAL_VERSION__ >= 410
 // MSL 4.1 uses (flags, order, scope), including the one-argument source form.
 // Unlike Apple's textual-IR frontend, this bounded API rejects unknown enum

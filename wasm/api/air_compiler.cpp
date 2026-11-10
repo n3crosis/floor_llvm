@@ -419,8 +419,18 @@ bool validControlStages(const llvm::Module &module, uint32_t metalVersion) {
             // Only the reference-established device uint add extends to fragments.
             const bool fragmentAdd=llvm::StringRef(stage)=="air.fragment" &&
                 name=="air.atomic.global.add.u.i32";
-            if ((llvm::StringRef(stage)!="air.kernel" && !fragmentAdd) || !constant(2,0) ||
-                !constant(3,name.startswith("air.atomic.global.") ? 2 : 1) || !constant(4,1)) return false;
+            if (llvm::StringRef(stage)!="air.kernel" && !fragmentAdd) return false;
+            const unsigned scope=name.startswith("air.atomic.global.") ? 2u : 1u;
+            if (metalVersion==410) {
+              // Native 4.1 ABI: (object, value, order, scope, flags, volatile).
+              // Check private-helper calls too, after inlining/optimization.
+              if (call->arg_size()!=6 || !constant(3,scope) ||
+                  !(constant(2,0) || constant(2,2) || constant(2,3) || constant(2,4) || constant(2,5)) ||
+                  !(constant(5,0) || constant(5,1))) return false;
+              auto *flags=llvm::dyn_cast<llvm::ConstantInt>(call->getArgOperand(4));
+              if (!flags || flags->getZExtValue()>31) return false;
+            } else if (call->arg_size()!=5 || !constant(2,0) ||
+                !constant(3,scope) || !constant(4,1)) return false;
           }
           if (name=="air.wg.barrier" || name=="air.simdgroup.barrier") {
             if (metalVersion==410) {

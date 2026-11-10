@@ -35,7 +35,7 @@ them. Ordinary builds never republish `v0.1.0`.
 
 The workflow keeps Emscripten 4.0.20 pinned, checks source hashes, compiles the
 compiler, and runs fresh ABI, header, and compile-smoke probes before packaging.
-The configured next-batch probes include 788 authored vertex, fragment, and compute regressions across
+The configured next-batch probes include 954 authored vertex, fragment, and compute regressions across
 iOS 18/26/27 and both math profiles. Empty vertex return/argument metadata is tested
 in both LLVM IR and metallib output, including a void vertex that writes to a
 buffer. These checks do not establish Apple loader, GPU, or device acceptance.
@@ -50,7 +50,7 @@ The math subset also exposes conservative float/float-vector `sqrt`, `rsqrt`, `e
 
 Conditional framebuffer-input AIR metadata now derives its name from the actual Clang parameter type using the existing canonical type helper. Authored regressions bind each check to its fragment entry and input metadata list, then verify the parameter index, signature type, attachment slot, argument name, bool predicate and required function-constant initializer/index. Float and uint inputs, typedefs/qualifiers, sparse slots 2 and 7, reversed parameter order and buffer 29 are checked for iOS 18/26 and both math profiles, in IR and metallib form. Return metadata cannot satisfy input-type assertions. This is compiler ABI validation, not Apple pipeline or GPU execution proof.
 
-Metal library public/private metadata lengths now include their own four-byte prefixes. All 229 configured positive metallib cases validate serialized function records, boundaries, metadata tags, AIR sizes and hashes; 16 also bind constants to exact authored entry parameters. The validator never rewrites output bytes. Run `node --test wasm/release/conditional-color.test.mjs wasm/release/metallib-metadata.test.mjs` for 41 synthetic assertion tests; these run in CI before each compiler build. The receipt includes both validation helpers in its tooling inventory.
+Metal library public/private metadata lengths now include their own four-byte prefixes. All 279 configured positive metallib cases validate serialized function records, boundaries, metadata tags, AIR sizes and hashes; 16 also bind constants to exact authored entry parameters. The validator never rewrites output bytes. Run `node --test wasm/release/conditional-color.test.mjs wasm/release/metallib-metadata.test.mjs` for 41 synthetic assertion tests; these run in CI before each compiler build. The receipt includes both validation helpers in its tooling inventory.
 
 The wasm branch merges upstream `a2flo/floor_toolchain_1406` at `9c7e27fe79744c25a405395b5b98c726dfa6dd87` (CUDA 13.5 / PTX 9.5). The source lock records that upstream commit and hashes all six changed upstream source files. Existing WASM history, Metal/AIR changes, and earlier SDK compatibility fixes remain intact.
 
@@ -110,7 +110,7 @@ complete header identity, runtime archive/member hashes, and build receipt.
 Compiler exports must report the matching embedded-header identity.
 
 The reference harness selects the highest installed Xcode 27 or newer and runs
-172 deduplicated positive source/API/target/profile combinations through both compilers.
+236 deduplicated positive source/API/target/profile combinations through both compilers.
 Apple uses the iPhoneOS SDK, each explicitly recorded iOS 18/26/27 target and
 Metal 3.2/4.0/4.1 language setting, then `metallib`. Historical iOS 26 API2
 comparisons keep their recorded Apple 4.0 / FLOOR 3.2 distinction. FLOOR compiles the same
@@ -172,11 +172,11 @@ The 157 feature cases distinguish arithmetic preflight from actual 4.1
 qualification, with exact argument/buffer ABI and target/language metadata
 checks. Fifty-four additional core cases check version selection, metadata, C++17,
 and rejection diagnostics. Together with the earlier baseline, CI requires
-788 configured compiler cases: 215 positive AIR outputs, 229 positive metallibs,
-and 344 expected rejections. These are next-candidate expectations, not executed
+954 configured compiler cases: 281 positive AIR outputs, 279 positive metallibs,
+and 394 expected rejections. These are next-candidate expectations, not executed
 results. The first checkpoint separately passed all 497 of its own compiler cases.
 
-The next candidate's Apple comparison contains 172 source/API/target/profile pairs, including 24 sampler-read pairs, six placement GPU source pairs, and barrier source/ABI probes. Supplemental GPU gates retain separate scopes and outcomes.
+The next candidate's Apple comparison contains 236 source/API/target/profile pairs, including 24 sampler-read pairs, six placement GPU source pairs, barrier source/ABI probes, and 64 new atomic pairs. Supplemental GPU gates retain separate scopes and outcomes.
 It records actual Apple and FLOOR language modes, including preserved historical
 Apple 4.0 / FLOOR 3.2 comparisons. A separate tiny shader must actually compile
 with `-std=metal4.1` for iOS 27 before the 4.1 Apple cases are considered available.
@@ -304,7 +304,7 @@ reference evidence only; the new FLOOR feature still needs its batched build
 and library/GPU checks.
 
 These placement and texture changes are later than the first checkpoint
-`1accfd4`. The configured combined compiler suite has 788 cases; that number is
+`1accfd4`. The published placement/texture/barrier suite configures 788 cases; that number is
 not a passing-result count. No additional CI run is requested by this source
 increment. The original checkpoint file remains unchanged.
 
@@ -332,8 +332,9 @@ Apple evidence establishes the enum values and operand order, including legacy
 controls. Eight producer/consumer and scratch-reuse sources compiled and linked
 on Xcode 27.2, and their standalone Swift harness built. No paired FLOOR/GPU
 result exists yet. This is not complete memory-model or acquire/release-atomic
-coverage. Including the separate six placement GPU sources, the next combined
-source suite contains 788 configured compiler cases; the checkpoint file is unchanged.
+coverage. Including the separate six placement GPU sources, the published placement/texture/barrier
+source suite contains 788 configured compiler cases. The later atomic candidate
+contains 954; its checkpoint file remains unchanged.
 
 The separate [placement GPU gate](gpu/placement/README.md) uses six exact
 conservative-math sources across thread/threadgroup/device storage and scalar /
@@ -341,8 +342,8 @@ nontrivial-array construction. Original Apple sources compile/link; the frozen
 Swift harness builds and its CPU oracle matches 72 fixtures. Paired GPU results
 remain unrun. Its output and descriptor verification remains separate from the
 generic gate and retains missing, failed and unavailable cases even after
-unrelated primary-gate failures. The combined compiler suite is now configured
-for 788 cases, with 172 Apple compile/link pairs. Generic GPU scope remains
+unrelated primary-gate failures. The published placement/texture/barrier batch configures
+788 cases and 172 Apple pairs; the later atomic candidate configures 954 and 236. Generic GPU scope remains
 48 pairs; supplemental texture, placement and barrier matrices are separate.
 
 The separate [barrier GPU gate](gpu/barrier/README.md) consumes eight exact
@@ -354,3 +355,49 @@ observed backend failures cannot become unavailable. The frozen Swift harness
 has native compilation evidence only; the new barrier compiler and paired GPU
 results remain pending. This is a bounded barrier test, not full memory-model
 or acquire/release-atomic conformance.
+
+## Following source increment: unsigned atomic order and flags
+
+`msl41-atomics.mjs` adds 166 configured compiler contracts: 66 AIR outputs,
+50 metallibs, 44 frontend rejections and six invalid-IR rejections. It adds 64
+positive source/API/target/profile pairs to Apple compile/link validation. These
+are configured expectations, not 166 executed compiler passes. The new sources
+cover all five existing uint RMW operation/address-space pairs, the five orders,
+explicit flags, ordinary/volatile pointers, old-language controls, invalid and
+dynamic controls, macro spoofing, forged declarations and private helper calls.
+The IR validator checks exact versioned signatures, order/scope/flags/volatility,
+resource bindings, dynamic operand provenance and returned-value stores.
+
+The pinned native reference contains 86 authored probes. Apple metal 32023.922
+accepted 54 of 74 Metal 4.1 cases and rejected all 20 non-relaxed three-argument
+forms. Each earlier-language control set accepted two and rejected four. The
+new flags operand precedes the volatile boolean; ordinary MSL4.1 calls use false,
+volatile calls use true, and legacy calls retain true. Apple accepted dynamic
+and unknown controls into textual AIR. The bounded FLOOR API instead rejects
+those controls. The fixture records generated AIR and first-line diagnostics,
+not copied SDK header implementations. The full native archive is pinned by SHA256
+`616dbdc1edae54b9f0a7fda90b9c51b6e8ee2105b745897942931a2a61413c56`.
+
+Run `node --test wasm/release/msl41-atomics.test.mjs` for the dependency-free
+source/reference/validator checks. Native reference regeneration uses
+`python3 wasm/release/msl41-atomic-reference.py OUTPUT_DIRECTORY`; this records
+acceptance observations and does not assert that unknown controls are valid.
+A new compiler build is still required for the edited source. No atomic library
+load, pipeline creation, GPU execution, or acquire-release synchronization result
+is claimed by this increment. Existing GPU scopes and the deliberate checkpoint
+trigger are unchanged. Ordinary source publication must not launch a new build.
+
+## Current validation checkpoint and later atomic source
+
+The published three-feature source batch is `8026ac5`. Its initial checkpoint
+`65c735a` stopped before compilation because release preflight still expected ten
+headers. Correction `0895444` validates the exact eleven paths, including
+`metal_common`, and adds real checkout/config/CMake and malformed-inventory
+regressions. [Run 42824346921](https://github.com/n3crosis/floor_llvm/actions/runs/42824346921)
+is the corrected 788-case compiler checkpoint. No artifact from that batch is
+claimed until its own receipt passes.
+
+The subsequent atomic source has separate native ABI and host-header evidence,
+not a rebuilt FLOOR or GPU result. Its strengthened IR assertions reject wrong
+metadata values/tags, read-only effects on RMW pointers, and atomics moved into
+unreachable blocks. Ordinary publication of this source does not request CI.

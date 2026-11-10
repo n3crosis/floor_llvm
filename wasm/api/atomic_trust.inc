@@ -23,12 +23,16 @@
     }
     const bool global=name=="air.atomic.global.add.u.i32" || name=="air.atomic.global.min.u.i32";
     const bool local=name=="air.atomic.local.add.u.i32" || name=="air.atomic.local.min.u.i32" || name=="air.atomic.local.max.u.i32";
-    if ((!global && !local) || function->getNumParams()!=5 || !is(function->getReturnType(),B::UInt)) return false;
+    const bool metal41=function->getASTContext().getLangOpts().MetalVersion==410;
+    const unsigned count=metal41 ? 6u : 5u;
+    if ((!global && !local) || function->getNumParams()!=count ||
+        !is(function->getReturnType(),B::UInt) ||
+        function->hasAttr<clang::ConstAttr>() || function->hasAttr<clang::PureAttr>()) return false;
     auto pointer=function->getParamDecl(0)->getType();
     if (!pointer->isPointerType()) return false;
     auto pointee=pointer->getPointeeType();
     if (!is(pointee,B::UInt) || pointee.getCVRQualifiers()!=0 ||
         pointee.getAddressSpace()!=(global ? clang::LangAS::opencl_global : clang::LangAS::opencl_local)) return false;
-    for (unsigned i=1;i<4;++i) if (!is(function->getParamDecl(i)->getType(),B::UInt)) return false;
-    return is(function->getParamDecl(4)->getType(),B::Bool);
+    for (unsigned i=1;i<count-1;++i) if (!is(function->getParamDecl(i)->getType(),B::UInt)) return false;
+    return is(function->getParamDecl(count-1)->getType(),B::Bool);
   }

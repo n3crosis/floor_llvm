@@ -42,6 +42,8 @@ TOOLING = (".github/workflows/release-air-wasm.yml", "wasm/release/github_releas
            "wasm/release/msl41-placement.mjs", "wasm/release/msl41-placement-ir.mjs",
            "wasm/release/msl41-bit-interleave.mjs", "wasm/release/msl41-bit-interleave-ir.mjs",
            "wasm/release/msl41-bit-interleave-abi.mjs", "wasm/release/msl41-texture-read.mjs",
+           "wasm/release/msl41-atomics.mjs", "wasm/release/msl41-atomic-reference.py",
+           "wasm/release/msl41-atomic-reference.metal", "wasm/release/fixtures/msl41-atomic-reference.json",
            "wasm/release/msl41-barriers.mjs", "wasm/release/metal-barrier-gpu.swift",
            "wasm/release/msl41-barrier-reference.py", "wasm/release/msl41-barrier-reference.metal",
            "wasm/release/fixtures/msl41-barrier-reference.json", "wasm/release/apple-reference.mjs",

@@ -99,3 +99,29 @@ The Apple reference gate compiles the same positive sources without substituting
 an older standard. Apple compilation, FLOOR compilation, library load, and GPU
 results remain separate evidence; no texture GPU execution is implied by a
 compile/IR test or the existing integer/derivative/interleave GPU harness.
+
+
+## Metal 4.1 unsigned atomic memory ordering
+
+The existing `atomic_uint` fetch operations now have explicit four-argument
+`(object, value, order, flags)` overloads in Metal 4.1: add/min in device memory
+and add/min/max in threadgroup memory. Ordinary and volatile object pointers are
+supported by these new overloads. Valid constant orders are relaxed, acquire,
+release, acquire-release and sequentially consistent; valid constant memory flags
+are the five defined memory-space bits and their combinations, including none.
+The ordinary three-argument form remains relaxed-only. No default flags argument
+silently enables a non-relaxed three-argument call.
+
+Native Apple 32023.922 references establish that MSL 4.1 uses six AIR operands:
+object, value, order, scope, flags, volatile. The relaxed three-argument form uses
+flags zero and volatile false. Earlier language modes retain the five-operand ABI
+with volatile true. Device/threadgroup scope remains 2/1. Physical declaration
+trust and post-optimization controls validate the selected real language mode,
+including direct private-helper calls. API v1/v2/v3 signatures are unchanged.
+
+This is a bounded source candidate, not full atomic support: signed/float/64-bit
+objects, other RMW operations, load/store/exchange/compare-exchange, fences and
+volatile three-argument overloads remain outside this increment. Dynamic or
+unknown order/flag controls are deliberately rejected even where Apple's textual
+AIR frontend accepts them. This change does not establish GPU synchronization,
+Apple library loading, or execution of a newly rebuilt FLOOR compiler.
