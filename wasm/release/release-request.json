@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "repository": "n3crosis/floor_llvm",
+  "ref": "refs/heads/wasm",
+  "baseCommit": "b8fcdc410bf4dedb140c71da61f9155e3f1f8923",
+  "version": "v0.3.0"
+}
