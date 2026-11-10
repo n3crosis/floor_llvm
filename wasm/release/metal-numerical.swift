@@ -1,7 +1,9 @@
 // Optional GPU evidence only. Never retargets or rewrites either input metallib.
 // Build: xcrun swiftc metal-numerical.swift -framework Metal -o metal-numerical
 // Run: metal-numerical --apple A.metallib --floor F.metallib
-//      --kind integer|derivative [--mode dynamic|constants] --output DIRECTORY
+//      --kind integer|derivative|interleave [--mode dynamic|constants] --output DIRECTORY
+// Interleave also requires --bits 8|16|32 --form scalar|vector|deinterleave.
+// Its libraries must be the original same-source API v3 / MSL 4.1 / iOS 27 pair.
 // Exit 0 = numerical pass, 1 = failure, 77 = unavailable (never a pass).
 import Foundation
 import Metal
@@ -132,6 +134,182 @@ func integers(_ device: MTLDevice, _ queue: MTLCommandQueue, _ libs: [MTLLibrary
     return checks
 }
 
+// Independent CPU oracle: materialize least-significant-first bit lists, weave
+// or select their elements, then rebuild the word. No spread/compact bit masks
+// from the compatibility header are used. Every intermediate is unsigned.
+func interleaveBitList(_ value: UInt64, _ width: Int) -> [UInt8] {
+    precondition((1...64).contains(width))
+    let bits = String(value, radix: 2).reversed().map { UInt8($0 == "1" ? 1 : 0) }
+    precondition(bits.count <= width)
+    return bits + Array(repeating: UInt8(0), count: width - bits.count)
+}
+func interleaveWord(_ bits: [UInt8]) -> UInt64 {
+    precondition(!bits.isEmpty && bits.count <= 64 && bits.allSatisfy { $0 <= 1 })
+    return bits.reversed().reduce(UInt64(0)) { ($0 << 1) | UInt64($1) }
+}
+func interleaveOracle(_ even: UInt64, _ odd: UInt64, _ bits: Int) -> UInt64 {
+    let a = interleaveBitList(even, bits), b = interleaveBitList(odd, bits)
+    return interleaveWord((0..<bits).flatMap { [a[$0], b[$0]] })
+}
+func deinterleaveOracle(_ value: UInt64, _ bits: Int) -> [UInt64] {
+    let all = interleaveBitList(value, 2 * bits)
+    return (0..<2).map { parity in interleaveWord(all.enumerated().filter { $0.offset % 2 == parity }.map { $0.element }) }
+}
+func interleaveInputs(_ bits: Int) -> (pairs: [[UInt64]], words: [UInt64]) {
+    precondition([8, 16, 32].contains(bits))
+    // Right shifts also handle the 64-bit all-ones word without 1 << 64 or +1.
+    let max = UInt64.max >> (64 - bits), top = UInt64(1) << (bits - 1)
+    let even = interleaveWord((0..<bits).map { UInt8($0 % 2 == 0 ? 1 : 0) })
+    var pairs: [[UInt64]] = [[0, 0], [max, 0], [0, max], [max, max], [1, 0], [0, 1],
+                            [top, 0], [0, top], [even, max ^ even], [max ^ even, even], [top, 1], [1, top]]
+    for i in 0..<bits { let bit = UInt64(1) << i; pairs += [[bit, 0], [0, bit]] }
+    var seed: UInt64 = 0x4d534c3431 + UInt64(bits)
+    func next() -> UInt64 {
+        seed = seed &* 6364136223846793005 &+ 1442695040888963407
+        return seed
+    }
+    for _ in 0..<32 { let a = next() & max, b = next() & max; pairs.append([a, b]) }
+    let wideMax = UInt64.max >> (64 - 2 * bits)
+    var words: [UInt64] = [0, wideMax, wideMax / 3, 2 * (wideMax / 3), 1, UInt64(1) << (2 * bits - 1)]
+    for i in 0..<(2 * bits) { words.append(UInt64(1) << i) }
+    for _ in 0..<32 { words.append(next() & wideMax) }
+    return (pairs, words)
+}
+func interleaveBytes(_ words: [UInt64], _ bits: Int) -> [UInt8] {
+    precondition([8, 16, 32, 64].contains(bits) && !words.isEmpty)
+    return words.flatMap { value -> [UInt8] in
+        precondition(bits == 64 || value >> bits == 0)
+        return (0..<(bits / 8)).map { UInt8(truncatingIfNeeded: value >> (8 * $0)) }
+    }
+}
+func interleaveHex(_ words: [UInt64], _ bits: Int) -> [String] {
+    words.map { value in
+        let digits = String(value, radix: 16)
+        precondition(digits.count <= bits / 4)
+        return "0x" + String(repeating: "0", count: bits / 4 - digits.count) + digits
+    }
+}
+func interleaveBuffer(_ bytes: [UInt8], _ device: MTLDevice) throws -> MTLBuffer {
+    guard !bytes.isEmpty else { throw ProbeError("Empty interleave buffer") }
+    return try bytes.withUnsafeBytes { raw in
+        guard let address = raw.baseAddress,
+              let buffer = device.makeBuffer(bytes: address, length: raw.count, options: .storageModeShared) else {
+            throw ProbeError("Interleave buffer allocation failed")
+        }
+        return buffer
+    }
+}
+func interleaves(_ device: MTLDevice, _ queue: MTLCommandQueue, _ libs: [MTLLibrary],
+                 _ bits: Int, _ form: String, _ constants: Bool, _ out: URL) throws -> Int {
+    let name = "msl41_\(form)_\(constants ? "constants" : "dynamic")_\(bits)"
+    let all = interleaveInputs(bits)
+    let pairs = constants ? Array(all.pairs.prefix(12)) + Array(all.pairs.suffix(4)) : all.pairs
+    let words = constants ? Array(all.words.prefix(6)) + Array(all.words.suffix(4)) : all.words
+    let samples = form == "deinterleave" ? words.map { [$0] } : pairs
+    let inputBits = form == "deinterleave" ? 2 * bits : bits
+    let outputBits = form == "deinterleave" ? bits : 2 * bits
+    let expectedWords = samples.map { sample in
+        form == "deinterleave" ? deinterleaveOracle(sample[0], bits) : [interleaveOracle(sample[0], sample[1], bits)]
+    }
+    // Vector2 has exactly two tightly packed lanes: no float3-style padding.
+    // Scalar pairs and narrow vector2 inputs have identical byte order; the
+    // authored entry point's pointer type distinguishes the overloads.
+    report["interleaveLayout"] = ["inputBits": inputBits, "outputBits": outputBits,
+        "inputBufferIndex": constants ? NSNull() as Any : 0, "outputBufferIndex": 1,
+        "outputLanes": form == "deinterleave" ? 2 : 1, "entry": name,
+        "endianness": "little", "vector2PaddingBytes": 0] as [String: Any]
+    report["interleaveSeed"] = "0x4d534c3431 + bits; LCG 6364136223846793005*x + 1442695040888963407 modulo 2^64; 32 random pairs then 32 random words"
+    report["interleaveOracle"] = "Independent LSB-first bit-list weave/select; unsigned 8/16/32-bit inputs and 16/32/64-bit outputs. Includes sign-bit boundaries, all isolated bits, all ones, alternating bits, and seeded random values."
+    report["interleaveFixture"] = "Original msl41-bit-interleave.mjs fixtures, API v3 / MSL 4.1 / iOS 27. Mode and target validation belong to the compile gate; this loader does not retarget or infer metadata."
+    report["interleaveSamples"] = samples.count
+    var pipelines: [MTLComputePipelineState] = []
+    var pipelineEvidence: [String: [String: String]] = ["apple": ["status": "not_run"], "floor": ["status": "not_run"]]
+    for (index, lib) in libs.enumerated() {
+        stage = "pipelineCreation"; report["pipelineCreation"] = "in_progress"
+        let label = index == 0 ? "apple" : "floor"
+        report["interleaveActiveLibrary"] = label
+        pipelineEvidence[label] = ["status": "in_progress"]; report["interleavePipelineCreation"] = pipelineEvidence
+        do {
+            guard let fn = lib.makeFunction(name: name) else { throw ProbeError("Missing \(label) function \(name)") }
+            pipelines.append(try device.makeComputePipelineState(function: fn))
+            pipelineEvidence[label] = ["status": "passed"]
+        } catch {
+            pipelineEvidence[label] = ["status": "failed", "error": String(describing: error)]
+            report["interleavePipelineCreation"] = pipelineEvidence
+            throw error
+        }
+        report["interleavePipelineCreation"] = pipelineEvidence
+    }
+    report["pipelineCreation"] = "passed"
+    var records: [[String: Any]] = [], observed: [Data] = [Data(), Data()]
+    let expectedBytes = expectedWords.flatMap { interleaveBytes($0, outputBits) }
+    func persist() throws {
+        try Data(expectedBytes).write(to: out.appendingPathComponent(name + "-expected.u8le"), options: .atomic)
+        for (index, label) in ["apple", "floor"].enumerated() where !observed[index].isEmpty {
+            try observed[index].write(to: out.appendingPathComponent(name + "-" + label + ".u8le"), options: .atomic)
+        }
+        try save(records, out.appendingPathComponent(name + ".json"))
+    }
+    var checks = 0
+    var currentRecord: Int?
+    do {
+        for index in 0..<(constants ? 1 : samples.count) {
+            currentRecord = nil
+            report.removeValue(forKey: "interleaveActiveLibrary")
+            stage = "computeSetup"
+            try deadline()
+            let inputs = constants ? samples : [samples[index]]
+            let expected = constants ? expectedBytes : interleaveBytes(expectedWords[index], outputBits)
+            let input = constants ? nil : try interleaveBuffer(interleaveBytes(samples[index], inputBits), device)
+            var actual: [[UInt8]] = []
+            records.append(["index": index, "inputsHex": inputs.map { interleaveHex($0, inputBits) },
+                "expectedWordsHex": (constants ? expectedWords : [expectedWords[index]]).map { interleaveHex($0, outputBits) },
+                "expectedBytes": expected, "outputBytes": expected.count,
+                "apple": ["status": "not_run"], "floor": ["status": "not_run"], "pass": NSNull()])
+            currentRecord = index
+            for (libraryIndex, pipeline) in pipelines.enumerated() {
+                let label = libraryIndex == 0 ? "apple" : "floor"
+                stage = "computeSetup"; report["interleaveActiveLibrary"] = label
+                let destination = try interleaveBuffer(Array(repeating: UInt8(0xa5), count: expected.count), device)
+                guard let command = queue.makeCommandBuffer(), let encoder = command.makeComputeCommandEncoder() else {
+                    throw ProbeError("Cannot create \(label) interleave compute encoder")
+                }
+                encoder.setComputePipelineState(pipeline)
+                if let input = input { encoder.setBuffer(input, offset: 0, index: 0) }
+                // Constants also bind at 1, even though buffer(0) is absent.
+                encoder.setBuffer(destination, offset: 0, index: 1)
+                encoder.dispatchThreadgroups(MTLSize(width: 1, height: 1, depth: 1), threadsPerThreadgroup: MTLSize(width: 1, height: 1, depth: 1))
+                encoder.endEncoding()
+                records[index][label] = ["status": "in_progress"]
+                try complete(command)
+                let bytes = Array(UnsafeBufferPointer(start: destination.contents().assumingMemoryBound(to: UInt8.self), count: expected.count))
+                let offset = observed[libraryIndex].count
+                observed[libraryIndex].append(contentsOf: bytes)
+                records[index][label] = ["status": "completed", "bytes": bytes, "byteOffset": offset,
+                    "sha256": hash(Data(bytes)), "matchesOracle": bytes == expected]
+                actual.append(bytes)
+            }
+            stage = "numericalComparison"; report["numericalComparison"] = "in_progress"
+            let passed = actual[0] == expected && actual[1] == expected && actual[0] == actual[1]
+            records[index]["pass"] = passed
+            checks += expected.count / (outputBits / 8)
+            if !passed { throw ProbeError("Interleave numerical mismatch: \(name), case \(index)") }
+        }
+    } catch {
+        // Retain completed Apple output even if FLOOR execution later fails.
+        if let index = currentRecord, let label = report["interleaveActiveLibrary"] as? String,
+           stage != "numericalComparison" {
+            records[index][label] = ["status": "failed", "error": String(describing: error)]
+        }
+        do { try persist() } catch { report["interleaveEvidenceWriteError"] = String(describing: error) }
+        throw error
+    }
+    stage = "interleaveEvidenceSaving"
+    try persist()
+    report.removeValue(forKey: "interleaveActiveLibrary")
+    return checks
+}
+
 func derivatives(_ device: MTLDevice, _ queue: MTLCommandQueue, _ libs: [MTLLibrary], _ out: URL) throws -> Int {
     // Ancillary rasterization only; neither test fragment library is compiled or retargeted here.
     let helper = """
@@ -147,22 +325,30 @@ func derivatives(_ device: MTLDevice, _ queue: MTLCommandQueue, _ libs: [MTLLibr
     let helperLib = try device.makeLibrary(source:helper,options:nil)
     guard let vertex = helperLib.makeFunction(name:"probe_triangle") else { throw ProbeError("Missing rasterization helper") }
     let size = 16, rowBytes = 256
-    let desc = MTLTextureDescriptor.texture2DDescriptor(pixelFormat:.rgba32Float,width:size,height:size,mipmapped:false)
-    desc.usage = [.renderTarget]; desc.storageMode = .private
     var checks = 0
     for op in ["dfdx","dfdy","fwidth"] { for width in 1...4 {
-        let name = "dv_\(op)_\(width)"
+        let name = width == 3 ? "dv_probe_\(op)_3" : "dv_\(op)_\(width)"
+        // Scalar/vector2 fragment outputs need matching R/RG attachments.
+        // Metal has no RGB32Float format: an authored float4-returning probe
+        // evaluates the float3 operation and pads alpha; both input libraries
+        // must contain this same fixture source. No library is patched here.
+        let channels = width == 1 ? 1 : width == 2 ? 2 : 4
+        let format: MTLPixelFormat = width == 1 ? .r32Float : width == 2 ? .rg32Float : .rgba32Float
+        let formatName = width == 1 ? "r32Float" : width == 2 ? "rg32Float" : "rgba32Float"
+        let desc = MTLTextureDescriptor.texture2DDescriptor(pixelFormat:format,width:size,height:size,mipmapped:false)
+        desc.usage = [.renderTarget]; desc.storageMode = .private
         var actual: [[Float]] = []
         for lib in libs {
             stage = "pipelineCreation"; report["pipelineCreation"] = "in_progress"
             guard let fn = lib.makeFunction(name:name) else { throw ProbeError("Missing fragment \(name)") }
             let pipelineDesc = MTLRenderPipelineDescriptor()
             pipelineDesc.vertexFunction = vertex; pipelineDesc.fragmentFunction = fn
-            pipelineDesc.colorAttachments[0].pixelFormat = .rgba32Float
+            pipelineDesc.colorAttachments[0].pixelFormat = format
             let pipeline = try device.makeRenderPipelineState(descriptor:pipelineDesc)
             report["pipelineCreation"] = "passed"
             stage = "renderSetup"
             guard let target = device.makeTexture(descriptor:desc), let readback = device.makeBuffer(length:rowBytes*size,options:.storageModeShared), let command = queue.makeCommandBuffer() else { throw ProbeError("Render resource allocation failed") }
+            memset(readback.contents(),0,rowBytes*size)
             let pass = MTLRenderPassDescriptor()
             pass.colorAttachments[0].texture = target; pass.colorAttachments[0].loadAction = .clear; pass.colorAttachments[0].storeAction = .store
             guard let encoder = command.makeRenderCommandEncoder(descriptor:pass) else { throw ProbeError("Render encoder allocation failed") }
@@ -172,14 +358,14 @@ func derivatives(_ device: MTLDevice, _ queue: MTLCommandQueue, _ libs: [MTLLibr
             guard let blit = command.makeBlitCommandEncoder() else { throw ProbeError("Blit encoder allocation failed") }
             blit.copy(from:target,sourceSlice:0,sourceLevel:0,sourceOrigin:MTLOrigin(x:0,y:0,z:0),sourceSize:MTLSize(width:size,height:size,depth:1),to:readback,destinationOffset:0,destinationBytesPerRow:rowBytes,destinationBytesPerImage:rowBytes*size)
             blit.endEncoding(); try complete(command)
-            actual.append(Array(UnsafeBufferPointer(start:readback.contents().assumingMemoryBound(to:Float.self),count:size*size*4)))
+            actual.append(Array(UnsafeBufferPointer(start:readback.contents().assumingMemoryBound(to:Float.self),count:rowBytes*size/MemoryLayout<Float>.stride)))
         }
         // Constant clip z and w; position x/y increase one unit per pixel.
         let expected: [Float] = op == "dfdx" ? [1,0,0,0] : op == "dfdy" ? [0,1,0,0] : [1,1,0,0]
         stage = "numericalComparison"; report["numericalComparison"] = "in_progress"
         var failures: [[String:Any]] = []
         for y in 2..<(size-2) { for x in 2..<(size-2) { for lane in 0..<width {
-            let i = (y*size+x)*4+lane, a = actual[0][i], f = actual[1][i]
+            let i = y*(rowBytes/MemoryLayout<Float>.stride)+x*channels+lane, a = actual[0][i], f = actual[1][i]
             // Exactly representable affine positions; 1e-5 permits small implementation rounding, not sign/lane errors.
             let ok = a.isFinite && f.isFinite && abs(a-expected[lane]) <= 1e-5 && abs(f-expected[lane]) <= 1e-5 && abs(a-f) <= 1e-5
             if !ok { failures.append(["x":x,"y":y,"lane":lane]) }; checks += 1
@@ -189,7 +375,7 @@ func derivatives(_ device: MTLDevice, _ queue: MTLCommandQueue, _ libs: [MTLLibr
             let data = actual[i].withUnsafeBytes { Data($0) }
             try data.write(to:out.appendingPathComponent(name+"-"+label+".f32le"))
         }
-        try save(["expectedPerPixel":Array(expected.prefix(width)),"width":size,"height":size,"channels":4,"testedLanes":width,"interior":"x,y=2...13","absoluteTolerance":1e-5,"failures":failures],out.appendingPathComponent(name+".json"))
+        try save(["expectedPerPixel":Array(expected.prefix(width)),"width":size,"height":size,"channels":channels,"rowBytes":rowBytes,"pixelFormat":formatName,"testedLanes":width,"entry":name,"paddedFloat3Fixture":width == 3,"interior":"x,y=2...13","absoluteTolerance":1e-5,"failures":failures],out.appendingPathComponent(name+".json"))
         if !failures.isEmpty { throw ProbeError("Derivative numerical mismatch: \(name)") }
     } }
     report["derivativeCoverage"] = "Position derivatives only; independent negative/mixed-slope affine fixture not implemented. These numerical tests do not establish fwidth absolute-value behavior for negative slopes. No edges or divergent control flow tested."
@@ -199,14 +385,19 @@ func derivatives(_ device: MTLDevice, _ queue: MTLCommandQueue, _ libs: [MTLLibr
 var code: Int32 = 1
 do {
     let apple = try option("--apple"), floor = try option("--floor"), kind = try option("--kind")
-    guard ["integer","derivative"].contains(kind) else { throw ProbeError("Unknown --kind") }
-    let mode = try (kind == "integer" ? option("--mode") : "")
-    guard kind != "integer" || ["dynamic","constants"].contains(mode) else { throw ProbeError("Unknown --mode") }
+    guard ["integer","derivative","interleave"].contains(kind) else { throw ProbeError("Unknown --kind") }
+    let mode = try (kind != "derivative" ? option("--mode") : "")
+    guard kind == "derivative" || ["dynamic","constants"].contains(mode) else { throw ProbeError("Unknown --mode") }
+    let interleaveBits = kind == "interleave" ? Int(try option("--bits")) ?? 0 : 0
+    let interleaveForm = try (kind == "interleave" ? option("--form") : "")
+    guard kind != "interleave" || [8,16,32].contains(interleaveBits) else { throw ProbeError("--bits must be 8, 16, or 32") }
+    guard kind != "interleave" || ["scalar","vector","deinterleave"].contains(interleaveForm) else { throw ProbeError("Unknown --form") }
     let out = URL(fileURLWithPath:try option("--output"),isDirectory:true)
     try FileManager.default.createDirectory(at:out,withIntermediateDirectories:true)
     guard try FileManager.default.contentsOfDirectory(atPath:out.path).isEmpty else { throw ProbeError("Output directory must be empty") }
     output = out
     report["kind"] = kind; report["mode"] = mode
+    if kind == "interleave" { report["bits"] = interleaveBits; report["form"] = interleaveForm }
     if kind == "derivative" { report["derivativeCoverage"] = "Position derivatives only. Negative/mixed-slope affine fixtures are not implemented; no numerical proof of fwidth absolute-value behavior for negative slopes." }
     var artifacts: [[String:Any]] = []
     for path in [apple,floor] {
@@ -248,6 +439,7 @@ do {
     stage = "pipeline_or_execution"
     let checks: Int
     if kind == "derivative" { checks = try derivatives(device,queue,libs,out) }
+    else if kind == "interleave" { checks = try interleaves(device,queue,libs,interleaveBits,interleaveForm,mode == "constants",out) }
     else { checks = try integers(device,queue,libs,mode == "constants",out) }
     report["pipelineCreation"] = "passed"; report["execution"] = "completed"; report["numericalComparison"] = "passed"
     report["checkedValues"] = checks; report["status"] = "passed"; code = 0

@@ -8,7 +8,10 @@ const type=n=>n===1?'float':`float${n}`;
 const field=n=>n===1?'x':'xyzw'.slice(0,n);
 export const derivativeVectorSource=header+ops.flatMap(op=>widths.map(n=>
   `fragment ${type(n)} dv_${op}_${n}(float4 p [[position]]) { return ${op}(p.${field(n)}); }`
-)).join('\n');
+)).join('\n')+'\n'+ops.map(op=>
+  // Authored numerical fixture: RGB32Float render targets do not exist.
+  `fragment float4 dv_probe_${op}_3(float4 p [[position]]) { float3 v=${op}(p.xyz); return float4(v,0.0f); }`
+).join('\n');
 export const derivativeVectorCases=[];
 for(const ios of [18,26]) for(const math of [0,1]) {
   for(const kind of [0,1]) derivativeVectorCases.push({
@@ -36,8 +39,8 @@ export function assertDerivativeVectorIR(ir,test) {
   assert(test.derivativeVector && test.status===0,'Not a successful derivative case');
   assert.match(ir,/!air\.fragment = !\{/,'Missing fragment metadata');
   const attributes=new Map([...ir.matchAll(/^attributes #(\d+) = \{([^\n]*)\}/gm)].map(m=>[m[1],m[2]]));
-  for(const op of ops) for(const n of widths) {
-    const entry=`dv_${op}_${n}`;
+  for(const op of ops) for(const n of widths) for(const probe of n===3?[false,true]:[false]) {
+    const entry=probe?`dv_probe_${op}_3`:`dv_${op}_${n}`;
     const definitions=[...ir.matchAll(new RegExp(`^define [^\\n]* @${entry}\\([^\\n]*\\) [^\\n]*\\{\\n([\\s\\S]*?)^\\}`,'gm'))];
     assert.equal(definitions.length,1,`Missing or duplicate ${entry}`);
     const body=definitions[0][1];
@@ -61,6 +64,7 @@ export function assertDerivativeVectorIR(ir,test) {
     assert(returned,`${entry}: missing return value`);
     const expectedLanes=Array.from({length:n},(_,i)=>op==='fwidth'
       ? sum(`abs(dfdx:${i})`,`abs(dfdy:${i})`) : `${op}:${i}`);
+    if(probe) expectedLanes.push('0');
     assert.deepEqual(values.get(returned[1]),expectedLanes,`${entry}: wrong returned lane/derivative/magnitude dataflow`);
     if(op==='fwidth') {
       assert.match(body,/fadd (?:[a-z]+ )*(?:float|<\d+ x float>)/,`${entry}: missing magnitude sum`);
@@ -75,13 +79,19 @@ export function assertDerivativeVectorIR(ir,test) {
 const sum=(a,b)=>`sum(${[a,b].sort().join(',')})`;
 function evaluateLanes(body) {
   const values=new Map([['%p',['p:0','p:1','p:2','p:3']]]);
-  const get=(v,n=1)=>values.get(v)??Array(n).fill('?');
+  const get=(v,n=1)=>{
+    if(/^<.*>$/.test(v)) {
+      const lanes=[...v.matchAll(/float ([^,>]+)/g)].map(m=>get(m[1].trim())[0]);
+      return lanes.length===n?lanes:Array(n).fill('?');
+    }
+    return v==='zeroinitializer'||/^0(?:\.0+)?(?:e[+-]?0+)?$/i.test(v)?Array(n).fill('0'):values.get(v)??Array(n).fill('?');
+  };
   const ty='(?:float|i32|<\\d+ x (?:float|i32)>)';
   for(const line of body.split('\n')) {
     const assignment=line.match(/^  (%[\w.]+) = (.*)$/); if(!assignment) continue;
     const [,id,rhs]=assignment; let m,result;
     if((m=rhs.match(/^extractelement <(\d+) x float> (%[\w.]+), i(?:32|64) (\d+)/))) result=[get(m[2],+m[1])[+m[3]]];
-    else if((m=rhs.match(/^insertelement <(\d+) x float> ([%\w.]+), float (%[\w.]+), i(?:32|64) (\d+)/))) {
+    else if((m=rhs.match(/^insertelement <(\d+) x float> (<[^>]+>|[%\w.]+), float ([%\w.+-]+), i(?:32|64) (\d+)/))) {
       result=[...get(m[2],+m[1])]; result[+m[4]]=get(m[3])[0];
     } else if((m=rhs.match(/@air\.(dfd[xy])\.f32\(float(?: [a-z]+)* (%[\w.]+)\)/))) result=[`${m[1]}:${get(m[2])[0]?.replace('p:','')}`];
     else if((m=rhs.match(new RegExp(`^bitcast ${ty} (%[\\w.]+) to ${ty}$`)))) result=get(m[1]);

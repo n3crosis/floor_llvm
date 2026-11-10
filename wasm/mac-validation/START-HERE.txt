@@ -1,0 +1,47 @@
+MAC VALIDATION V2: TWO COMMANDS
+
+1. Check installed Apple Metal 4.1 support now, without the CI artifact:
+
+   python3 run_mac_validation.py --capability-only
+
+   Requires macOS, Python 3.9+, and installed Xcode 26+ with iPhoneOS SDK
+   and Metal compiler. It probes -std=metal4.1 / iOS 27 and links one tiny
+   shader. Acceptance is not full 4.1 conformance or FLOOR 4.1 support.
+   An SDK below 27 stays a reported limitation, even if the flag works.
+
+2. Run the 34-case pinned FLOOR/Apple baseline after its artifact is ready:
+
+   python3 run_mac_validation.py --artifact "/path/to/downloaded-artifact.zip"
+
+   Also needs Node 24.x, Git 2.25+, Swift, and access to public GitHub.
+   Get only the original compiler-artifact ZIP from:
+   https://github.com/n3crosis/floor_llvm/actions/runs/42790141243
+
+   Exact artifact name:
+   air-wasm-dev-81d255965a57-81d255965a578d9dd55ec4cd2b53a2f239a989f1
+
+   Immutable artifact ID: 13752442598. ZIP size: 186234725 bytes.
+   SHA-256:
+   05b9ff737b04de5cbfa7ae1cfe235d1c14aafa1b5be2ef64250286b98adf30f4
+
+   V2 requires this exact original ZIP before parsing or executing it.
+   Older builds, re-zipped folders and apple-reference artifacts fail.
+   For an extracted folder, also pass --original-zip "/path/to/original.zip".
+   Its manifest and asset hashes must match that authenticated original.
+
+RETURN THE PRINTED share/summary.txt AND evidence.zip, EVEN ON FAILURE.
+Review them first. Nothing is uploaded automatically.
+
+Every run creates a fresh directory. No installs, global settings changes,
+existing-repo edits, library retargeting or automatic sign-in. The baseline
+still uses FLOOR Metal 3.2 for both iOS 18 and iOS 26 targets; it is not a
+4.1 implementation. GPU evidence covers only 12 eligible pairs. Rejected
+Apple iOS libraries on a Mac mean unavailable, never a pass. If Apple loads
+and FLOOR rejects, that is a failure.
+
+Exit 0 = bounded baseline pass OR minimal 4.1 capability acceptance.
+Exit 77 = GPU unavailable OR unsupported 4.1 capability. Check the mode.
+Exit 1 = failure; 2 = blocked prerequisite/input; 130 = interrupted.
+
+Read README.md for exact scope, matrix, privacy and result details.
+Tested here only with offline synthetic checks on Linux, not on a Mac.

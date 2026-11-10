@@ -9,6 +9,8 @@ on:
         type: string
   push:
     branches: [wasm, wasm-rebased-functional-20261110]
+    # Deliberate batch checkpoints only; ordinary pushes do not start CI.
+    paths: [wasm/release/validation-checkpoint.json]
 
 permissions:
   contents: read
@@ -45,6 +47,8 @@ jobs:
         run: |
           python3 -m unittest discover -s wasm/release -p 'test_*.py' -v
           node --test wasm/release/*.test.mjs
+          g++ -std=c++17 -Wall -Wextra -Werror wasm/api/tests/target-options.cpp -o "$RUNNER_TEMP/air-target-options-test"
+          "$RUNNER_TEMP/air-target-options-test"
       - name: Resolve an explicit one-push release request
         if: ${{ github.event_name == 'push' }}
         run: python3 wasm/release/release.py resolve-request --work "$RUNNER_TEMP/air-release"
@@ -129,7 +133,7 @@ jobs:
 
   apple_reference:
     needs: build
-    runs-on: macos-15
+    runs-on: xcode-27
     timeout-minutes: 35
     permissions:
       contents: read
@@ -151,7 +155,7 @@ jobs:
           artifact-ids: ${{ needs.build.outputs.compiler_artifact_id }}
           path: ${{ runner.temp }}/compiler-artifact
           merge-multiple: true
-      - name: Select the highest installed Xcode 26 or newer
+      - name: Select the highest installed Xcode 27 or newer
         shell: bash
         run: |
           python3 - <<'PY'
@@ -161,9 +165,9 @@ jobs:
               env = dict(os.environ, DEVELOPER_DIR=path)
               p = subprocess.run(['xcodebuild', '-version'], env=env, text=True, capture_output=True)
               m = re.search(r'^Xcode (\d+(?:\.\d+)*)', p.stdout)
-              if p.returncode == 0 and m and int(m[1].split('.')[0]) >= 26:
+              if p.returncode == 0 and m and int(m[1].split('.')[0]) >= 27:
                   candidates.append((tuple(map(int,m[1].split('.'))),path))
-          assert candidates, 'Xcode 26+ unavailable; no older-toolchain fallback'
+          assert candidates, 'Xcode 27+ unavailable; no older-toolchain fallback'
           with open(os.environ['GITHUB_ENV'],'a') as f:
               f.write('DEVELOPER_DIR='+max(candidates)[1]+'\n')
           PY

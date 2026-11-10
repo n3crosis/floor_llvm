@@ -1,0 +1,35 @@
+VALIDATION OF THE RUNNER PACKAGE
+
+Environment: Linux, Python 3.12.14. No Mac or Apple GPU execution was performed.
+No external source fetch, artifact download, remote edit or push was performed.
+
+Passed:
+- Python syntax compilation of run_mac_validation.py.
+- 33 offline synthetic unittest methods, including parameterized rejection cases.
+- A real local Git sparse checkout fixture, with no network access, which kept
+  an unneeded LLVM file out of the checkout.
+- Immutable ZIP pin tests: wrong size and same-size tampering fail before ZIP
+  parsing; extracted folders require the original pinned ZIP; self-consistent
+  forged manifests and modified assets are rejected.
+- Exact pinned-case inventory: 34 same-source cases, 12 GPU-eligible pairs.
+- Wrong commit/tree/header/status rejection, modified/missing assets, ZIP path
+  traversal and symlink rejection, fresh-output refusal and failure packaging.
+- Per-layer GPU classification: unavailable is not passed; Apple loaded with
+  FLOOR rejected is failed; missing layer evidence cannot establish a pass.
+- Mocked Metal 4.1 capability acceptance, explicit unsupported language, generic
+  rejection and linker failure, with fixed iOS 27 / metal4.1 flags.
+- Bounded command-output capture, timeout process-group shutdown, privacy
+  redaction, omitted AIR/metallib binary inventory and included float evidence.
+- End-to-end capability-only invocation on Linux: exit 2, blocked result,
+  every Apple/FLOOR/GPU stage not_run, and failure evidence ZIP retained.
+
+Not performed:
+- Apple Metal or metallib compiler execution.
+- Swift compilation, Metal library loading, pipelines, GPU execution or numerics.
+- The full 285-case compiler suite or a fresh FLOOR compiler build.
+- Verification against the real CI runtime artifact, not downloaded by this worker.
+  The trusted artifact ID, byte size and SHA-256 were supplied from the exact
+  GitHub workflow run after it produced the artifact.
+
+The 33 tests are synthetic runner tests, not 24 Metal feature tests.
+Detailed output is in offline-tests.log. The README documents exact limits.

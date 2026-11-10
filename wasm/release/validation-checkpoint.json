@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "checkpoint": "metal41-language-and-bit-interleave-20261110",
+  "purpose": "Build and validate the first explicit Metal 4.1 API and bit-interleave increment. Ordinary source pushes do not request another run.",
+  "releaseRequested": false
+}
