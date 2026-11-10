@@ -1949,6 +1949,25 @@ Sema::BuildCXXNew(SourceRange Range, bool UseGlobal,
   SourceRange TypeRange = AllocTypeInfo->getTypeLoc().getSourceRange();
   SourceLocation StartLoc = Range.getBegin();
 
+  // MSL 1.5.4 / 6.2: placement construction is not dynamic allocation.
+  // Diagnose here, before overload selection or CodeGen, including templates
+  // instantiated outside the public WASM API's AST visitor.
+  if (getLangOpts().Metal) {
+    if (!PlacementArgs.empty() && getLangOpts().MetalVersion < 410)
+      return ExprError(Diag(StartLoc, getDiagnostics().getCustomDiagID(
+          DiagnosticsEngine::Error, "placement new requires Metal 4.1")));
+    if (getLangOpts().MetalVersion >= 410) {
+      if (PlacementArgs.empty())
+        return ExprError(Diag(StartLoc, getDiagnostics().getCustomDiagID(
+            DiagnosticsEngine::Error,
+            "dynamic allocation is not permitted in Metal 4.1")));
+      if (PlacementArgs.size() != 1)
+        return ExprError(Diag(StartLoc, getDiagnostics().getCustomDiagID(
+            DiagnosticsEngine::Error,
+            "Metal placement new requires exactly one storage pointer")));
+    }
+  }
+
   CXXNewExpr::InitializationStyle initStyle;
   if (DirectInitRange.isValid()) {
     assert(Initializer && "Have parens but no initializer.");
@@ -2053,6 +2072,16 @@ Sema::BuildCXXNew(SourceRange Range, bool UseGlobal,
 
   if (CheckAllocatedType(AllocType, TypeRange.getBegin(), TypeRange))
     return ExprError();
+
+  if (getLangOpts().Metal && getLangOpts().MetalVersion >= 410 &&
+      !AllocType->isDependentType()) {
+    const LangAS AS = AllocType.getAddressSpace();
+    if (AS != LangAS::opencl_private && AS != LangAS::opencl_local &&
+        AS != LangAS::opencl_global)
+      return ExprError(Diag(TypeRange.getBegin(),
+          getDiagnostics().getCustomDiagID(DiagnosticsEngine::Error,
+          "Metal placement new requires an explicitly thread, threadgroup, or device qualified allocated type")));
+  }
 
   // In ARC, infer 'retaining' for the allocated
   if (getLangOpts().ObjCAutoRefCount &&
@@ -2203,6 +2232,15 @@ Sema::BuildCXXNew(SourceRange Range, bool UseGlobal,
     // be signed, larger than size_t, whatever.
   }
 
+  // This implementation deliberately excludes runtime-bound arrays. Their
+  // failure/overflow semantics are not yet supported by the AIR API.
+  if (getLangOpts().Metal && getLangOpts().MetalVersion >= 410 &&
+      ArraySize && *ArraySize && !(*ArraySize)->isValueDependent() &&
+      !KnownArraySize)
+    return ExprError(Diag((*ArraySize)->getExprLoc(),
+        getDiagnostics().getCustomDiagID(DiagnosticsEngine::Error,
+        "runtime-bound placement arrays are not supported by this Metal implementation")));
+
   FunctionDecl *OperatorNew = nullptr;
   FunctionDecl *OperatorDelete = nullptr;
   unsigned Alignment =
@@ -2219,6 +2257,15 @@ Sema::BuildCXXNew(SourceRange Range, bool UseGlobal,
           AllocType, ArraySize.hasValue(), PassAlignment, PlacementArgs,
           OperatorNew, OperatorDelete))
     return ExprError();
+
+  if (getLangOpts().Metal && getLangOpts().MetalVersion >= 410 && OperatorNew) {
+    if (!OperatorNew->isReservedGlobalPlacementOperator() || PassAlignment ||
+        OperatorNew->getParamDecl(1)->getType()->getPointeeType().getAddressSpace()
+            != AllocType.getAddressSpace())
+      return ExprError(Diag(StartLoc, getDiagnostics().getCustomDiagID(
+          DiagnosticsEngine::Error,
+          "Metal placement new requires the standard storage-pointer overload in the allocated address space")));
+  }
 
   // If this is an array allocation, compute whether the usual array
   // deallocation function for the type has a size_t parameter.
@@ -3499,6 +3546,9 @@ void Sema::AnalyzeDeleteExprMismatch(FieldDecl *Field, SourceLocation DeleteLoc,
 ExprResult
 Sema::ActOnCXXDelete(SourceLocation StartLoc, bool UseGlobal,
                      bool ArrayForm, Expr *ExE) {
+  if (getLangOpts().Metal && getLangOpts().MetalVersion >= 410)
+    return ExprError(Diag(StartLoc, getDiagnostics().getCustomDiagID(
+        DiagnosticsEngine::Error, "delete is not permitted in Metal 4.1")));
   // C++ [expr.delete]p1:
   //   The operand shall have a pointer type, or a class type having a single
   //   non-explicit conversion function to a pointer type. The result has type

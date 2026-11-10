@@ -3123,8 +3123,27 @@ bool FunctionDecl::isReservedGlobalPlacementOperator() const {
     cast<TranslationUnitDecl>(getDeclContext()->getRedeclContext())
       ->getASTContext();
 
-  // The result type and first argument type are constant across all
-  // these operators.  The second argument must be exactly void*.
+  // The result type and first argument type are constant across standard
+  // C++ operators. Metal 4.1 also reserves the six address-space-qualified
+  // placement new/new[] signatures (MSL 6.2). Recognizing them here is crucial:
+  // CodeGen must return the supplied pointer, without an array cookie, even for
+  // elements with nontrivial destructors. Do not generalize this to custom
+  // allocators, delete, other address spaces, or non-Metal language modes.
+  if (Context.getLangOpts().Metal && Context.getLangOpts().MetalVersion >= 410 &&
+      (getOverloadedOperator() == OO_New ||
+       getOverloadedOperator() == OO_Array_New)) {
+    QualType Pointer = proto->getParamType(1).getCanonicalType();
+    if (const auto *PT = Pointer->getAs<PointerType>()) {
+      QualType Pointee = PT->getPointeeType();
+      LangAS AS = Pointee.getAddressSpace();
+      if ((AS == LangAS::opencl_private || AS == LangAS::opencl_local ||
+           AS == LangAS::opencl_global) && Pointee->isVoidType() &&
+          !Pointee.getQualifiers().hasCVRQualifiers() &&
+          Context.hasSameType(proto->getReturnType(), Pointer) &&
+          Context.hasSameType(proto->getParamType(0), Context.getSizeType()))
+        return true;
+    }
+  }
   return (proto->getParamType(1).getCanonicalType() == Context.VoidPtrTy);
 }
 

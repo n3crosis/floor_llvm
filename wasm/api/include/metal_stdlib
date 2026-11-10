@@ -65,6 +65,7 @@ template<uint N> struct storage<bool,N> { using type=unsupported_bool_vector<N>;
 }
 template<class T,uint N> using vec=typename __vector_detail::storage<T,N>::type;
 }
+#include <metal_common>
 #include <metal_math>
 #include <metal_integer>
 #include <metal_control>

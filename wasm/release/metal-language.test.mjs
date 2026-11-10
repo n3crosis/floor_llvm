@@ -22,7 +22,6 @@ test('case inventory is unique and covers exact tuples and legacy ABI',()=>{
   assert.equal(cases.filter(c=>c.api===3&&c.status===0&&c.kind===0).length,6);
   assert.equal(cases.filter(c=>c.api<3&&c.status===0).length,4);
   assert(cases.some(c=>c.name==='metal41-reject-cxx20-warning-bypass'));
-  assert(cases.some(c=>c.name==='metal41-reject-placement-new-unimplemented'));
 });
 for(const tuple of metalLanguageTuples) test('IR and VERS use actual version'+tuple.metalVersion,()=>{
   const t={api:3,...tuple};assertMetalLanguageIR(ir(t),t);assertMetalLanguageMetallib(metallib(t),t);
@@ -48,14 +47,11 @@ test('metadata helper is reusable without weakening entry-specific checks',()=>{
 
 test('rejections require matching diagnostics rather than arbitrary frontend failure',()=>{
   const rejected=cases.filter(c=>c.status===3);
-  assert.equal(rejected.length,23);
+  assert.equal(rejected.length,22);
   for(const c of rejected) {
     assert(c.diagnosticPattern);
     assert.throws(()=>assertMetalLanguageDiagnostic('unrelated frontend failure',c),/Wrong language rejection reason/);
   }
-  const placement=rejected.find(c=>c.name.endsWith('placement-new-unimplemented'));
-  assertMetalLanguageDiagnostic('placement new is not implemented by this Metal 4.1 header bundle',placement);
-  assert.throws(()=>assertMetalLanguageDiagnostic('unknown type name',placement));
   assert(cases.some(c=>c.name==='metal41-cxx17-nested-namespace'&&c.status===0));
 });
 

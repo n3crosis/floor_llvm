@@ -169,19 +169,96 @@ public:
   bool VisitMSAsmStmt(clang::MSAsmStmt *) { rejected = true; return false; }
 };
 // A fail-closed public API boundary, not a claim of complete MSL conformance.
-// Placement new is legal in 4.1 but remains unimplemented in this header bundle.
+// Only the fixed metal_common storage-pointer placement operators are allowed.
 class RejectMetal41Features final
     : public clang::RecursiveASTVisitor<RejectMetal41Features> {
+  bool trustedPlacementOperator(const clang::FunctionDecl *function) {
+    if (!function || !function->isOverloadedOperator() ||
+        (function->getOverloadedOperator() != clang::OO_New &&
+         function->getOverloadedOperator() != clang::OO_Array_New) ||
+        !function->isReservedGlobalPlacementOperator()) return false;
+    const auto *definition = function->getDefinition();
+    if (!definition) return false;
+    const auto &context = function->getASTContext();
+    const auto &sm = context.getSourceManager();
+    auto trusted = [&](clang::SourceLocation loc) {
+      if (loc.isInvalid() || loc.isMacroID()) return false;
+      auto file = sm.getFileEntryRefForID(sm.getFileID(loc));
+      return file && file->getName() == "/include/metal_common";
+    };
+    // Check real file identities, not presumed #line paths. Reject user
+    // redeclarations, replacement definitions, and macro-injected bodies.
+    for (const auto *decl : function->redecls())
+      if (!trusted(decl->getLocation())) return false;
+    const auto *body = llvm::dyn_cast<clang::CompoundStmt>(definition->getBody());
+    if (!body || body->size() != 1 || !trusted(body->getBeginLoc())) return false;
+    const auto *ret = llvm::dyn_cast<clang::ReturnStmt>(*body->body_begin());
+    if (!ret || !ret->getRetValue() || !trusted(ret->getReturnLoc())) return false;
+    const auto *value = llvm::dyn_cast<clang::DeclRefExpr>(
+        ret->getRetValue()->IgnoreParenImpCasts());
+    if (!value || value->getDecl() != definition->getParamDecl(1)) return false;
+    const auto pointer = function->getParamDecl(1)->getType();
+    const auto pointee = pointer->getPointeeType();
+    const auto space = pointee.getAddressSpace();
+    return (space == clang::LangAS::opencl_private ||
+            space == clang::LangAS::opencl_local ||
+            space == clang::LangAS::opencl_global) &&
+        pointee->isVoidType() && !pointee.getQualifiers().hasCVRQualifiers() &&
+        context.hasSameType(function->getReturnType(), pointer) &&
+        context.hasSameType(function->getParamDecl(0)->getType(), context.getSizeType());
+  }
 public:
   const char *reason = nullptr;
+  bool shouldVisitTemplateInstantiations() const { return true; }
   bool reject(const char *text) { reason = text; return false; }
   bool VisitDesignatedInitExpr(clang::DesignatedInitExpr *) {
     return reject("designated initializers require C++20 and are not supported in Metal 4.1");
   }
   bool VisitCXXNewExpr(clang::CXXNewExpr *expr) {
-    return reject(expr->getNumPlacementArgs()
-        ? "placement new is not implemented by this Metal 4.1 header bundle"
-        : "dynamic allocation is not permitted in Metal 4.1");
+    if (!expr->getNumPlacementArgs())
+      return reject("dynamic allocation is not permitted in Metal 4.1");
+    if (expr->getNumPlacementArgs() != 1)
+      return reject("Metal placement new requires exactly one storage pointer");
+    // Sema checks the allocated type, matching address space and constant array
+    // bound. Deferred expressions are checked again on template instantiation.
+    if (expr->isTypeDependent() || expr->isValueDependent()) return true;
+    if (!trustedPlacementOperator(expr->getOperatorNew()))
+      return reject("Metal placement new requires the embedded metal_common overload");
+    return true;
+  }
+  bool VisitFunctionDecl(clang::FunctionDecl *decl) {
+    if (decl->isImplicit() || !decl->isOverloadedOperator()) return true;
+    const auto op = decl->getOverloadedOperator();
+    if (op == clang::OO_Delete || op == clang::OO_Array_Delete)
+      return reject("delete is not permitted in Metal 4.1");
+    if ((op == clang::OO_New || op == clang::OO_Array_New) &&
+        !trustedPlacementOperator(decl))
+      return reject("custom allocation operators are not supported by the Metal 4.1 API");
+    return true;
+  }
+  bool VisitDeclRefExpr(clang::DeclRefExpr *expr) {
+    // Taking an implicit heap operator's address must not evade the direct
+    // call check through a function pointer or an unevaluated expression.
+    const auto *function = llvm::dyn_cast<clang::FunctionDecl>(expr->getDecl());
+    if (!function || !function->isOverloadedOperator()) return true;
+    const auto op = function->getOverloadedOperator();
+    if (op == clang::OO_Delete || op == clang::OO_Array_Delete)
+      return reject("delete is not permitted in Metal 4.1");
+    if ((op == clang::OO_New || op == clang::OO_Array_New) &&
+        !trustedPlacementOperator(function))
+      return reject("dynamic allocation and custom allocation operators are not permitted in Metal 4.1");
+    return true;
+  }
+  bool VisitCallExpr(clang::CallExpr *expr) {
+    const auto *callee = expr->getDirectCallee();
+    if (!callee || !callee->isOverloadedOperator()) return true;
+    const auto op = callee->getOverloadedOperator();
+    if (op == clang::OO_Delete || op == clang::OO_Array_Delete)
+      return reject("delete is not permitted in Metal 4.1");
+    if ((op == clang::OO_New || op == clang::OO_Array_New) &&
+        !trustedPlacementOperator(callee))
+      return reject("dynamic allocation and custom allocation operators are not permitted in Metal 4.1");
+    return true;
   }
   bool VisitCXXDeleteExpr(clang::CXXDeleteExpr *) { return reject("delete is not permitted in Metal 4.1"); }
   bool VisitGotoStmt(clang::GotoStmt *) { return reject("goto is not permitted in Metal 4.1"); }

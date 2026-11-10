@@ -4,7 +4,7 @@ project(floor_air_api LANGUAGES C CXX)
 #                -DClang_DIR=<fork-build>/lib/cmake/clang.
 find_package(LLVM 14 CONFIG REQUIRED)
 find_package(Clang CONFIG REQUIRED)
-set(AIR_HEADER_PATHS metal_stdlib metal_math metal_control metal_texture metal_depth metal_simd metal_integer metal_atomic metal_tessellation simd/simd.h)
+set(AIR_HEADER_PATHS metal_common metal_stdlib metal_math metal_control metal_texture metal_depth metal_simd metal_integer metal_atomic metal_tessellation simd/simd.h)
 list(SORT AIR_HEADER_PATHS)
 set(AIR_HEADER_FINGERPRINT "floor-air-header-bundle-v2\n")
 set(AIR_COMPAT_BUNDLE_INITIALIZERS "")

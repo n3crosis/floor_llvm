@@ -1,0 +1,16 @@
+// Authored compatibility subset. Not Apple's SDK headers.
+#ifndef FLOOR_AIR_METAL_COMMON
+#define FLOOR_AIR_METAL_COMMON
+#include <metal_stdlib>
+// MSL 4.1 section 6.2. These operators only return caller-owned storage.
+// The caller must provide sufficient space and alignment, manage object lifetime,
+// and synchronize shared storage. There is no allocator or matching delete.
+#if defined(__METAL_VERSION__) && __METAL_VERSION__ >= 410
+inline __attribute__((always_inline)) thread void *operator new(metal::size_t, thread void *ptr) { return ptr; }
+inline __attribute__((always_inline)) thread void *operator new[](metal::size_t, thread void *ptr) { return ptr; }
+inline __attribute__((always_inline)) threadgroup void *operator new(metal::size_t, threadgroup void *ptr) { return ptr; }
+inline __attribute__((always_inline)) threadgroup void *operator new[](metal::size_t, threadgroup void *ptr) { return ptr; }
+inline __attribute__((always_inline)) device void *operator new(metal::size_t, device void *ptr) { return ptr; }
+inline __attribute__((always_inline)) device void *operator new[](metal::size_t, device void *ptr) { return ptr; }
+#endif
+#endif

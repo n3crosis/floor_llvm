@@ -54,7 +54,6 @@ export function metalLanguageCases() {
     'thread-local': body + '{ thread_local uint x=1; out[0]=x; }',
     'register': body + '{ register uint x=1; out[0]=x; }',
     'exception': body + '{ try { out[0]=1; } catch (...) { out[0]=0; } }',
-    'placement-new-unimplemented': 'thread void* operator new(size_t, thread void* p) { return p; }\n' + body + '{ thread int value; thread int* p=new (&value) thread int; out[0]=*p; }',
   };
   const diagnosticPatterns = {
     'cxx20-concept': 'concept|C\\+\\+20',
@@ -79,7 +78,6 @@ export function metalLanguageCases() {
     'thread-local': 'thread_local|thread-local',
     'register': 'register',
     'exception': 'exception|try',
-    'placement-new-unimplemented': 'placement new is not implemented by this Metal 4[.]1 header bundle',
   };
   for (const [name, text] of Object.entries(rejected)) cases.push({ name: `metal41-reject-${name}`,
     api: 3, ios: 27, metalVersion: 410, kind: 1, source: head + text, status: 3,
