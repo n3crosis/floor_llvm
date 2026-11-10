@@ -39,7 +39,8 @@ TOOLING = (".github/workflows/release-air-wasm.yml", "wasm/release/github_releas
            "wasm/release/metallib-metadata.mjs", "wasm/release/integer-vector.mjs",
            "wasm/release/derivative-vector.mjs", "wasm/release/common-functions.mjs",
            "wasm/release/common-functions-ir.mjs", "wasm/release/metal-language.mjs",
-           "wasm/release/apple-reference.mjs",
+           "wasm/release/msl41-bit-interleave.mjs", "wasm/release/msl41-bit-interleave-ir.mjs",
+           "wasm/release/msl41-bit-interleave-abi.mjs", "wasm/release/apple-reference.mjs",
            "wasm/release/verify-apple-runtime.py", "wasm/release/metal-numerical.swift",
            "wasm/release/release-config.json", "wasm/release/release.py",
            "wasm/release/release-request.json")

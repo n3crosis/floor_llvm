@@ -70,5 +70,53 @@ AIR_INTEGER_VECTOR(uint,3)
 AIR_INTEGER_VECTOR(uint,4)
 #undef AIR_INTEGER_VECTOR
 // END 32-bit vector subset
+
+// BEGIN MSL 4.1 bit interleave
+// Authored implementation of MSL 4.1 (2026-06-04), section 6.4,
+// Table 6.2, pp. 202-203. Only the three unsigned narrow/wide pairs and
+// the scalar-pair/vector2 interleave forms listed there are provided.
+#if defined(__METAL_VERSION__) && __METAL_VERSION__ >= 410
+namespace __bit_interleave_detail {
+// Spread all 32 input bits into even positions of a 64-bit word. Narrow
+// overloads use the same exact arithmetic with zero-extended inputs.
+inline __attribute__((always_inline)) ulong spread(uint v) {
+  ulong x = ulong(v);
+  x = (x | (x << 16)) & 0x0000ffff0000fffful;
+  x = (x | (x << 8)) & 0x00ff00ff00ff00fful;
+  x = (x | (x << 4)) & 0x0f0f0f0f0f0f0f0ful;
+  x = (x | (x << 2)) & 0x3333333333333333ul;
+  return (x | (x << 1)) & 0x5555555555555555ul;
+}
+inline __attribute__((always_inline)) uint compact(ulong v) {
+  ulong x = v & 0x5555555555555555ul;
+  x = (x | (x >> 1)) & 0x3333333333333333ul;
+  x = (x | (x >> 2)) & 0x0f0f0f0f0f0f0f0ful;
+  x = (x | (x >> 4)) & 0x00ff00ff00ff00fful;
+  x = (x | (x >> 8)) & 0x0000ffff0000fffful;
+  return uint(x | (x >> 16));
+}
+}
+// Reject implicit promotion, mixed widths/signs, unsupported vector widths,
+// and accidental use of the inverse function's input width.
+template<class A, class B> void interleave(A, B) = delete;
+template<class T> void interleave(T) = delete;
+template<class T> void deinterleave(T) = delete;
+
+#define AIR_BIT_INTERLEAVE(NARROW, WIDE) \
+  inline __attribute__((always_inline)) WIDE interleave(NARROW even, NARROW odd) { \
+    return WIDE(__bit_interleave_detail::spread(uint(even)) | (__bit_interleave_detail::spread(uint(odd)) << 1)); \
+  } \
+  inline __attribute__((always_inline)) WIDE interleave(NARROW##2 v) { \
+    return interleave(v.x, v.y); \
+  } \
+  inline __attribute__((always_inline)) NARROW##2 deinterleave(WIDE v) { \
+    return NARROW##2(NARROW(__bit_interleave_detail::compact(ulong(v))), NARROW(__bit_interleave_detail::compact(ulong(v) >> 1))); \
+  }
+AIR_BIT_INTERLEAVE(uchar, ushort)
+AIR_BIT_INTERLEAVE(ushort, uint)
+AIR_BIT_INTERLEAVE(uint, ulong)
+#undef AIR_BIT_INTERLEAVE
+#endif
+// END MSL 4.1 bit interleave
 }
 #endif
