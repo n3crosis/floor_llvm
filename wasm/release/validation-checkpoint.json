@@ -1,6 +1,15 @@
 {
   "schemaVersion": 1,
-  "checkpoint": "metal41-language-and-bit-interleave-20261110",
-  "purpose": "Build and validate the first explicit Metal 4.1 API and bit-interleave increment. Ordinary source pushes do not request another run.",
+  "checkpoint": "metal41-placement-texture-barriers-20261110",
+  "purpose": "One deliberate combined validation build for the reviewed placement construction, sampler-backed texture reads and ordered barrier batch. Ordinary source pushes do not request another run.",
+  "sourceBatchCommit": "8026ac51d6e9f3e2a547445343ff5a206f0ed0ec",
+  "configuredCompilerCases": 788,
+  "configuredApplePairs": 172,
+  "genericGpuPairs": 48,
+  "supplementalGpuPairs": {
+    "texture": 24,
+    "placement": 6,
+    "barrier": 8
+  },
   "releaseRequested": false
 }
