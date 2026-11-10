@@ -1,19 +1,45 @@
-// Authored relaxed unsigned-32 atomic subset, matching reference AIR calls.
+// Authored relaxed unsigned-32 atomics and versioned barriers, matching reference AIR calls.
 #ifndef FLOOR_AIR_METAL_ATOMIC
 #define FLOOR_AIR_METAL_ATOMIC
 #include <metal_stdlib>
 namespace metal {
 struct atomic_uint { private: uint storage; };
 static_assert(sizeof(atomic_uint)==4 && alignof(atomic_uint)==4, "atomic uint layout");
-enum memory_order { memory_order_relaxed = 0 };
-enum class mem_flags { mem_threadgroup = 2 };
+enum memory_order {
+  memory_order_relaxed = 0,
+#if defined(__METAL_VERSION__) && __METAL_VERSION__ >= 410
+  memory_order_acquire = 2, memory_order_release = 3,
+  memory_order_acq_rel = 4, memory_order_seq_cst = 5,
+#endif
+};
+enum class mem_flags {
+  mem_threadgroup = 2,
+#if defined(__METAL_VERSION__) && __METAL_VERSION__ >= 410
+  mem_none = 0, mem_device = 1, mem_texture = 4,
+  mem_threadgroup_imageblock = 8, mem_object_data = 16,
+#endif
+};
+#if defined(__METAL_VERSION__) && __METAL_VERSION__ >= 410
+enum thread_scope {
+  thread_scope_thread = 0, thread_scope_threadgroup = 1,
+  thread_scope_device = 2, thread_scope_simdgroup = 4,
+};
+constexpr mem_flags operator|(mem_flags a, mem_flags b) {
+  return mem_flags(uint(a) | uint(b));
+}
+#endif
 namespace __atomic_detail {
 uint global_add(device uint*,uint,uint,uint,bool) __asm__("air.atomic.global.add.u.i32");
 uint global_min(device uint*,uint,uint,uint,bool) __asm__("air.atomic.global.min.u.i32");
 uint local_add(threadgroup uint*,uint,uint,uint,bool) __asm__("air.atomic.local.add.u.i32");
 uint local_min(threadgroup uint*,uint,uint,uint,bool) __asm__("air.atomic.local.min.u.i32");
 uint local_max(threadgroup uint*,uint,uint,uint,bool) __asm__("air.atomic.local.max.u.i32");
+#if defined(__METAL_VERSION__) && __METAL_VERSION__ >= 410
+void barrier(uint,uint,uint) __asm__("air.wg.barrier") __attribute__((convergent));
+void simd_barrier(uint,uint,uint) __asm__("air.simdgroup.barrier") __attribute__((convergent));
+#else
 void barrier(uint,uint) __asm__("air.wg.barrier") __attribute__((convergent));
+#endif
 }
 #define AIR_ATOMIC_OP(OP, AS, SCOPE, INTRINSIC) \
 inline __attribute__((always_inline)) uint atomic_fetch_##OP##_explicit(AS atomic_uint *p, uint value, memory_order order) \
@@ -25,9 +51,26 @@ AIR_ATOMIC_OP(add,threadgroup,1u,local_add)
 AIR_ATOMIC_OP(min,threadgroup,1u,local_min)
 AIR_ATOMIC_OP(max,threadgroup,1u,local_max)
 #undef AIR_ATOMIC_OP
+#if defined(__METAL_VERSION__) && __METAL_VERSION__ >= 410
+// MSL 4.1 uses (flags, order, scope), including the one-argument source form.
+// Unlike Apple's textual-IR frontend, this bounded API rejects unknown enum
+// casts and dynamic controls rather than forwarding unverified AIR operands.
+#define AIR_BARRIER(NAME, SCOPE, INTRINSIC) \
+inline __attribute__((always_inline, convergent)) void NAME( \
+    mem_flags flags, memory_order order = memory_order_seq_cst, \
+    thread_scope scope = SCOPE) \
+__attribute__((diagnose_if(!__builtin_constant_p(flags) || (uint(flags) & ~31u), "barriers require constant valid memory flags", "error"))) \
+__attribute__((diagnose_if(!__builtin_constant_p(order) || (order != memory_order_relaxed && order != memory_order_acquire && order != memory_order_release && order != memory_order_acq_rel && order != memory_order_seq_cst), "barriers require constant valid memory order", "error"))) \
+__attribute__((diagnose_if(!__builtin_constant_p(scope) || (scope != thread_scope_thread && scope != thread_scope_simdgroup && scope != thread_scope_threadgroup && scope != thread_scope_device), "barriers require constant valid thread scope", "error"))) { \
+  __atomic_detail::INTRINSIC(uint(flags), uint(order), uint(scope)); }
+AIR_BARRIER(threadgroup_barrier, thread_scope_threadgroup, barrier)
+AIR_BARRIER(simdgroup_barrier, thread_scope_simdgroup, simd_barrier)
+#undef AIR_BARRIER
+#else
 inline __attribute__((always_inline)) void threadgroup_barrier(mem_flags flags)
 __attribute__((diagnose_if(!__builtin_constant_p(flags) || flags != mem_flags::mem_threadgroup, "only threadgroup-memory barrier is supported", "error"))) {
   __atomic_detail::barrier(2u,1u);
 }
+#endif
 }
 #endif

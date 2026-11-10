@@ -386,7 +386,7 @@ protected:
     return std::make_unique<clang::MultiplexConsumer>(std::move(consumers));
   }
 };
-bool validControlStages(const llvm::Module &module) {
+bool validControlStages(const llvm::Module &module, uint32_t metalVersion) {
   for (const auto *stage : {"air.kernel", "air.vertex", "air.fragment"}) {
     const auto *entries=module.getNamedMetadata(stage);
     if (!entries) continue;
@@ -422,7 +422,19 @@ bool validControlStages(const llvm::Module &module) {
             if ((llvm::StringRef(stage)!="air.kernel" && !fragmentAdd) || !constant(2,0) ||
                 !constant(3,name.startswith("air.atomic.global.") ? 2 : 1) || !constant(4,1)) return false;
           }
-          if (name=="air.wg.barrier" && (llvm::StringRef(stage)!="air.kernel" || !constant(0,2) || !constant(1,1))) return false;
+          if (name=="air.wg.barrier" || name=="air.simdgroup.barrier") {
+            if (metalVersion==410) {
+              // MSL 6.10 permits compute/fragment barriers, not vertex barriers.
+              // Validate internal-helper calls too, including post-inline operands.
+              if ((llvm::StringRef(stage)!="air.kernel" && llvm::StringRef(stage)!="air.fragment") ||
+                  call->arg_size()!=3) return false;
+              auto *flags=llvm::dyn_cast<llvm::ConstantInt>(call->getArgOperand(0));
+              if (!flags || flags->getZExtValue()>31 ||
+                  !(constant(1,0) || constant(1,2) || constant(1,3) || constant(1,4) || constant(1,5)) ||
+                  !(constant(2,0) || constant(2,1) || constant(2,2) || constant(2,4))) return false;
+            } else if (name!="air.wg.barrier" || llvm::StringRef(stage)!="air.kernel" ||
+                call->arg_size()!=2 || !constant(0,2) || !constant(1,1)) return false;
+          }
           if (!callee->isDeclaration()) pending.push_back(callee);
         }
       }
@@ -711,7 +723,7 @@ static air_result *compile(const uint8_t *source, size_t source_size,
     appendDiagnostic(*result, "AIR metadata disagrees with the selected Metal language version.\n");
     return result.release();
   }
-  if (!validControlStages(*module)) {
+  if (!validControlStages(*module, metal_version)) {
     result->status = AIR_INVALID_IR;
     appendDiagnostic(*result, "Unsupported shader stage for a control intrinsic, or unresolved indirect call.\n");
     return result.release();

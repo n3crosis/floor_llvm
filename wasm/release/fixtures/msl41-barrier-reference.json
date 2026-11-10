@@ -1,0 +1,908 @@
+{
+  "source": "https://developer.apple.com/metal/Metal-Shading-Language-Specification.pdf",
+  "specification": "4.1 (2026-06-04), sections6.10/6.16",
+  "appleCompiler": "32023.922 (metalfe-32023.922.4)",
+  "archiveSha256": "f3dd915912d925ff852d42fb0bb15b72bdb37da319346c16a475b2baaae6cc36",
+  "inputArchiveSha256": "6de73a43777cc1e97b8b8cd8f16630eb7e199c7828afb61d92ebb833a9273f28",
+  "scope": "Apple textual AIR only; no library linking or GPU result",
+  "enums": {
+    "memory_order_relaxed": 0,
+    "memory_order_acquire": 2,
+    "memory_order_release": 3,
+    "memory_order_acq_rel": 4,
+    "memory_order_seq_cst": 5,
+    "thread_scope_thread": 0,
+    "thread_scope_simdgroup": 4,
+    "thread_scope_threadgroup": 1,
+    "thread_scope_device": 2,
+    "mem_none": 0,
+    "mem_device": 1,
+    "mem_threadgroup": 2,
+    "mem_texture": 4,
+    "mem_threadgroup_imageblock": 8,
+    "mem_object_data": 16
+  },
+  "cases": [
+    {
+      "name": "metal4.1-probe-00",
+      "probe": 0,
+      "metalVersion": "4.1",
+      "ios": 27,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "kernel void barrier_legacy() { threadgroup_barrier(mem_flags::mem_threadgroup); }",
+      "barrierCalls": [
+        "tail call void @air.wg.barrier(i32 2, i32 5, i32 1) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.wg.barrier(i32, i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          2,
+          5,
+          1
+        ]
+      ],
+      "airSha256": "ca18bac54302691c9148c1335afc4cbdd41d69970b3fa828862ec13ea05abbd7",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "7af377c904c62b374ce88349d863bdda3decfc2b2e64bea5b9942d06d25dfe11"
+    },
+    {
+      "name": "metal4.1-probe-01",
+      "probe": 1,
+      "metalVersion": "4.1",
+      "ios": 27,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "kernel void barrier_acquire() { threadgroup_barrier(mem_flags::mem_threadgroup, memory_order_acquire); }",
+      "barrierCalls": [
+        "tail call void @air.wg.barrier(i32 2, i32 2, i32 1) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.wg.barrier(i32, i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          2,
+          2,
+          1
+        ]
+      ],
+      "airSha256": "1f21e65e4cac6ff1b9183830fa1190ad58c7960e9ea2cd000767aad93d069952",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "78def4913862d3c6d0e4ad04fee59ac896e1afa66945cac46b4d73c3c98ea3fd"
+    },
+    {
+      "name": "metal4.1-probe-02",
+      "probe": 2,
+      "metalVersion": "4.1",
+      "ios": 27,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "kernel void barrier_release() { threadgroup_barrier(mem_flags::mem_threadgroup, memory_order_release); }",
+      "barrierCalls": [
+        "tail call void @air.wg.barrier(i32 2, i32 3, i32 1) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.wg.barrier(i32, i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          2,
+          3,
+          1
+        ]
+      ],
+      "airSha256": "44f6f1c00d98b309b065be8326c6ed5d0d02e04a924211ff19794fdc4897c29d",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "b0dfc46604dff0cac0defb8cd12edd270d93addb368337fefc4bfe5f35543705"
+    },
+    {
+      "name": "metal4.1-probe-03",
+      "probe": 3,
+      "metalVersion": "4.1",
+      "ios": 27,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "kernel void barrier_acq_rel() { threadgroup_barrier(mem_flags::mem_threadgroup, memory_order_acq_rel); }",
+      "barrierCalls": [
+        "tail call void @air.wg.barrier(i32 2, i32 4, i32 1) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.wg.barrier(i32, i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          2,
+          4,
+          1
+        ]
+      ],
+      "airSha256": "175b31dcde00898fef57eeb523bc57e2215a3a86fa4cd1dc7b03f1709d701ce6",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "47e63182f62d855bd625a2f88ee133f6779a32ebf29a6cf60363501c39e1286d"
+    },
+    {
+      "name": "metal4.1-probe-04",
+      "probe": 4,
+      "metalVersion": "4.1",
+      "ios": 27,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "kernel void barrier_seq_cst() { threadgroup_barrier(mem_flags::mem_threadgroup, memory_order_seq_cst); }",
+      "barrierCalls": [
+        "tail call void @air.wg.barrier(i32 2, i32 5, i32 1) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.wg.barrier(i32, i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          2,
+          5,
+          1
+        ]
+      ],
+      "airSha256": "3fb0633cf57eb835ea3f81214f73a3c8365a21b979a730c5ede5f0c25e7e21ca",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "a29d31ca5989f3eb5f128c34ada2d9f33e7b80bded5a13c6f51c8435403bef82"
+    },
+    {
+      "name": "metal4.1-probe-05",
+      "probe": 5,
+      "metalVersion": "4.1",
+      "ios": 27,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "kernel void barrier_relaxed() { threadgroup_barrier(mem_flags::mem_threadgroup, memory_order_relaxed); }",
+      "barrierCalls": [
+        "tail call void @air.wg.barrier(i32 2, i32 0, i32 1) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.wg.barrier(i32, i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          2,
+          0,
+          1
+        ]
+      ],
+      "airSha256": "e3e22032411bf62c9b44cd33ec787dd695a03ecd7966f6698659dde86fe1c561",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "3bdf7930ebbf8eee48a390afa4687ac8834bef87d5bdf98adfb210d8bec4f892"
+    },
+    {
+      "name": "metal4.1-probe-06",
+      "probe": 6,
+      "metalVersion": "4.1",
+      "ios": 27,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "kernel void barrier_device() { threadgroup_barrier(mem_flags::mem_device, memory_order_acq_rel, thread_scope_device); }",
+      "barrierCalls": [
+        "tail call void @air.wg.barrier(i32 1, i32 4, i32 2) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.wg.barrier(i32, i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          1,
+          4,
+          2
+        ]
+      ],
+      "airSha256": "a7ef872006cb5399da5c0b3e178afb9a95fc7cd3ed507aa0af36e5ab799730e2",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "a7088d2faa12b3524a51a48d3419d9030af04fafcb0ffc8146e8f849e1f03c64"
+    },
+    {
+      "name": "metal4.1-probe-07",
+      "probe": 7,
+      "metalVersion": "4.1",
+      "ios": 27,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "kernel void barrier_none() { threadgroup_barrier(mem_flags::mem_none, memory_order_relaxed, thread_scope_threadgroup); }",
+      "barrierCalls": [
+        "tail call void @air.wg.barrier(i32 0, i32 0, i32 1) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.wg.barrier(i32, i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "airSha256": "db310260ef7374d644596dbd810360b955a7d8f9784a5964665e1c16978ff2e6",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "42f22fe858e5cd291fbc3a3254a2da3d8ebfcf47148251e405dee27e8596aa2b"
+    },
+    {
+      "name": "metal4.1-probe-08",
+      "probe": 8,
+      "metalVersion": "4.1",
+      "ios": 27,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "kernel void simd_acquire() { simdgroup_barrier(mem_flags::mem_threadgroup, memory_order_acquire); }",
+      "barrierCalls": [
+        "tail call void @air.simdgroup.barrier(i32 2, i32 2, i32 4) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.simdgroup.barrier(i32, i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          2,
+          2,
+          4
+        ]
+      ],
+      "airSha256": "d15866b998fbd315833ab01f4d0d961861e15bd243a8f23600bd4a3648447ebd",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "843f1b918476659a7c9bbdedb6360a37ca593e41bcd9034786734988858500e0"
+    },
+    {
+      "name": "metal4.1-probe-09",
+      "probe": 9,
+      "metalVersion": "4.1",
+      "ios": 27,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "kernel void simd_release() { simdgroup_barrier(mem_flags::mem_threadgroup, memory_order_release); }",
+      "barrierCalls": [
+        "tail call void @air.simdgroup.barrier(i32 2, i32 3, i32 4) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.simdgroup.barrier(i32, i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          2,
+          3,
+          4
+        ]
+      ],
+      "airSha256": "d6b137c814d22d80abdea4946027e73e16396a1023e54d84acd9795d7653dc5c",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "bbe15a3b780acc644b27770955fb6a9e813d3b320c90ab528b51cad2e182acb8"
+    },
+    {
+      "name": "metal4.1-probe-10",
+      "probe": 10,
+      "metalVersion": "4.1",
+      "ios": 27,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "kernel void simd_acq_rel() { simdgroup_barrier(mem_flags::mem_threadgroup, memory_order_acq_rel); }",
+      "barrierCalls": [
+        "tail call void @air.simdgroup.barrier(i32 2, i32 4, i32 4) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.simdgroup.barrier(i32, i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          2,
+          4,
+          4
+        ]
+      ],
+      "airSha256": "9de55ec0b51c24375bdae0759e825840a70a06f70ed2092cbe52daccb7dcb2cd",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "25a3bd4ecde0c96eec7bb24348489a093ef3e4a6d2f5ea2e2fe3ee79e20dac6e"
+    },
+    {
+      "name": "metal4.1-probe-11",
+      "probe": 11,
+      "metalVersion": "4.1",
+      "ios": 27,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "kernel void simd_seq_cst() { simdgroup_barrier(mem_flags::mem_threadgroup, memory_order_seq_cst); }",
+      "barrierCalls": [
+        "tail call void @air.simdgroup.barrier(i32 2, i32 5, i32 4) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.simdgroup.barrier(i32, i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          2,
+          5,
+          4
+        ]
+      ],
+      "airSha256": "b49afcd232be7975349ac839f27a03f8484c6781e91c759644b85b7d79767510",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "9c3e641643dbf305dc220c7bc6be24cb1dcf6a5fd02705bdc8b1d1f06c04febc"
+    },
+    {
+      "name": "metal4.1-probe-12",
+      "probe": 12,
+      "metalVersion": "4.1",
+      "ios": 27,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "kernel void simd_relaxed() { simdgroup_barrier(mem_flags::mem_threadgroup, memory_order_relaxed); }",
+      "barrierCalls": [
+        "tail call void @air.simdgroup.barrier(i32 2, i32 0, i32 4) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.simdgroup.barrier(i32, i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          2,
+          0,
+          4
+        ]
+      ],
+      "airSha256": "70615ee155130e64006ba671036b92596304fb049ef7a6fa201b782d813f8af7",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "54e3ad2de898d20b850962ef737df4cfbf0c30eb1bd02af39ce01bb53aa19901"
+    },
+    {
+      "name": "metal4.1-probe-13",
+      "probe": 13,
+      "metalVersion": "4.1",
+      "ios": 27,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "kernel void barrier_thread() { threadgroup_barrier(mem_flags::mem_threadgroup, memory_order_acquire, thread_scope_thread); }",
+      "barrierCalls": [
+        "tail call void @air.wg.barrier(i32 2, i32 2, i32 0) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.wg.barrier(i32, i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          2,
+          2,
+          0
+        ]
+      ],
+      "airSha256": "7249171e2c525ec1691bd1b8f006cb1c3e9da7ea935569659ebbb7559caa315d",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "394af4815889153337f355b9fbbc81ffb99e81d7649e09cf7346ba3a6446db1e"
+    },
+    {
+      "name": "metal4.1-probe-14",
+      "probe": 14,
+      "metalVersion": "4.1",
+      "ios": 27,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "kernel void barrier_simd() { threadgroup_barrier(mem_flags::mem_threadgroup, memory_order_acquire, thread_scope_simdgroup); }",
+      "barrierCalls": [
+        "tail call void @air.wg.barrier(i32 2, i32 2, i32 4) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.wg.barrier(i32, i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          2,
+          2,
+          4
+        ]
+      ],
+      "airSha256": "86dfd4c34bfb3cfbdaa8485dd9da8681e32d8cc5a6ed945e63b51078e212a092",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "498463d85396304f906dfa8a192c846c5be3d13bbfbcd7360346a7c2a77faae6"
+    },
+    {
+      "name": "metal4.1-probe-15",
+      "probe": 15,
+      "metalVersion": "4.1",
+      "ios": 27,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "kernel void simd_device() { simdgroup_barrier(mem_flags::mem_device, memory_order_acq_rel, thread_scope_device); }",
+      "barrierCalls": [
+        "tail call void @air.simdgroup.barrier(i32 1, i32 4, i32 2) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.simdgroup.barrier(i32, i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          1,
+          4,
+          2
+        ]
+      ],
+      "airSha256": "b6e74a1f9682e7cceb33a6f23e3e634c0870dc130f783dd113e8fa6644bbe25b",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "75f7ba4722b9c08c83d87ca157a34c7eac47513d0e73aabb9aafde7f60d4981d"
+    },
+    {
+      "name": "metal4.1-probe-16",
+      "probe": 16,
+      "metalVersion": "4.1",
+      "ios": 27,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "kernel void enum_values(device uint *out [[buffer(0)]]) {\n  out[0]=uint(memory_order_relaxed); out[1]=uint(memory_order_acquire); out[2]=uint(memory_order_release);\n  out[3]=uint(memory_order_acq_rel); out[4]=uint(memory_order_seq_cst);\n  out[5]=uint(thread_scope_thread); out[6]=uint(thread_scope_simdgroup); out[7]=uint(thread_scope_threadgroup); out[8]=uint(thread_scope_device);\n  out[9]=uint(mem_flags::mem_none); out[10]=uint(mem_flags::mem_device); out[11]=uint(mem_flags::mem_threadgroup);\n  out[12]=uint(mem_flags::mem_texture); out[13]=uint(mem_flags::mem_threadgroup_imageblock); out[14]=uint(mem_flags::mem_object_data);\n}",
+      "barrierCalls": [],
+      "barrierDeclarations": [],
+      "argumentValues": [],
+      "airSha256": "246c523bdd8ec752e736cfab001c9492f518ce7fd4d96cb766120450662de30f",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "8c7d008a9afed65ebb531a84a88c9fba2aa8e1e0fabec5a6ea55688a992157ce"
+    },
+    {
+      "name": "metal4.1-probe-17",
+      "probe": 17,
+      "metalVersion": "4.1",
+      "ios": 27,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "kernel void bad_order() { threadgroup_barrier(mem_flags::mem_threadgroup, memory_order(17)); }",
+      "barrierCalls": [
+        "tail call void @air.wg.barrier(i32 2, i32 17, i32 1) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.wg.barrier(i32, i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          2,
+          17,
+          1
+        ]
+      ],
+      "airSha256": "35ff88085b42b157df642d096dd2adb9ad7e22bc2efd200a0e18c70b78dc11f1",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "13451e001cb734d1b83113add2aa444a9b5c8d40af4fd8ab52e8fb6ee4372a7a"
+    },
+    {
+      "name": "metal4.1-probe-18",
+      "probe": 18,
+      "metalVersion": "4.1",
+      "ios": 27,
+      "returncode": 1,
+      "status": "source_rejected",
+      "selectedSource": "kernel void dynamic_order(device uint *in [[buffer(0)]]) { threadgroup_barrier(mem_flags::mem_threadgroup, memory_order(in[0])); }",
+      "diagnosticSha256": "b039af1cd401140b0cba8a9019307ead3661315ddfe2c85220cc1bbd62c585f6"
+    },
+    {
+      "name": "metal4.1-probe-19",
+      "probe": 19,
+      "metalVersion": "4.1",
+      "ios": 27,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "vertex float4 vertex_barrier() { threadgroup_barrier(mem_flags::mem_threadgroup, memory_order_acquire); return float4(0); }",
+      "barrierCalls": [
+        "tail call void @air.wg.barrier(i32 2, i32 2, i32 1) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.wg.barrier(i32, i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          2,
+          2,
+          1
+        ]
+      ],
+      "airSha256": "54c16aa82e784712217505c818c27af402e032fe7d1119dc1ca510cb2a0a06b0",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "577bf6065ec023cb36e99c789987ffc07f88e89e1ce42ec2065d051353ffb761"
+    },
+    {
+      "name": "metal4.1-probe-20",
+      "probe": 20,
+      "metalVersion": "4.1",
+      "ios": 27,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "fragment float4 fragment_barrier() { threadgroup_barrier(mem_flags::mem_threadgroup, memory_order_acquire); return float4(0); }",
+      "barrierCalls": [
+        "tail call void @air.wg.barrier(i32 2, i32 2, i32 1) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.wg.barrier(i32, i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          2,
+          2,
+          1
+        ]
+      ],
+      "airSha256": "82e6139e12e8755c4de8e43ab9f3f272edcf9ac770905e20c1853190746dea93",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "f021985115903c43c4894a6c30c49528eb00f8f85f4634b76c01e1729959c3b4"
+    },
+    {
+      "name": "metal4.1-probe-21",
+      "probe": 21,
+      "metalVersion": "4.1",
+      "ios": 27,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "kernel void bad_scope() { threadgroup_barrier(mem_flags::mem_threadgroup, memory_order_acquire, thread_scope(17)); }",
+      "barrierCalls": [
+        "tail call void @air.wg.barrier(i32 2, i32 2, i32 17) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.wg.barrier(i32, i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          2,
+          2,
+          17
+        ]
+      ],
+      "airSha256": "692df548ce93185fed4536af53f016e1833ac5c7db29cd255d5adec440e0cf90",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "f830630a75da408ee7c68977ebd3e749b444952cf2877f245b545a5a53a52db6"
+    },
+    {
+      "name": "metal4.1-probe-22",
+      "probe": 22,
+      "metalVersion": "4.1",
+      "ios": 27,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "kernel void bad_flags() { threadgroup_barrier(mem_flags(128), memory_order_acquire); }",
+      "barrierCalls": [
+        "tail call void @air.wg.barrier(i32 128, i32 2, i32 1) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.wg.barrier(i32, i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          128,
+          2,
+          1
+        ]
+      ],
+      "airSha256": "868f3812f9999ea0e4fca91060b73ba23ff3a78705ceb6f1851e61d1dbaa8979",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "d042c8474c7fa7254d122a28926cecfab5ccf70c152ff1fd9071bee8747416dc"
+    },
+    {
+      "name": "metal4.1-probe-23",
+      "probe": 23,
+      "metalVersion": "4.1",
+      "ios": 27,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "kernel void simd_legacy() { simdgroup_barrier(mem_flags::mem_threadgroup); }",
+      "barrierCalls": [
+        "tail call void @air.simdgroup.barrier(i32 2, i32 5, i32 4) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.simdgroup.barrier(i32, i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          2,
+          5,
+          4
+        ]
+      ],
+      "airSha256": "484e12ac3f06be59a3056384290728cb04c3f009dffe5471ac6e0a95d8686c55",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "29f16a131f3754b0bb65a4bc6d4485aee5fa350f8a0b3b6c76d2ce59660fcaa6"
+    },
+    {
+      "name": "metal3.2-probe-00",
+      "probe": 0,
+      "metalVersion": "3.2",
+      "ios": 18,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "kernel void barrier_legacy() { threadgroup_barrier(mem_flags::mem_threadgroup); }",
+      "barrierCalls": [
+        "tail call void @air.wg.barrier(i32 2, i32 1) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.wg.barrier(i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          2,
+          1
+        ]
+      ],
+      "airSha256": "558aaacd0b4b34a49d780f03c36ee47f6cb72ab38361b971c1ca940798e18dde",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "f6b661221b65f130c224a7a9b343c422658848ea87cc2beb2654bbc466e99fe9"
+    },
+    {
+      "name": "metal3.2-probe-01",
+      "probe": 1,
+      "metalVersion": "3.2",
+      "ios": 18,
+      "returncode": 1,
+      "status": "source_rejected",
+      "selectedSource": "kernel void barrier_acquire() { threadgroup_barrier(mem_flags::mem_threadgroup, memory_order_acquire); }",
+      "diagnosticSha256": "6938cffffbad6b4b6d195b19e4572e9249fde361d99134e369e59b77d5166b23"
+    },
+    {
+      "name": "metal3.2-probe-04",
+      "probe": 4,
+      "metalVersion": "3.2",
+      "ios": 18,
+      "returncode": 1,
+      "status": "source_rejected",
+      "selectedSource": "kernel void barrier_seq_cst() { threadgroup_barrier(mem_flags::mem_threadgroup, memory_order_seq_cst); }",
+      "diagnosticSha256": "bea21e13c4c82682b0ffbb5caef36668d1292e78a8ac391d83dc9f3019518c81"
+    },
+    {
+      "name": "metal3.2-probe-08",
+      "probe": 8,
+      "metalVersion": "3.2",
+      "ios": 18,
+      "returncode": 1,
+      "status": "source_rejected",
+      "selectedSource": "kernel void simd_acquire() { simdgroup_barrier(mem_flags::mem_threadgroup, memory_order_acquire); }",
+      "diagnosticSha256": "a80f6d081f75afb637239ae75fe3e01104f2ecdd18c8b98732ca9fd9fc71e9fc"
+    },
+    {
+      "name": "metal3.2-probe-11",
+      "probe": 11,
+      "metalVersion": "3.2",
+      "ios": 18,
+      "returncode": 1,
+      "status": "source_rejected",
+      "selectedSource": "kernel void simd_seq_cst() { simdgroup_barrier(mem_flags::mem_threadgroup, memory_order_seq_cst); }",
+      "diagnosticSha256": "12d355c1369dda857ea985e6e2d953a8b82de033ec63f676b8a8afd02724fdd6"
+    },
+    {
+      "name": "metal3.2-probe-23",
+      "probe": 23,
+      "metalVersion": "3.2",
+      "ios": 18,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "kernel void simd_legacy() { simdgroup_barrier(mem_flags::mem_threadgroup); }",
+      "barrierCalls": [
+        "tail call void @air.simdgroup.barrier(i32 2, i32 4) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.simdgroup.barrier(i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          2,
+          4
+        ]
+      ],
+      "airSha256": "234613e805834e49b0d9e1b90548f2e466d87d0906af03661a9fd5247e1de4b7",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "825f713ba9b8381d2ab568dbefea22e93b7ef1785de2fe0ed032030dda2caf78"
+    },
+    {
+      "name": "metal4.0-probe-00",
+      "probe": 0,
+      "metalVersion": "4.0",
+      "ios": 26,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "kernel void barrier_legacy() { threadgroup_barrier(mem_flags::mem_threadgroup); }",
+      "barrierCalls": [
+        "tail call void @air.wg.barrier(i32 2, i32 1) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.wg.barrier(i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          2,
+          1
+        ]
+      ],
+      "airSha256": "82457b38284adf94bb57063a3afe10557870f76d0d9b58a0f450f91b058785dd",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "2b2d6d1bcf4cb9f50c451d367e7e618afa3603f985412dc0710302ee1d7d5e25"
+    },
+    {
+      "name": "metal4.0-probe-01",
+      "probe": 1,
+      "metalVersion": "4.0",
+      "ios": 26,
+      "returncode": 1,
+      "status": "source_rejected",
+      "selectedSource": "kernel void barrier_acquire() { threadgroup_barrier(mem_flags::mem_threadgroup, memory_order_acquire); }",
+      "diagnosticSha256": "6938cffffbad6b4b6d195b19e4572e9249fde361d99134e369e59b77d5166b23"
+    },
+    {
+      "name": "metal4.0-probe-04",
+      "probe": 4,
+      "metalVersion": "4.0",
+      "ios": 26,
+      "returncode": 1,
+      "status": "source_rejected",
+      "selectedSource": "kernel void barrier_seq_cst() { threadgroup_barrier(mem_flags::mem_threadgroup, memory_order_seq_cst); }",
+      "diagnosticSha256": "bea21e13c4c82682b0ffbb5caef36668d1292e78a8ac391d83dc9f3019518c81"
+    },
+    {
+      "name": "metal4.0-probe-08",
+      "probe": 8,
+      "metalVersion": "4.0",
+      "ios": 26,
+      "returncode": 1,
+      "status": "source_rejected",
+      "selectedSource": "kernel void simd_acquire() { simdgroup_barrier(mem_flags::mem_threadgroup, memory_order_acquire); }",
+      "diagnosticSha256": "a80f6d081f75afb637239ae75fe3e01104f2ecdd18c8b98732ca9fd9fc71e9fc"
+    },
+    {
+      "name": "metal4.0-probe-11",
+      "probe": 11,
+      "metalVersion": "4.0",
+      "ios": 26,
+      "returncode": 1,
+      "status": "source_rejected",
+      "selectedSource": "kernel void simd_seq_cst() { simdgroup_barrier(mem_flags::mem_threadgroup, memory_order_seq_cst); }",
+      "diagnosticSha256": "12d355c1369dda857ea985e6e2d953a8b82de033ec63f676b8a8afd02724fdd6"
+    },
+    {
+      "name": "metal4.0-probe-23",
+      "probe": 23,
+      "metalVersion": "4.0",
+      "ios": 26,
+      "returncode": 0,
+      "status": "accepted",
+      "selectedSource": "kernel void simd_legacy() { simdgroup_barrier(mem_flags::mem_threadgroup); }",
+      "barrierCalls": [
+        "tail call void @air.simdgroup.barrier(i32 2, i32 4) #2"
+      ],
+      "barrierDeclarations": [
+        "declare void @air.simdgroup.barrier(i32, i32) local_unnamed_addr #1"
+      ],
+      "argumentValues": [
+        [
+          2,
+          4
+        ]
+      ],
+      "airSha256": "7f8c2caea33e9d5416d119fbf4aab73d780420c04cb0f3640dac113753d1f8a3",
+      "diagnosticSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sharedTextualAIRSha256": "9889d29a7c6ac19138ce550947cb9e6cc2d1ac477583f5e2f5e2e7662d160754"
+    }
+  ],
+  "gpuPreparation": {
+    "archiveSha256": "0f49f3a968b6a1724ca484c69e3b54d00f2baa8789c1029a588d861ede829f54",
+    "swiftSourceSha256": "a9200ae311d4ce1ae40c0832f199bea605ccc4cf959b6b5f59505779678e2e61",
+    "swiftCompileStatus": "accepted",
+    "gpuExecution": "not_run",
+    "floorSupport": "not_tested",
+    "appleCases": [
+      {
+        "name": "barrier-exchange-threadgroup-acq_rel-default",
+        "sourceSha256": "c86bc0a8cb2b94e717d32ac8f11e619335c3a531cf659fff4d8d99fbfd6a6bbc",
+        "airSha256": "f8193161f1991633367457efd780d7017f38a61bf46f75c51830d53ef4b33a06",
+        "textualAIRSha256": "ee4fa5c3b8da0f8de01ca16a62b4995f02dfe0477558e4e5d6ac9cf966e1224f",
+        "metallibSha256": "bda2a4a1aa662f205c51063e83913e75c36da6fd088bf543ed894eb49ab41f19",
+        "barrierCalls": [
+          "tail call void @air.wg.barrier(i32 2, i32 4, i32 1) #2",
+          "tail call void @air.wg.barrier(i32 2, i32 4, i32 1) #2",
+          "tail call void @air.wg.barrier(i32 2, i32 4, i32 1) #2"
+        ],
+        "compileStatus": "accepted",
+        "linkStatus": "accepted",
+        "sharedTextualAIRSha256": "7773c9a853061ec174c5208846ecf2428e161dbbc5dfb3c631d4bba2b012001e"
+      },
+      {
+        "name": "barrier-exchange-threadgroup-acq_rel-explicit",
+        "sourceSha256": "e01a58c73905ddca4c7ed12d844fd0fd5bbdfd78cd688244a1ca543e83ff1413",
+        "airSha256": "2fa80430bd2525a661a4095d6f7e55417276c00659db0c07d54e8ba95327bca6",
+        "textualAIRSha256": "d37f7f9134d9cb88ed4f14f6d5278e528326045ff690091ba0ac473263cfec05",
+        "metallibSha256": "bda2a4a1aa662f205c51063e83913e75c36da6fd088bf543ed894eb49ab41f19",
+        "barrierCalls": [
+          "tail call void @air.wg.barrier(i32 2, i32 4, i32 1) #2",
+          "tail call void @air.wg.barrier(i32 2, i32 4, i32 1) #2",
+          "tail call void @air.wg.barrier(i32 2, i32 4, i32 1) #2"
+        ],
+        "compileStatus": "accepted",
+        "linkStatus": "accepted",
+        "sharedTextualAIRSha256": "d68d5edc19c5b03293dfd75cf27922b72fa78efd5df1dc0cd4c8f3c36c1c9134"
+      },
+      {
+        "name": "barrier-exchange-threadgroup-seq_cst-default",
+        "sourceSha256": "693b6ff635bd35255b7b82230e2be0e7cf14559fb7e0165837f38e68db815c01",
+        "airSha256": "95e3899cc829f4c89507ef8e83b2d6c2a84e88e0213f82f7d956125454aaab79",
+        "textualAIRSha256": "5493b46419763002e1fee406c4f786cd78079d8458f984574d42398091931e9a",
+        "metallibSha256": "82dfd8f4f69ebb08882b81a0ba8779511f52127cfed2c9005ef86a278f51d872",
+        "barrierCalls": [
+          "tail call void @air.wg.barrier(i32 2, i32 5, i32 1) #2",
+          "tail call void @air.wg.barrier(i32 2, i32 5, i32 1) #2",
+          "tail call void @air.wg.barrier(i32 2, i32 5, i32 1) #2"
+        ],
+        "compileStatus": "accepted",
+        "linkStatus": "accepted",
+        "sharedTextualAIRSha256": "917ea62ed82489e8b3c0a3d9ba7ebaf630d573e24a15449db734094cbd8dbc02"
+      },
+      {
+        "name": "barrier-exchange-threadgroup-seq_cst-explicit",
+        "sourceSha256": "9f6306a98b630ec28ba533b3913b4186ce4ab44e3b159e59bf556de78e9f8dc4",
+        "airSha256": "7d6ad6555a9e4b0b673139442cf15336862ea832d8e782bbe0fb3e8daf3610bf",
+        "textualAIRSha256": "6e5abf5406dae01367f2bd0d40e3b3d4b85c0e3913705517d38759d5970c62a5",
+        "metallibSha256": "82dfd8f4f69ebb08882b81a0ba8779511f52127cfed2c9005ef86a278f51d872",
+        "barrierCalls": [
+          "tail call void @air.wg.barrier(i32 2, i32 5, i32 1) #2",
+          "tail call void @air.wg.barrier(i32 2, i32 5, i32 1) #2",
+          "tail call void @air.wg.barrier(i32 2, i32 5, i32 1) #2"
+        ],
+        "compileStatus": "accepted",
+        "linkStatus": "accepted",
+        "sharedTextualAIRSha256": "bccfc10a981f77bdbf0f2c7b09851c11eca1f2998e6cf145ed664a9d948e03a4"
+      },
+      {
+        "name": "barrier-exchange-simdgroup-acq_rel-default",
+        "sourceSha256": "268f975526a8ed2ef878c9b6b782110b024bb310a65c2f6e1e01d7843af6d9a7",
+        "airSha256": "ae46aa2e429137bb3ae0d650086911fa0b25e0b5d28716d8c5edb194436f8043",
+        "textualAIRSha256": "4a9d4a7a7af8c03cb297be30d3911fcc9e4ea31b4e1635b1173e35b609d75697",
+        "metallibSha256": "d6cf3c729f016756d11e57a9b740d33647e573e2521e2950a19edf033fcb9177",
+        "barrierCalls": [
+          "tail call void @air.simdgroup.barrier(i32 2, i32 4, i32 4) #2",
+          "tail call void @air.simdgroup.barrier(i32 2, i32 4, i32 4) #2",
+          "tail call void @air.simdgroup.barrier(i32 2, i32 4, i32 4) #2"
+        ],
+        "compileStatus": "accepted",
+        "linkStatus": "accepted",
+        "sharedTextualAIRSha256": "6651fcea271515dc5dcfac6924998c5e9d04c3085cd03f41f1ab3f71d1e11ddd"
+      },
+      {
+        "name": "barrier-exchange-simdgroup-acq_rel-explicit",
+        "sourceSha256": "ddda8c84c7430e429ee0efd6f1580f7daab2d2845ff18c320905edd1a5a3bbf9",
+        "airSha256": "2fe2b59ba4e9522d96487efe60f868464f9240a411d183c0d20ae2aec7f72de5",
+        "textualAIRSha256": "8f435c1fc0ac53541e980ec1004e384fc0ef232f687fcb4ced8bd7a94e21d2ac",
+        "metallibSha256": "d6cf3c729f016756d11e57a9b740d33647e573e2521e2950a19edf033fcb9177",
+        "barrierCalls": [
+          "tail call void @air.simdgroup.barrier(i32 2, i32 4, i32 4) #2",
+          "tail call void @air.simdgroup.barrier(i32 2, i32 4, i32 4) #2",
+          "tail call void @air.simdgroup.barrier(i32 2, i32 4, i32 4) #2"
+        ],
+        "compileStatus": "accepted",
+        "linkStatus": "accepted",
+        "sharedTextualAIRSha256": "aead5affb71aed050a4d3bc3ce1398ffb0146244c2a3a0401fb58f722e4cd653"
+      },
+      {
+        "name": "barrier-exchange-simdgroup-seq_cst-default",
+        "sourceSha256": "10d0f85d3f39a9ded1bd6b4a75e1314f7d1d72d48f0287477f2a2d918600aa75",
+        "airSha256": "fd3fcf479c6a811e887aabe4980dc5df8608fa8ade4070871ea92ee4dcca4f3b",
+        "textualAIRSha256": "7327807fff33e9aa9557c5e91cb65d86da8c31d618736243cae6e2e9607798e8",
+        "metallibSha256": "1ba96dc3c2cb205c2331337b5865b645387bf5df88e12f551c0a316b5a957b84",
+        "barrierCalls": [
+          "tail call void @air.simdgroup.barrier(i32 2, i32 5, i32 4) #2",
+          "tail call void @air.simdgroup.barrier(i32 2, i32 5, i32 4) #2",
+          "tail call void @air.simdgroup.barrier(i32 2, i32 5, i32 4) #2"
+        ],
+        "compileStatus": "accepted",
+        "linkStatus": "accepted",
+        "sharedTextualAIRSha256": "5d01d769ac99409a484fd91f4d29ff6edec9574b552f64c54b3a7ecaadad7dec"
+      },
+      {
+        "name": "barrier-exchange-simdgroup-seq_cst-explicit",
+        "sourceSha256": "05f7ac53b864872ed480c04f91c888b7f00462b2b3c1b11f98627f6058e4b818",
+        "airSha256": "d1b44ae1577970823e13fba1ad1bb95bbba24a1f06d0987f184da4cd534cc7e2",
+        "textualAIRSha256": "b32492efa30eef474ed150879b3a8f5aa29fc26037c7787bac5fbf1a88ab6dcf",
+        "metallibSha256": "1ba96dc3c2cb205c2331337b5865b645387bf5df88e12f551c0a316b5a957b84",
+        "barrierCalls": [
+          "tail call void @air.simdgroup.barrier(i32 2, i32 5, i32 4) #2",
+          "tail call void @air.simdgroup.barrier(i32 2, i32 5, i32 4) #2",
+          "tail call void @air.simdgroup.barrier(i32 2, i32 5, i32 4) #2"
+        ],
+        "compileStatus": "accepted",
+        "linkStatus": "accepted",
+        "sharedTextualAIRSha256": "59be44893ae33165ce451ca475246b35882725c3b28ddfae69c43cb243652b5d"
+      }
+    ]
+  },
+  "sharedTextPolicy": "Archives redact local filesystem paths in text. Original tool-output hashes and archive-shared text hashes are distinct; binaries were not rewritten or executed."
+}
