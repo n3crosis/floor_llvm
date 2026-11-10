@@ -150,6 +150,17 @@ class ReleaseTests(unittest.TestCase):
         with patch.dict(os.environ, {"AIR_RELEASE_VERSION": "v0.3.0"}):
             self.assertEqual(release.source_identity(self.config)["version"], "v0.3.0")
 
+    def test_functional_branch_push_cannot_publish_historical_request(self):
+        self.request_release()
+        with patch.dict(os.environ, {"GITHUB_REF": "refs/heads/wasm-rebased-functional-20261110"}):
+            self.assertIsNone(release.pushed_release_request())
+            self.assertEqual(release.release_version(), "")
+            self.assertEqual(release.source_identity(self.config)["version"],
+                             "dev-" + os.environ["GITHUB_SHA"][:12])
+            with patch.dict(os.environ, {"AIR_RELEASE_VERSION": "v0.3.0"}):
+                with self.assertRaisesRegex(release.ReleaseError, "matching one-push"):
+                    release.release_version()
+
     def test_later_push_is_artifact_only_even_with_stale_request(self):
         self.request_release()
         previous = self.git("rev-parse", "HEAD")

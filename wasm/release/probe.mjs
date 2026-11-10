@@ -2,6 +2,8 @@
 import assert from "node:assert/strict";
 import { assertMetallibMetadata, metadataExpectations } from "./metallib-metadata.mjs";
 import { conditionalColorSource, assertConditionalColorIR } from "./conditional-color.mjs";
+import { integerVectorCases, assertIntegerVectorIR } from "./integer-vector.mjs";
+import { derivativeVectorCases, assertDerivativeVectorIR } from "./derivative-vector.mjs";
 import { spawnSync } from "node:child_process";
 import { lstat, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
@@ -180,6 +182,11 @@ for (const ios of [18,26]) for (const math of [0,1]) for (const kind of [0,1])
   cases.push({name:`conditional-color-ios${ios}-math${math}-kind${kind}`,
     source:conditionalColorSource,ios,math,kind,shader:'conditional-color',status:0});
 
+// Generic authored MSL coverage, independent of application shader corpora.
+cases.push(...integerVectorCases, ...derivativeVectorCases);
+assert.equal(new Set(cases.map(test => test.name)).size, cases.length, "Duplicate probe names");
+assert(cases.every(test => new TextEncoder().encode(test.source).length <= 4096), "Probe source exceeds bound");
+
 function options(args) {
   const result = {};
   for (let i = 0; i < args.length; i += 2) {
@@ -258,7 +265,11 @@ async function runCase(build, name) {
     let metadata = null;
     if (status === 0) {
       assert(output.length > 4, "Empty compiled library");
-      if (test.kind === 1 && test.shader === 'conditional-color') {
+      if (test.kind === 1 && test.integerVector) {
+        assertIntegerVectorIR(new TextDecoder('utf-8',{fatal:true}).decode(output), test);
+      } else if (test.kind === 1 && test.derivativeVector) {
+        assertDerivativeVectorIR(new TextDecoder('utf-8',{fatal:true}).decode(output), test);
+      } else if (test.kind === 1 && test.shader === 'conditional-color') {
         assertConditionalColorIR(new TextDecoder('utf-8',{fatal:true}).decode(output));
       } else if (test.kind === 1 && ['multiply-add','authored-render','multiply-add-contract-off'].includes(test.shader)) {
         const ir = new TextDecoder('utf-8',{fatal:true}).decode(output);
@@ -355,7 +366,8 @@ async function main() {
     process.stdout.write(JSON.stringify(await runCase(build, args["--case"])) + "\n");
     return;
   }
-  const deadline = Date.now() + 300_000;
+  // Bound the expanded suite to ten minutes; individual cases remain capped.
+  const deadline = Date.now() + 600_000;
   const results = [];
   const env = { ...process.env };
   delete env.NODE_OPTIONS;

@@ -1,6 +1,6 @@
 # CI builds and optional releases
 
-Pushes to `wasm` build the compiler and upload runtime, corresponding-source,
+Pushes to `wasm` and `wasm-rebased-functional-20261110` build the compiler and upload runtime, corresponding-source,
 build-input, manifest, and checksum artifacts. A manual run with `release_version`
 left empty does the same. Ordinary builds use `dev-<commit>` names and never create,
 change, or require a GitHub release. An explicit one-push request, described below,
@@ -8,7 +8,7 @@ can request publication through the push workflow. Merge commits are supported; 
 records the actual checked-out commit, tree, and source-lock hashes.
 
 GitHub's manual-dispatch UI requires the workflow on the repository's default
-branch. If the default remains the compiler-only branch, use the `wasm` push
+branch. If the default remains the compiler-only branch, use a configured branch push
 trigger (or rerun an existing build); this change does not add WASM tooling to
 the compiler-only branch or change the default branch.
 
@@ -29,7 +29,7 @@ them. Ordinary builds never republish `v0.1.0`.
 
 The workflow keeps Emscripten 4.0.20 pinned, checks source hashes, compiles the
 compiler, and runs fresh ABI, header, and compile-smoke probes before packaging.
-The probes include 118 authored vertex, fragment, and compute regressions across
+The probes include 209 authored vertex, fragment, and compute regressions across
 iOS 18/26 and both math profiles. Empty vertex return/argument metadata is tested
 in both LLVM IR and metallib output, including a void vertex that writes to a
 buffer. These checks do not establish Apple loader, GPU, or device acceptance.
@@ -44,6 +44,36 @@ The math subset also exposes conservative float/float-vector `sqrt`, `rsqrt`, `e
 
 Conditional framebuffer-input AIR metadata now derives its name from the actual Clang parameter type using the existing canonical type helper. Authored regressions bind each check to its fragment entry and input metadata list, then verify the parameter index, signature type, attachment slot, argument name, bool predicate and required function-constant initializer/index. Float and uint inputs, typedefs/qualifiers, sparse slots 2 and 7, reversed parameter order and buffer 29 are checked for iOS 18/26 and both math profiles, in IR and metallib form. Return metadata cannot satisfy input-type assertions. This is compiler ABI validation, not Apple pipeline or GPU execution proof.
 
-Metal library public/private metadata lengths now include their own four-byte prefixes. All 69 successful metallib cases validate serialized function records, boundaries, metadata tags, AIR sizes and hashes; 16 also bind constants to exact authored entry parameters. The validator never rewrites output bytes. Run `node --test wasm/release/conditional-color.test.mjs wasm/release/metallib-metadata.test.mjs` for 41 synthetic assertion tests; these run in CI before each compiler build. The receipt includes both validation helpers in its tooling inventory.
+Metal library public/private metadata lengths now include their own four-byte prefixes. All 81 successful metallib cases validate serialized function records, boundaries, metadata tags, AIR sizes and hashes; 16 also bind constants to exact authored entry parameters. The validator never rewrites output bytes. Run `node --test wasm/release/conditional-color.test.mjs wasm/release/metallib-metadata.test.mjs` for 41 synthetic assertion tests; these run in CI before each compiler build. The receipt includes both validation helpers in its tooling inventory.
 
 The wasm branch merges upstream `a2flo/floor_toolchain_1406` at `9c7e27fe79744c25a405395b5b98c726dfa6dd87` (CUDA 13.5 / PTX 9.5). The source lock records that upstream commit and hashes all six changed upstream source files. Existing WASM history, Metal/AIR changes, and earlier SDK compatibility fixes remain intact.
+
+## Generic vector coverage on the functional branch
+
+The functional branch extends two authored compatibility subsets using Apple's
+[MSL 4.1 specification](https://developer.apple.com/metal/Metal-Shading-Language-Specification.pdf)
+(2026-06-04) as the interface reference:
+
+- Section 6.4, Table 6.2, pages 202-204: `int2/3/4` and `uint2/3/4` forms of
+  `clz`, `ctz`, `popcount`, `reverse_bits`, `extract_bits`, and `insert_bits`.
+  Each lane uses the existing 32-bit implementation. Extraction/insertion keep
+  scalar unsigned offsets and counts, including the zero/full-width boundaries.
+  Unsupported operand families fail instead of silently promoting to 32 bits.
+- Section 6.11.1.1, Table 6.19, page 235: `float2/3/4` derivatives and scalar/vector
+  `fwidth`. The implementation retains trusted convergent scalar derivative calls,
+  preserves each input lane, and adds absolute x/y derivative magnitudes for
+  `fwidth`. Fragment-only restrictions remain enforced. Half/integer derivatives
+  remain outside this implemented subset.
+
+The new modules provide generic synthetic shader cases, not copied SDK or game
+shaders. They exercise both iOS targets and math profiles, inspect successful IR
+and metallib structure, and reject unsupported types and derivative stages.
+Their assertion tests deliberately mutate expected IR to ensure missing or wrong
+operations fail validation. The build receipt hashes both validation modules.
+
+The functional branch is artifact-only on push: the historical release request
+still names `refs/heads/wasm` and its original base commit. A regression test
+ensures it cannot publish from the functional branch. A changed header bundle
+requires a fresh compiler build and fingerprint; older binaries are never
+relabeled as containing these changes. Compile/IR validation does not establish
+Apple loader acceptance, derivative numerical results, or GPU/device execution.
