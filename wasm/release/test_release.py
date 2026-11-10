@@ -379,5 +379,40 @@ class NoticeDownloadTests(unittest.TestCase):
         self.assertFalse(self.destination.with_suffix(".txt.partial").exists())
 
 
+
+class HeaderInventoryTests(unittest.TestCase):
+    def test_real_header_bundle_matches_config_and_cmake(self):
+        config = json.loads((release.ROOT / "wasm/release/release-config.json").read_text())
+        self.assertEqual(release.header_identity(), config["headerSha256"])
+        cmake = (release.ROOT / "wasm/api/CMakeLists.txt").read_text()
+        import re
+        expected = set(re.search(r"set\(AIR_HEADER_PATHS ([^)]*)\)", cmake)[1].split())
+        inc = release.ROOT / "wasm/api/include"
+        actual = {p.relative_to(inc).as_posix() for p in inc.rglob("*") if p.is_file()}
+        self.assertEqual(actual, expected)
+        self.assertIn("metal_common", actual)
+
+    def test_missing_extra_renamed_and_symlink_headers_fail(self):
+        import shutil
+        original = release.ROOT / "wasm/api/include"
+        for mode in ("missing", "extra", "renamed", "symlink"):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                include = root / "wasm/api/include"
+                shutil.copytree(original, include)
+                common = include / "metal_common"
+                if mode == "missing":
+                    common.unlink()
+                elif mode == "extra":
+                    (include / "unexpected_header").write_text("untrusted")
+                elif mode == "renamed":
+                    common.rename(include / "unexpected_header")
+                else:
+                    common.unlink()
+                    common.symlink_to(include / "metal_stdlib")
+                with patch.object(release, "ROOT", root):
+                    with self.assertRaisesRegex(release.ReleaseError, "Unexpected header bundle"):
+                        release.header_identity()
+
 if __name__ == "__main__":
     unittest.main()

@@ -185,7 +185,14 @@ def source_identity(config):
 def header_identity():
     include = ROOT / "wasm/api/include"
     files = sorted(p for p in include.rglob("*") if p.is_file())
-    require(len(files) == 10 and all(not p.is_symlink() for p in files), "Unexpected header bundle")
+    expected = {
+        "metal_common", "metal_stdlib", "metal_math", "metal_control",
+        "metal_texture", "metal_depth", "metal_simd", "metal_integer",
+        "metal_atomic", "metal_tessellation", "simd/simd.h",
+    }
+    actual = {p.relative_to(include).as_posix() for p in files}
+    require(actual == expected and all(not p.is_symlink() for p in files),
+            "Unexpected header bundle")
     return digest(("floor-air-header-bundle-v2\n" + "".join(p.relative_to(include).as_posix() + ":" + sha256(p) + "\n" for p in files)).encode())
 
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkpoint": "metal41-placement-texture-barriers-20261110",
-  "purpose": "One deliberate combined validation build for the reviewed placement construction, sampler-backed texture reads and ordered barrier batch. Ordinary source pushes do not request another run.",
+  "checkpoint": "metal41-placement-texture-barriers-header-inventory-20261110",
+  "purpose": "Retry the same reviewed combined batch after correcting the explicit header inventory to include metal_common. No feature scope or release change.",
   "sourceBatchCommit": "8026ac51d6e9f3e2a547445343ff5a206f0ed0ec",
   "configuredCompilerCases": 788,
   "configuredApplePairs": 172,
@@ -11,5 +11,6 @@
     "placement": 6,
     "barrier": 8
   },
-  "releaseRequested": false
+  "releaseRequested": false,
+  "repairOfCheckpoint": "65c735a26d94d5b1cabc2b596c4f468e4de21618"
 }
