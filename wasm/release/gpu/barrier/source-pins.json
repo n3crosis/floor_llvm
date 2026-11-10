@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "swiftSha256": "a9200ae311d4ce1ae40c0832f199bea605ccc4cf959b6b5f59505779678e2e61",
+  "applePreflightArchiveSha256": "0f49f3a968b6a1724ca484c69e3b54d00f2baa8789c1029a588d861ede829f54",
+  "cases": {
+    "barrier-exchange-threadgroup-acq_rel-default": "c86bc0a8cb2b94e717d32ac8f11e619335c3a531cf659fff4d8d99fbfd6a6bbc",
+    "barrier-exchange-threadgroup-acq_rel-explicit": "e01a58c73905ddca4c7ed12d844fd0fd5bbdfd78cd688244a1ca543e83ff1413",
+    "barrier-exchange-threadgroup-seq_cst-default": "693b6ff635bd35255b7b82230e2be0e7cf14559fb7e0165837f38e68db815c01",
+    "barrier-exchange-threadgroup-seq_cst-explicit": "9f6306a98b630ec28ba533b3913b4186ce4ab44e3b159e59bf556de78e9f8dc4",
+    "barrier-exchange-simdgroup-acq_rel-default": "268f975526a8ed2ef878c9b6b782110b024bb310a65c2f6e1e01d7843af6d9a7",
+    "barrier-exchange-simdgroup-acq_rel-explicit": "ddda8c84c7430e429ee0efd6f1580f7daab2d2845ff18c320905edd1a5a3bbf9",
+    "barrier-exchange-simdgroup-seq_cst-default": "10d0f85d3f39a9ded1bd6b4a75e1314f7d1d72d48f0287477f2a2d918600aa75",
+    "barrier-exchange-simdgroup-seq_cst-explicit": "05f7ac53b864872ed480c04f91c888b7f00462b2b3c1b11f98627f6058e4b818"
+  }
+}

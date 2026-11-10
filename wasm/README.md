@@ -40,8 +40,12 @@ The compiler defines `__METAL__` and `__METAL_VERSION__` from its actual languag
 options. The 4.1 mode uses C++17; the public API rejects later-C++ extensions and
 selected prohibited constructs before code generation. A final-expanded-token
 check rejects `__extension__`, including macro expansions, so it cannot silence
-the later-language diagnostics; diagnostics in system headers remain enabled. Placement new is valid MSL
-4.1 but is explicitly unsupported by this header bundle. Source-mode selection
+the later-language diagnostics; diagnostics in system headers remain enabled. The version-gated `metal_common` header provides scalar and constant-bound array
+placement construction in explicit `thread`, `threadgroup`, and `device` storage,
+including constructors, explicit destructors, and over-aligned types. The caller
+owns sufficient correctly aligned storage, object lifetimes, and synchronization.
+Runtime-bound arrays, custom allocation operators, heap allocation, and delete
+remain rejected. Source-mode selection
 and AIR/VERS consistency are narrower claims than complete language, standard
 library, Apple loader, GPU or application compatibility.
 
@@ -71,3 +75,27 @@ separate evidence, and never silently run the 4.0 reference as a 4.1 fallback.
 
 Binary distributions must include matching complete corresponding source, modifications, build scripts, and applicable notices. Keep compiler source versions and binary receipts accurate; do not assign a new source identity to an older binary.
 
+
+## Metal 4.1 sampler-backed texture reads
+
+The authored texture subset exposes `read(sampler, intN, ..., intN offset, uint lod)`
+for `texture2d<float>`, `texture2d_array<float>`, and `texture3d<float>` with
+`access::sample`, carried in the existing `[[id]]` argument-buffer resource ABI.
+Direct `[[texture]]` and `[[sampler]]` entry bindings remain unsupported. The 2D-array layer precedes the offset. All four implicit-object
+address spaces have matching overloads. Defaults remain offset zero and LOD zero.
+The sampler and signed offset are preserved as separate AIR operands so addressing
+occurs after the offset. Constant offsets outside [-8, 7] are rejected; callers
+must keep dynamic offsets within that range. Sampler-less reads are unchanged.
+
+These overloads require actual Metal 4.1 mode. This increment does not implement
+read/read_write texture specializations, additional color types, 1D/cube/depth/
+multisample textures, sparse reads, block reads, or texture atomics. It does not
+claim those wider Metal 4.1 features through the three supported shapes.
+
+`node --test wasm/release/msl41-texture-read.test.mjs` checks the bounded release
+case matrix and validator mutation tests. The release probe checks actual rebuilt
+IR operand provenance, argument bindings, AIR/MSL versions, and metallib VERS.
+The Apple reference gate compiles the same positive sources without substituting
+an older standard. Apple compilation, FLOOR compilation, library load, and GPU
+results remain separate evidence; no texture GPU execution is implied by a
+compile/IR test or the existing integer/derivative/interleave GPU harness.

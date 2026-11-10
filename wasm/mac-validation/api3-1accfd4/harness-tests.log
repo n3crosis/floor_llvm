@@ -1,0 +1,41 @@
+✔ positive corpus deduplicates output kinds but preserves profiles and targets (2.16482ms)
+✔ reference never changes iOS target and selects explicit math flags (1.20562ms)
+✔ FLOOR-only negative cases impose no Apple rejection expectation (0.116505ms)
+✔ reference corpus includes every common positive without output-kind duplication (3.405713ms)
+✔ GPU pass requires each independently evidenced layer and nonzero comparisons (3.300025ms)
+✔ aggregate GPU proof cannot pass missing, unavailable, malformed or asymmetric load evidence (0.547472ms)
+✔ explicit 4.1 selection uses iOS27 and never falls back to 4.0 (3.948047ms)
+✔ dedup retains different ABI/language selections and mandatory new corpus (41.150904ms)
+✔ compiler dispatch calls exact public ABI and checks capability (0.744968ms)
+✔ all independent layers and later cases continue after compile or GPU failures (0.796396ms)
+✔ unavailable Apple4.1 does not prevent FLOOR4.1 compilation or falsely pass (0.200411ms)
+✔ failed numerical reports remain inspectable but must match original inputs (0.773782ms)
+✔ loaded and executed remain distinct from numerical mismatch (0.172939ms)
+✔ all 36 interleave pairs dispatch exact typed GPU contract, preserving original libraries (2.254305ms)
+✔ overall outcome uses exit77 for unavailable GPU and tools, never exit0 (0.161382ms)
+✔ accept lane-bound scalar and vector derivatives and exact fwidth (6.329017ms)
+✔ reject missing derivative (0.859511ms)
+✔ reject wrong derivative axis (0.562986ms)
+✔ reject invented vector ABI (0.208373ms)
+✔ reject duplicate input lane (0.351798ms)
+✔ reject wrong output lane (0.403596ms)
+✔ reject declaration convergence (0.310116ms)
+✔ reject call convergence (0.217075ms)
+✔ reject wrong magnitude mask (0.778699ms)
+✔ reject raw derivative instead of magnitude (0.956446ms)
+✔ reject sum same axis twice (1.747063ms)
+✔ reject subtract magnitudes (0.920301ms)
+✔ reject forced fast math (0.795104ms)
+✔ reject lost fragment metadata (0.143245ms)
+✔ reject wrong return value (1.487994ms)
+✔ case coverage and size budget (0.429034ms)
+✔ padded numerical fixtures preserve originals and require defined alpha (0.823947ms)
+✔ accept optimized padded vector constants but reject wrong alpha (1.264789ms)
+ℹ tests 33
+ℹ suites 0
+ℹ pass 33
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 168.410508

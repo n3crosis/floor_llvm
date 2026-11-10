@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "scope": "Standalone native-compiled Swift harness and Python matrix post-processor; no GPU proof",
+  "tests": 68,
+  "frozenSwiftSha256": "eafb0ed0cc917d3f5c35da981108325d7d6b8e85961791a68a8c3f1e7c2fa668",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 12257,
+      "sha256": "a3bf74439d31c5f1396cb89a140bcc3a8818ea6bf1a11c6d5a9419a042222138"
+    },
+    {
+      "path": "make_texture_read_fixtures.py",
+      "bytes": 5670,
+      "sha256": "5c2908add8603815409d2abfe1965fac55f960ca8b0274e8e9c67aa8a5f93c0e"
+    },
+    {
+      "path": "make_texture_read_pair_receipt.py",
+      "bytes": 3040,
+      "sha256": "c69e58dcdcd3e7c49b7d15cc205f29c42eaa63a4c62c3bf8217b9a7d7ddd3034"
+    },
+    {
+      "path": "metal-texture-read-gpu-cases.json",
+      "bytes": 37239,
+      "sha256": "18c4b9c83644f481eefa8dd86e1192e54e7fadb57dfc58cb428f739360f58f74"
+    },
+    {
+      "path": "metal-texture-read-numerical.swift",
+      "bytes": 23962,
+      "sha256": "eafb0ed0cc917d3f5c35da981108325d7d6b8e85961791a68a8c3f1e7c2fa668"
+    },
+    {
+      "path": "run_texture_read_gpu_matrix.py",
+      "bytes": 15628,
+      "sha256": "cac405b49aef6389cddcda3a46a82464e6b47d5dc7e1c8a39f60e42e2bae3854"
+    },
+    {
+      "path": "source-pins.json",
+      "bytes": 1125,
+      "sha256": "fa8a3f5fd5275fdf99e120ec0d81304af6a07b3d81231e7eb9f2f8e7899c1ad1"
+    },
+    {
+      "path": "test-results.txt",
+      "bytes": 7343,
+      "sha256": "56fcb279e0bb87eb3ff8dab799ced259a8576c2ae77ab1fca50a7abd68ef33d4"
+    },
+    {
+      "path": "test_texture_read_gpu.py",
+      "bytes": 17271,
+      "sha256": "9a1f4c54b96c874b16935ebc80edd1224d03927138d64539d1c065bd644d9011"
+    },
+    {
+      "path": "test_texture_read_matrix.py",
+      "bytes": 14265,
+      "sha256": "5c5e500cfe2e26a1412791364dc1b612a13ad3abf102f3e5981f4b02358b04ae"
+    },
+    {
+      "path": "texture-read-oracle-fixtures.json",
+      "bytes": 188315,
+      "sha256": "ada170386aff9f8e4ff30840333ab74b647f4e80fc510ff3599ebe3a94bb9f62"
+    },
+    {
+      "path": "verify_texture_read_report.py",
+      "bytes": 7651,
+      "sha256": "d3943c0fb9d80cc6ab4b9912dbfe0becf85d2a164ffd5544e3403e1f790dabf9"
+    }
+  ]
+}

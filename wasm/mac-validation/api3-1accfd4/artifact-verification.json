@@ -1,0 +1,45 @@
+{
+  "artifactID": "13758518162",
+  "capabilities": {
+    "apiVersion": 3,
+    "explicitLanguageTargets": [
+      {
+        "ios": 18,
+        "metalVersion": 320
+      },
+      {
+        "ios": 26,
+        "metalVersion": 400
+      },
+      {
+        "ios": 27,
+        "metalVersion": 410
+      }
+    ],
+    "legacyLanguageVersion": 320,
+    "sourceLanguage": "floor-metal-4.1-subset",
+    "supportedApiVersions": [
+      1,
+      2,
+      3
+    ]
+  },
+  "commit": "1accfd44d88898b2885390cafd527e48b4f00479",
+  "expectedRejections": 239,
+  "headerSha256": "c37e3f178be981e4176c9145ef651ac8c29b527d9b179ef642e135ec871193e4",
+  "manifestSha256": "f9f202c5b63e5ba45a038c34b50596bda029f8cdc58cb8b974d1a9cd8872362f",
+  "originalZipBytes": 186307629,
+  "originalZipSha256": "d12ee8cff0597baae8f684048ead6efe0a458619e40aa90933ce95140189e063",
+  "pinnedSourceAndHarnessMembersChecked": 82,
+  "positiveCases": 258,
+  "receiptCases": 497,
+  "receiptSha256": "7b6f5b6364ed2f7f8c47197584a5d42ae4428b0d54a3a6f650fdd551e6834965",
+  "repository": "n3crosis/floor_llvm",
+  "runtimeMembersChecked": 33,
+  "scope": "Authenticated compiler artifact, source identity and CI receipt verified locally. No Apple/GPU execution claimed.",
+  "sourceFingerprintSha256": "443983446ba0497be065ef664191d697ef568231d70c012e3bc8b84265b6523d",
+  "sourceInputsChecked": 63,
+  "tree": "e0a6df98d895c4b268d475a9bf0a82adfe51bfff",
+  "verified": true,
+  "workflowRun": "42801805934"
+}

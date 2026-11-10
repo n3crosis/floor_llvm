@@ -1,0 +1,198 @@
+{
+  "schema": 1,
+  "feature": "msl41-placement-gpu",
+  "target": {
+    "api": 3,
+    "metalVersion": 410,
+    "ios": 27,
+    "mathProfile": 0
+  },
+  "cases": [
+    {
+      "name": "placement_gpu_thread_scalar",
+      "space": "thread",
+      "form": "scalar",
+      "count": 1,
+      "source": "sources/placement_gpu_thread_scalar.metal",
+      "sha256": "821648c4169f54bb3780bf4f96b09768031113eb7f60c10dc7220c7e11ddc0d2",
+      "bytes": 2039,
+      "bindings": {
+        "inputBuffer": 0,
+        "inputBytes": 24,
+        "outputBuffer": 1,
+        "outputBindingByteOffset": 16,
+        "outputActiveBytes": 128,
+        "outputAllocationBytes": 160,
+        "arenaBuffer": null,
+        "arenaBytes": 64,
+        "threadgroupIndex": null,
+        "threadgroupBytes": 0,
+        "threadgroups": [
+          1,
+          1,
+          1
+        ],
+        "threadsPerThreadgroup": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "name": "placement_gpu_thread_array",
+      "space": "thread",
+      "form": "array",
+      "count": 2,
+      "source": "sources/placement_gpu_thread_array.metal",
+      "sha256": "5191ef8619b4e6062e6d093f6453f2bc48784b213331b6a447db777ffcd1f73a",
+      "bytes": 2230,
+      "bindings": {
+        "inputBuffer": 0,
+        "inputBytes": 24,
+        "outputBuffer": 1,
+        "outputBindingByteOffset": 16,
+        "outputActiveBytes": 128,
+        "outputAllocationBytes": 160,
+        "arenaBuffer": null,
+        "arenaBytes": 64,
+        "threadgroupIndex": null,
+        "threadgroupBytes": 0,
+        "threadgroups": [
+          1,
+          1,
+          1
+        ],
+        "threadsPerThreadgroup": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "name": "placement_gpu_threadgroup_scalar",
+      "space": "threadgroup",
+      "form": "scalar",
+      "count": 1,
+      "source": "sources/placement_gpu_threadgroup_scalar.metal",
+      "sha256": "ff24647449c6c568e932a49e16824074ff7a96bd70974e14ad604650119335ed",
+      "bytes": 2190,
+      "bindings": {
+        "inputBuffer": 0,
+        "inputBytes": 24,
+        "outputBuffer": 1,
+        "outputBindingByteOffset": 16,
+        "outputActiveBytes": 128,
+        "outputAllocationBytes": 160,
+        "arenaBuffer": null,
+        "arenaBytes": 64,
+        "threadgroupIndex": 0,
+        "threadgroupBytes": 64,
+        "threadgroups": [
+          1,
+          1,
+          1
+        ],
+        "threadsPerThreadgroup": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "name": "placement_gpu_threadgroup_array",
+      "space": "threadgroup",
+      "form": "array",
+      "count": 2,
+      "source": "sources/placement_gpu_threadgroup_array.metal",
+      "sha256": "b9a8b7ace3cf5baaaa217f648f3202c66492fcf556fabab432d4cc954fdb0791",
+      "bytes": 2421,
+      "bindings": {
+        "inputBuffer": 0,
+        "inputBytes": 24,
+        "outputBuffer": 1,
+        "outputBindingByteOffset": 16,
+        "outputActiveBytes": 128,
+        "outputAllocationBytes": 160,
+        "arenaBuffer": null,
+        "arenaBytes": 64,
+        "threadgroupIndex": 0,
+        "threadgroupBytes": 64,
+        "threadgroups": [
+          1,
+          1,
+          1
+        ],
+        "threadsPerThreadgroup": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "name": "placement_gpu_device_scalar",
+      "space": "device",
+      "form": "scalar",
+      "count": 1,
+      "source": "sources/placement_gpu_device_scalar.metal",
+      "sha256": "ffe3181108b7eced88eb78a8e865cbf26bb9a07fe436e6dfb6f65c75720a76b9",
+      "bytes": 2040,
+      "bindings": {
+        "inputBuffer": 0,
+        "inputBytes": 24,
+        "outputBuffer": 1,
+        "outputBindingByteOffset": 16,
+        "outputActiveBytes": 128,
+        "outputAllocationBytes": 160,
+        "arenaBuffer": 2,
+        "arenaBytes": 64,
+        "threadgroupIndex": null,
+        "threadgroupBytes": 0,
+        "threadgroups": [
+          1,
+          1,
+          1
+        ],
+        "threadsPerThreadgroup": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "name": "placement_gpu_device_array",
+      "space": "device",
+      "form": "array",
+      "count": 2,
+      "source": "sources/placement_gpu_device_array.metal",
+      "sha256": "dfc3043eea50aa23e8f0346bed1b0c6c6968ed9784128dbe088fb14baeb587be",
+      "bytes": 2231,
+      "bindings": {
+        "inputBuffer": 0,
+        "inputBytes": 24,
+        "outputBuffer": 1,
+        "outputBindingByteOffset": 16,
+        "outputActiveBytes": 128,
+        "outputAllocationBytes": 160,
+        "arenaBuffer": 2,
+        "arenaBytes": 64,
+        "threadgroupIndex": null,
+        "threadgroupBytes": 0,
+        "threadgroups": [
+          1,
+          1,
+          1
+        ],
+        "threadsPerThreadgroup": [
+          1,
+          1,
+          1
+        ]
+      }
+    }
+  ]
+}

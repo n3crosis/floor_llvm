@@ -1,0 +1,28 @@
+FLOOR API3 / METAL 4.1 CHECKPOINT MAC TESTS
+
+Compiler checkpoint: 1accfd44d88898b2885390cafd527e48b4f00479
+Run: https://github.com/n3crosis/floor_llvm/actions/runs/42801805934
+Artifact ID: 13758518162
+Artifact name: air-wasm-dev-1accfd44d888-1accfd44d88898b2885390cafd527e48b4f00479
+
+Read README.md and VALIDATION.txt first.
+This package is separate from the unchanged 81d255 baseline-v2 runner.
+
+Optional independent Apple capability check:
+python3 run_mac_validation.py --capability-only --output "$HOME/Desktop/floor-apple41-capability"
+
+Full run, after downloading the exact original compiler artifact ZIP above:
+python3 run_mac_validation.py --artifact "$HOME/Downloads/EXACT_ORIGINAL_ARTIFACT.zip" --output "$HOME/Desktop/floor-api3-validation"
+
+Use a NEW output folder. The original ZIP must be unchanged.
+Capability-only needs installed Python/Xcode/Metal tools, not Git/Node/artifact.
+Full mode also needs Node 24.x, Git, Swift and public GitHub source access.
+No credentials, installations, settings changes or uploads are requested.
+
+The full run covers 82 compiler pairs, 48 GPU-eligible pairs including
+36 interleave pairs. Unavailable remains distinct from passed. Original iOS
+libraries and source targets are never rewritten. A Mac may reject iOS libraries.
+
+Review share/summary.txt and evidence.zip before returning them in conversation.
+Raw evidence stays local. Nothing uploads itself. A compiler receipt pass does
+not establish Apple compilation, GPU execution or numerical correctness.

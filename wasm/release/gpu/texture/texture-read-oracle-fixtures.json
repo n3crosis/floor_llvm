@@ -1,0 +1,9846 @@
+{
+  "schemaVersion": 1,
+  "pixelFormat": "rgba32Float",
+  "mipLevels": 3,
+  "arrayLayers": 3,
+  "baseDimensions": [
+    8,
+    4,
+    4
+  ],
+  "payload": "1 + 10000*lod + 1000*layer + 100*z + 10*y + x + channel/4",
+  "cases": [
+    {
+      "geometry": "texture2d",
+      "mode": "dynamic",
+      "queries": [
+        {
+          "label": "inside-layer0",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1095761920,
+            1096024064,
+            1096286208,
+            1096548352
+          ]
+        },
+        {
+          "label": "low-layer0",
+          "coordinate": [
+            -1,
+            -1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "high-layer0",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728
+          ]
+        },
+        {
+          "label": "cross-before-clamp-layer0",
+          "coordinate": [
+            -2,
+            2
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1086324736,
+            1086849024,
+            1087373312,
+            1087897600
+          ]
+        },
+        {
+          "label": "reverse-before-clamp-layer0",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            -8,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "offset-minus8-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "offset-plus7-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728
+          ]
+        },
+        {
+          "label": "cancel-negative-layer0",
+          "coordinate": [
+            -7,
+            -7
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "cancel-upper-layer0",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "distinct-axis-offsets-layer0",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            1,
+            -1
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1082130432,
+            1082654720,
+            1083179008,
+            1083703296
+          ]
+        },
+        {
+          "label": "mip0-last-layer0",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728
+          ]
+        },
+        {
+          "label": "mip0-outside-layer0",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728
+          ]
+        },
+        {
+          "label": "mip0-offset-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1090519040,
+            1090781184,
+            1091043328,
+            1091305472
+          ]
+        },
+        {
+          "label": "mip1-last-layer0",
+          "coordinate": [
+            3,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176270848,
+            1176271104,
+            1176271360,
+            1176271616
+          ]
+        },
+        {
+          "label": "mip1-outside-layer0",
+          "coordinate": [
+            4,
+            2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176270848,
+            1176271104,
+            1176271360,
+            1176271616
+          ]
+        },
+        {
+          "label": "mip1-offset-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176260608,
+            1176260864,
+            1176261120,
+            1176261376
+          ]
+        },
+        {
+          "label": "mip2-last-layer0",
+          "coordinate": [
+            1,
+            0
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184646144,
+            1184646272,
+            1184646400,
+            1184646528
+          ]
+        },
+        {
+          "label": "mip2-outside-layer0",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184646144,
+            1184646272,
+            1184646400,
+            1184646528
+          ]
+        },
+        {
+          "label": "mip2-offset-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184646144,
+            1184646272,
+            1184646400,
+            1184646528
+          ]
+        },
+        {
+          "label": "invalid-lod-layer0",
+          "coordinate": [
+            -1,
+            1
+          ],
+          "offset": [
+            7,
+            0
+          ],
+          "lod": 3,
+          "layer": 0,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "geometry": "texture2d",
+      "mode": "defaults",
+      "queries": [
+        {
+          "label": "inside-layer0",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1095761920,
+            1096024064,
+            1096286208,
+            1096548352
+          ]
+        },
+        {
+          "label": "low-layer0",
+          "coordinate": [
+            -1,
+            -1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "high-layer0",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728
+          ]
+        },
+        {
+          "label": "cross-before-clamp-layer0",
+          "coordinate": [
+            -2,
+            2
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1101529088,
+            1101660160,
+            1101791232,
+            1101922304
+          ]
+        },
+        {
+          "label": "reverse-before-clamp-layer0",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            -8,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728
+          ]
+        },
+        {
+          "label": "offset-minus8-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "offset-plus7-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "cancel-negative-layer0",
+          "coordinate": [
+            -7,
+            -7
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "cancel-upper-layer0",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728
+          ]
+        },
+        {
+          "label": "distinct-axis-offsets-layer0",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            1,
+            -1
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1095761920,
+            1096024064,
+            1096286208,
+            1096548352
+          ]
+        },
+        {
+          "label": "mip0-last-layer0",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728
+          ]
+        },
+        {
+          "label": "mip0-outside-layer0",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728
+          ]
+        },
+        {
+          "label": "mip0-offset-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "mip1-last-layer0",
+          "coordinate": [
+            3,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1096810496,
+            1097072640,
+            1097334784,
+            1097596928
+          ]
+        },
+        {
+          "label": "mip1-outside-layer0",
+          "coordinate": [
+            4,
+            2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1103626240,
+            1103757312,
+            1103888384,
+            1104019456
+          ]
+        },
+        {
+          "label": "mip1-offset-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "mip2-last-layer0",
+          "coordinate": [
+            1,
+            0
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1073741824,
+            1074790400,
+            1075838976,
+            1076887552
+          ]
+        },
+        {
+          "label": "mip2-outside-layer0",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1095761920,
+            1096024064,
+            1096286208,
+            1096548352
+          ]
+        },
+        {
+          "label": "mip2-offset-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "invalid-lod-layer0",
+          "coordinate": [
+            -1,
+            1
+          ],
+          "offset": [
+            7,
+            0
+          ],
+          "lod": 3,
+          "layer": 0,
+          "expectedBits": [
+            1093664768,
+            1093926912,
+            1094189056,
+            1094451200
+          ]
+        }
+      ]
+    },
+    {
+      "geometry": "texture2d",
+      "mode": "boundaries",
+      "queries": [
+        {
+          "label": "inside-layer0",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "low-layer0",
+          "coordinate": [
+            -1,
+            -1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "high-layer0",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "cross-before-clamp-layer0",
+          "coordinate": [
+            -2,
+            2
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "reverse-before-clamp-layer0",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            -8,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "offset-minus8-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "offset-plus7-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "cancel-negative-layer0",
+          "coordinate": [
+            -7,
+            -7
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "cancel-upper-layer0",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "distinct-axis-offsets-layer0",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            1,
+            -1
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "mip0-last-layer0",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "mip0-outside-layer0",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "mip0-offset-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "mip1-last-layer0",
+          "coordinate": [
+            3,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176267776,
+            1176268032,
+            1176268288,
+            1176268544
+          ]
+        },
+        {
+          "label": "mip1-outside-layer0",
+          "coordinate": [
+            4,
+            2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176267776,
+            1176268032,
+            1176268288,
+            1176268544
+          ]
+        },
+        {
+          "label": "mip1-offset-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176267776,
+            1176268032,
+            1176268288,
+            1176268544
+          ]
+        },
+        {
+          "label": "mip2-last-layer0",
+          "coordinate": [
+            1,
+            0
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184645632,
+            1184645760,
+            1184645888,
+            1184646016
+          ]
+        },
+        {
+          "label": "mip2-outside-layer0",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184645632,
+            1184645760,
+            1184645888,
+            1184646016
+          ]
+        },
+        {
+          "label": "mip2-offset-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184645632,
+            1184645760,
+            1184645888,
+            1184646016
+          ]
+        },
+        {
+          "label": "invalid-lod-layer0",
+          "coordinate": [
+            -1,
+            1
+          ],
+          "offset": [
+            7,
+            0
+          ],
+          "lod": 3,
+          "layer": 0,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "geometry": "texture2d",
+      "mode": "mixed",
+      "queries": [
+        {
+          "label": "inside-layer0",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1095761920,
+            1096024064,
+            1096286208,
+            1096548352,
+            1095761920,
+            1096024064,
+            1096286208,
+            1096548352
+          ]
+        },
+        {
+          "label": "low-layer0",
+          "coordinate": [
+            -1,
+            -1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "high-layer0",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "cross-before-clamp-layer0",
+          "coordinate": [
+            -2,
+            2
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1086324736,
+            1086849024,
+            1087373312,
+            1087897600,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "reverse-before-clamp-layer0",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            -8,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184,
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728
+          ]
+        },
+        {
+          "label": "offset-minus8-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672,
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "offset-plus7-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728,
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "cancel-negative-layer0",
+          "coordinate": [
+            -7,
+            -7
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "cancel-upper-layer0",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "distinct-axis-offsets-layer0",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            1,
+            -1
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1082130432,
+            1082654720,
+            1083179008,
+            1083703296,
+            1095761920,
+            1096024064,
+            1096286208,
+            1096548352
+          ]
+        },
+        {
+          "label": "mip0-last-layer0",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728,
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728
+          ]
+        },
+        {
+          "label": "mip0-outside-layer0",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip0-offset-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1090519040,
+            1090781184,
+            1091043328,
+            1091305472,
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "mip1-last-layer0",
+          "coordinate": [
+            3,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176270848,
+            1176271104,
+            1176271360,
+            1176271616,
+            1176270848,
+            1176271104,
+            1176271360,
+            1176271616
+          ]
+        },
+        {
+          "label": "mip1-outside-layer0",
+          "coordinate": [
+            4,
+            2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176270848,
+            1176271104,
+            1176271360,
+            1176271616,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip1-offset-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176260608,
+            1176260864,
+            1176261120,
+            1176261376,
+            1176257536,
+            1176257792,
+            1176258048,
+            1176258304
+          ]
+        },
+        {
+          "label": "mip2-last-layer0",
+          "coordinate": [
+            1,
+            0
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184646144,
+            1184646272,
+            1184646400,
+            1184646528,
+            1184646144,
+            1184646272,
+            1184646400,
+            1184646528
+          ]
+        },
+        {
+          "label": "mip2-outside-layer0",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184646144,
+            1184646272,
+            1184646400,
+            1184646528,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip2-offset-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184646144,
+            1184646272,
+            1184646400,
+            1184646528,
+            1184645632,
+            1184645760,
+            1184645888,
+            1184646016
+          ]
+        },
+        {
+          "label": "invalid-lod-layer0",
+          "coordinate": [
+            -1,
+            1
+          ],
+          "offset": [
+            7,
+            0
+          ],
+          "lod": 3,
+          "layer": 0,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "geometry": "texture2d_array",
+      "mode": "dynamic",
+      "queries": [
+        {
+          "label": "inside-layer0",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1095761920,
+            1096024064,
+            1096286208,
+            1096548352
+          ]
+        },
+        {
+          "label": "low-layer0",
+          "coordinate": [
+            -1,
+            -1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "high-layer0",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728
+          ]
+        },
+        {
+          "label": "cross-before-clamp-layer0",
+          "coordinate": [
+            -2,
+            2
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1086324736,
+            1086849024,
+            1087373312,
+            1087897600
+          ]
+        },
+        {
+          "label": "reverse-before-clamp-layer0",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            -8,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "offset-minus8-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "offset-plus7-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728
+          ]
+        },
+        {
+          "label": "cancel-negative-layer0",
+          "coordinate": [
+            -7,
+            -7
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "cancel-upper-layer0",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "distinct-axis-offsets-layer0",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            1,
+            -1
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1082130432,
+            1082654720,
+            1083179008,
+            1083703296
+          ]
+        },
+        {
+          "label": "mip0-last-layer0",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728
+          ]
+        },
+        {
+          "label": "mip0-outside-layer0",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728
+          ]
+        },
+        {
+          "label": "mip0-offset-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1090519040,
+            1090781184,
+            1091043328,
+            1091305472
+          ]
+        },
+        {
+          "label": "mip1-last-layer0",
+          "coordinate": [
+            3,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176270848,
+            1176271104,
+            1176271360,
+            1176271616
+          ]
+        },
+        {
+          "label": "mip1-outside-layer0",
+          "coordinate": [
+            4,
+            2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176270848,
+            1176271104,
+            1176271360,
+            1176271616
+          ]
+        },
+        {
+          "label": "mip1-offset-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176260608,
+            1176260864,
+            1176261120,
+            1176261376
+          ]
+        },
+        {
+          "label": "mip2-last-layer0",
+          "coordinate": [
+            1,
+            0
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184646144,
+            1184646272,
+            1184646400,
+            1184646528
+          ]
+        },
+        {
+          "label": "mip2-outside-layer0",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184646144,
+            1184646272,
+            1184646400,
+            1184646528
+          ]
+        },
+        {
+          "label": "mip2-offset-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184646144,
+            1184646272,
+            1184646400,
+            1184646528
+          ]
+        },
+        {
+          "label": "invalid-lod-layer0",
+          "coordinate": [
+            -1,
+            1
+          ],
+          "offset": [
+            7,
+            0
+          ],
+          "lod": 3,
+          "layer": 0,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "inside-layer1",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149059072,
+            1149063168,
+            1149067264,
+            1149071360
+          ]
+        },
+        {
+          "label": "low-layer1",
+          "coordinate": [
+            -1,
+            -1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1148862464,
+            1148866560,
+            1148870656,
+            1148874752
+          ]
+        },
+        {
+          "label": "high-layer1",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149353984,
+            1149356032,
+            1149358080,
+            1149360128
+          ]
+        },
+        {
+          "label": "cross-before-clamp-layer1",
+          "coordinate": [
+            -2,
+            2
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1148944384,
+            1148948480,
+            1148952576,
+            1148956672
+          ]
+        },
+        {
+          "label": "reverse-before-clamp-layer1",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            -8,
+            7
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149296640,
+            1149298688,
+            1149300736,
+            1149302784
+          ]
+        },
+        {
+          "label": "offset-minus8-layer1",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1148862464,
+            1148866560,
+            1148870656,
+            1148874752
+          ]
+        },
+        {
+          "label": "offset-plus7-layer1",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149353984,
+            1149356032,
+            1149358080,
+            1149360128
+          ]
+        },
+        {
+          "label": "cancel-negative-layer1",
+          "coordinate": [
+            -7,
+            -7
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1148862464,
+            1148866560,
+            1148870656,
+            1148874752
+          ]
+        },
+        {
+          "label": "cancel-upper-layer1",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1148862464,
+            1148866560,
+            1148870656,
+            1148874752
+          ]
+        },
+        {
+          "label": "distinct-axis-offsets-layer1",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            1,
+            -1
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1148911616,
+            1148915712,
+            1148919808,
+            1148923904
+          ]
+        },
+        {
+          "label": "mip0-last-layer1",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149353984,
+            1149356032,
+            1149358080,
+            1149360128
+          ]
+        },
+        {
+          "label": "mip0-outside-layer1",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149353984,
+            1149356032,
+            1149358080,
+            1149360128
+          ]
+        },
+        {
+          "label": "mip0-offset-layer1",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1148977152,
+            1148981248,
+            1148985344,
+            1148989440
+          ]
+        },
+        {
+          "label": "mip1-last-layer1",
+          "coordinate": [
+            3,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 1,
+          "expectedBits": [
+            1177294848,
+            1177295104,
+            1177295360,
+            1177295616
+          ]
+        },
+        {
+          "label": "mip1-outside-layer1",
+          "coordinate": [
+            4,
+            2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 1,
+          "expectedBits": [
+            1177294848,
+            1177295104,
+            1177295360,
+            1177295616
+          ]
+        },
+        {
+          "label": "mip1-offset-layer1",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 1,
+          "layer": 1,
+          "expectedBits": [
+            1177284608,
+            1177284864,
+            1177285120,
+            1177285376
+          ]
+        },
+        {
+          "label": "mip2-last-layer1",
+          "coordinate": [
+            1,
+            0
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 1,
+          "expectedBits": [
+            1185158144,
+            1185158272,
+            1185158400,
+            1185158528
+          ]
+        },
+        {
+          "label": "mip2-outside-layer1",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 1,
+          "expectedBits": [
+            1185158144,
+            1185158272,
+            1185158400,
+            1185158528
+          ]
+        },
+        {
+          "label": "mip2-offset-layer1",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 2,
+          "layer": 1,
+          "expectedBits": [
+            1185158144,
+            1185158272,
+            1185158400,
+            1185158528
+          ]
+        },
+        {
+          "label": "invalid-lod-layer1",
+          "coordinate": [
+            -1,
+            1
+          ],
+          "offset": [
+            7,
+            0
+          ],
+          "lod": 3,
+          "layer": 1,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "inside-layer2",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157341184,
+            1157343232,
+            1157345280,
+            1157347328
+          ]
+        },
+        {
+          "label": "low-layer2",
+          "coordinate": [
+            -1,
+            -1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157242880,
+            1157244928,
+            1157246976,
+            1157249024
+          ]
+        },
+        {
+          "label": "high-layer2",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157545984,
+            1157548032,
+            1157550080,
+            1157552128
+          ]
+        },
+        {
+          "label": "cross-before-clamp-layer2",
+          "coordinate": [
+            -2,
+            2
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157283840,
+            1157285888,
+            1157287936,
+            1157289984
+          ]
+        },
+        {
+          "label": "reverse-before-clamp-layer2",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            -8,
+            7
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157488640,
+            1157490688,
+            1157492736,
+            1157494784
+          ]
+        },
+        {
+          "label": "offset-minus8-layer2",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157242880,
+            1157244928,
+            1157246976,
+            1157249024
+          ]
+        },
+        {
+          "label": "offset-plus7-layer2",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157545984,
+            1157548032,
+            1157550080,
+            1157552128
+          ]
+        },
+        {
+          "label": "cancel-negative-layer2",
+          "coordinate": [
+            -7,
+            -7
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157242880,
+            1157244928,
+            1157246976,
+            1157249024
+          ]
+        },
+        {
+          "label": "cancel-upper-layer2",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157242880,
+            1157244928,
+            1157246976,
+            1157249024
+          ]
+        },
+        {
+          "label": "distinct-axis-offsets-layer2",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            1,
+            -1
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157267456,
+            1157269504,
+            1157271552,
+            1157273600
+          ]
+        },
+        {
+          "label": "mip0-last-layer2",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157545984,
+            1157548032,
+            1157550080,
+            1157552128
+          ]
+        },
+        {
+          "label": "mip0-outside-layer2",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157545984,
+            1157548032,
+            1157550080,
+            1157552128
+          ]
+        },
+        {
+          "label": "mip0-offset-layer2",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157300224,
+            1157302272,
+            1157304320,
+            1157306368
+          ]
+        },
+        {
+          "label": "mip1-last-layer2",
+          "coordinate": [
+            3,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 2,
+          "expectedBits": [
+            1178318848,
+            1178319104,
+            1178319360,
+            1178319616
+          ]
+        },
+        {
+          "label": "mip1-outside-layer2",
+          "coordinate": [
+            4,
+            2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 2,
+          "expectedBits": [
+            1178318848,
+            1178319104,
+            1178319360,
+            1178319616
+          ]
+        },
+        {
+          "label": "mip1-offset-layer2",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 1,
+          "layer": 2,
+          "expectedBits": [
+            1178308608,
+            1178308864,
+            1178309120,
+            1178309376
+          ]
+        },
+        {
+          "label": "mip2-last-layer2",
+          "coordinate": [
+            1,
+            0
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 2,
+          "expectedBits": [
+            1185670144,
+            1185670272,
+            1185670400,
+            1185670528
+          ]
+        },
+        {
+          "label": "mip2-outside-layer2",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 2,
+          "expectedBits": [
+            1185670144,
+            1185670272,
+            1185670400,
+            1185670528
+          ]
+        },
+        {
+          "label": "mip2-offset-layer2",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 2,
+          "layer": 2,
+          "expectedBits": [
+            1185670144,
+            1185670272,
+            1185670400,
+            1185670528
+          ]
+        },
+        {
+          "label": "invalid-lod-layer2",
+          "coordinate": [
+            -1,
+            1
+          ],
+          "offset": [
+            7,
+            0
+          ],
+          "lod": 3,
+          "layer": 2,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "inside-layer3",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "low-layer3",
+          "coordinate": [
+            -1,
+            -1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "high-layer3",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "cross-before-clamp-layer3",
+          "coordinate": [
+            -2,
+            2
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "reverse-before-clamp-layer3",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            -8,
+            7
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "offset-minus8-layer3",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "offset-plus7-layer3",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "cancel-negative-layer3",
+          "coordinate": [
+            -7,
+            -7
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "cancel-upper-layer3",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "distinct-axis-offsets-layer3",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            1,
+            -1
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip0-last-layer3",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip0-outside-layer3",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip0-offset-layer3",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip1-last-layer3",
+          "coordinate": [
+            3,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip1-outside-layer3",
+          "coordinate": [
+            4,
+            2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip1-offset-layer3",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 1,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip2-last-layer3",
+          "coordinate": [
+            1,
+            0
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip2-outside-layer3",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip2-offset-layer3",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 2,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "invalid-lod-layer3",
+          "coordinate": [
+            -1,
+            1
+          ],
+          "offset": [
+            7,
+            0
+          ],
+          "lod": 3,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "geometry": "texture2d_array",
+      "mode": "defaults",
+      "queries": [
+        {
+          "label": "inside-layer0",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1095761920,
+            1096024064,
+            1096286208,
+            1096548352
+          ]
+        },
+        {
+          "label": "low-layer0",
+          "coordinate": [
+            -1,
+            -1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "high-layer0",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728
+          ]
+        },
+        {
+          "label": "cross-before-clamp-layer0",
+          "coordinate": [
+            -2,
+            2
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1101529088,
+            1101660160,
+            1101791232,
+            1101922304
+          ]
+        },
+        {
+          "label": "reverse-before-clamp-layer0",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            -8,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728
+          ]
+        },
+        {
+          "label": "offset-minus8-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "offset-plus7-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "cancel-negative-layer0",
+          "coordinate": [
+            -7,
+            -7
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "cancel-upper-layer0",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728
+          ]
+        },
+        {
+          "label": "distinct-axis-offsets-layer0",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            1,
+            -1
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1095761920,
+            1096024064,
+            1096286208,
+            1096548352
+          ]
+        },
+        {
+          "label": "mip0-last-layer0",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728
+          ]
+        },
+        {
+          "label": "mip0-outside-layer0",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728
+          ]
+        },
+        {
+          "label": "mip0-offset-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "mip1-last-layer0",
+          "coordinate": [
+            3,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1096810496,
+            1097072640,
+            1097334784,
+            1097596928
+          ]
+        },
+        {
+          "label": "mip1-outside-layer0",
+          "coordinate": [
+            4,
+            2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1103626240,
+            1103757312,
+            1103888384,
+            1104019456
+          ]
+        },
+        {
+          "label": "mip1-offset-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "mip2-last-layer0",
+          "coordinate": [
+            1,
+            0
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1073741824,
+            1074790400,
+            1075838976,
+            1076887552
+          ]
+        },
+        {
+          "label": "mip2-outside-layer0",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1095761920,
+            1096024064,
+            1096286208,
+            1096548352
+          ]
+        },
+        {
+          "label": "mip2-offset-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "invalid-lod-layer0",
+          "coordinate": [
+            -1,
+            1
+          ],
+          "offset": [
+            7,
+            0
+          ],
+          "lod": 3,
+          "layer": 0,
+          "expectedBits": [
+            1093664768,
+            1093926912,
+            1094189056,
+            1094451200
+          ]
+        },
+        {
+          "label": "inside-layer1",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149059072,
+            1149063168,
+            1149067264,
+            1149071360
+          ]
+        },
+        {
+          "label": "low-layer1",
+          "coordinate": [
+            -1,
+            -1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1148862464,
+            1148866560,
+            1148870656,
+            1148874752
+          ]
+        },
+        {
+          "label": "high-layer1",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149353984,
+            1149356032,
+            1149358080,
+            1149360128
+          ]
+        },
+        {
+          "label": "cross-before-clamp-layer1",
+          "coordinate": [
+            -2,
+            2
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149190144,
+            1149194240,
+            1149198336,
+            1149202432
+          ]
+        },
+        {
+          "label": "reverse-before-clamp-layer1",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            -8,
+            7
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149353984,
+            1149356032,
+            1149358080,
+            1149360128
+          ]
+        },
+        {
+          "label": "offset-minus8-layer1",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1148862464,
+            1148866560,
+            1148870656,
+            1148874752
+          ]
+        },
+        {
+          "label": "offset-plus7-layer1",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1148862464,
+            1148866560,
+            1148870656,
+            1148874752
+          ]
+        },
+        {
+          "label": "cancel-negative-layer1",
+          "coordinate": [
+            -7,
+            -7
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1148862464,
+            1148866560,
+            1148870656,
+            1148874752
+          ]
+        },
+        {
+          "label": "cancel-upper-layer1",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149353984,
+            1149356032,
+            1149358080,
+            1149360128
+          ]
+        },
+        {
+          "label": "distinct-axis-offsets-layer1",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            1,
+            -1
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149059072,
+            1149063168,
+            1149067264,
+            1149071360
+          ]
+        },
+        {
+          "label": "mip0-last-layer1",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149353984,
+            1149356032,
+            1149358080,
+            1149360128
+          ]
+        },
+        {
+          "label": "mip0-outside-layer1",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149353984,
+            1149356032,
+            1149358080,
+            1149360128
+          ]
+        },
+        {
+          "label": "mip0-offset-layer1",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1148862464,
+            1148866560,
+            1148870656,
+            1148874752
+          ]
+        },
+        {
+          "label": "mip1-last-layer1",
+          "coordinate": [
+            3,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 1,
+          "expectedBits": [
+            1149075456,
+            1149079552,
+            1149083648,
+            1149087744
+          ]
+        },
+        {
+          "label": "mip1-outside-layer1",
+          "coordinate": [
+            4,
+            2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 1,
+          "expectedBits": [
+            1149247488,
+            1149249536,
+            1149251584,
+            1149253632
+          ]
+        },
+        {
+          "label": "mip1-offset-layer1",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 1,
+          "layer": 1,
+          "expectedBits": [
+            1148862464,
+            1148866560,
+            1148870656,
+            1148874752
+          ]
+        },
+        {
+          "label": "mip2-last-layer1",
+          "coordinate": [
+            1,
+            0
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 1,
+          "expectedBits": [
+            1148878848,
+            1148882944,
+            1148887040,
+            1148891136
+          ]
+        },
+        {
+          "label": "mip2-outside-layer1",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 1,
+          "expectedBits": [
+            1149059072,
+            1149063168,
+            1149067264,
+            1149071360
+          ]
+        },
+        {
+          "label": "mip2-offset-layer1",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 2,
+          "layer": 1,
+          "expectedBits": [
+            1148862464,
+            1148866560,
+            1148870656,
+            1148874752
+          ]
+        },
+        {
+          "label": "invalid-lod-layer1",
+          "coordinate": [
+            -1,
+            1
+          ],
+          "offset": [
+            7,
+            0
+          ],
+          "lod": 3,
+          "layer": 1,
+          "expectedBits": [
+            1149026304,
+            1149030400,
+            1149034496,
+            1149038592
+          ]
+        },
+        {
+          "label": "inside-layer2",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157341184,
+            1157343232,
+            1157345280,
+            1157347328
+          ]
+        },
+        {
+          "label": "low-layer2",
+          "coordinate": [
+            -1,
+            -1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157242880,
+            1157244928,
+            1157246976,
+            1157249024
+          ]
+        },
+        {
+          "label": "high-layer2",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157545984,
+            1157548032,
+            1157550080,
+            1157552128
+          ]
+        },
+        {
+          "label": "cross-before-clamp-layer2",
+          "coordinate": [
+            -2,
+            2
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157406720,
+            1157408768,
+            1157410816,
+            1157412864
+          ]
+        },
+        {
+          "label": "reverse-before-clamp-layer2",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            -8,
+            7
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157545984,
+            1157548032,
+            1157550080,
+            1157552128
+          ]
+        },
+        {
+          "label": "offset-minus8-layer2",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157242880,
+            1157244928,
+            1157246976,
+            1157249024
+          ]
+        },
+        {
+          "label": "offset-plus7-layer2",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157242880,
+            1157244928,
+            1157246976,
+            1157249024
+          ]
+        },
+        {
+          "label": "cancel-negative-layer2",
+          "coordinate": [
+            -7,
+            -7
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157242880,
+            1157244928,
+            1157246976,
+            1157249024
+          ]
+        },
+        {
+          "label": "cancel-upper-layer2",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157545984,
+            1157548032,
+            1157550080,
+            1157552128
+          ]
+        },
+        {
+          "label": "distinct-axis-offsets-layer2",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            1,
+            -1
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157341184,
+            1157343232,
+            1157345280,
+            1157347328
+          ]
+        },
+        {
+          "label": "mip0-last-layer2",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157545984,
+            1157548032,
+            1157550080,
+            1157552128
+          ]
+        },
+        {
+          "label": "mip0-outside-layer2",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157545984,
+            1157548032,
+            1157550080,
+            1157552128
+          ]
+        },
+        {
+          "label": "mip0-offset-layer2",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157242880,
+            1157244928,
+            1157246976,
+            1157249024
+          ]
+        },
+        {
+          "label": "mip1-last-layer2",
+          "coordinate": [
+            3,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 2,
+          "expectedBits": [
+            1157349376,
+            1157351424,
+            1157353472,
+            1157355520
+          ]
+        },
+        {
+          "label": "mip1-outside-layer2",
+          "coordinate": [
+            4,
+            2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 2,
+          "expectedBits": [
+            1157439488,
+            1157441536,
+            1157443584,
+            1157445632
+          ]
+        },
+        {
+          "label": "mip1-offset-layer2",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 1,
+          "layer": 2,
+          "expectedBits": [
+            1157242880,
+            1157244928,
+            1157246976,
+            1157249024
+          ]
+        },
+        {
+          "label": "mip2-last-layer2",
+          "coordinate": [
+            1,
+            0
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 2,
+          "expectedBits": [
+            1157251072,
+            1157253120,
+            1157255168,
+            1157257216
+          ]
+        },
+        {
+          "label": "mip2-outside-layer2",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 2,
+          "expectedBits": [
+            1157341184,
+            1157343232,
+            1157345280,
+            1157347328
+          ]
+        },
+        {
+          "label": "mip2-offset-layer2",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 2,
+          "layer": 2,
+          "expectedBits": [
+            1157242880,
+            1157244928,
+            1157246976,
+            1157249024
+          ]
+        },
+        {
+          "label": "invalid-lod-layer2",
+          "coordinate": [
+            -1,
+            1
+          ],
+          "offset": [
+            7,
+            0
+          ],
+          "lod": 3,
+          "layer": 2,
+          "expectedBits": [
+            1157324800,
+            1157326848,
+            1157328896,
+            1157330944
+          ]
+        },
+        {
+          "label": "inside-layer3",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "low-layer3",
+          "coordinate": [
+            -1,
+            -1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "high-layer3",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "cross-before-clamp-layer3",
+          "coordinate": [
+            -2,
+            2
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "reverse-before-clamp-layer3",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            -8,
+            7
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "offset-minus8-layer3",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "offset-plus7-layer3",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "cancel-negative-layer3",
+          "coordinate": [
+            -7,
+            -7
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "cancel-upper-layer3",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "distinct-axis-offsets-layer3",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            1,
+            -1
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip0-last-layer3",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip0-outside-layer3",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip0-offset-layer3",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip1-last-layer3",
+          "coordinate": [
+            3,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip1-outside-layer3",
+          "coordinate": [
+            4,
+            2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip1-offset-layer3",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 1,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip2-last-layer3",
+          "coordinate": [
+            1,
+            0
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip2-outside-layer3",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip2-offset-layer3",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 2,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "invalid-lod-layer3",
+          "coordinate": [
+            -1,
+            1
+          ],
+          "offset": [
+            7,
+            0
+          ],
+          "lod": 3,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "geometry": "texture2d_array",
+      "mode": "boundaries",
+      "queries": [
+        {
+          "label": "inside-layer0",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "low-layer0",
+          "coordinate": [
+            -1,
+            -1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "high-layer0",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "cross-before-clamp-layer0",
+          "coordinate": [
+            -2,
+            2
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "reverse-before-clamp-layer0",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            -8,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "offset-minus8-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "offset-plus7-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "cancel-negative-layer0",
+          "coordinate": [
+            -7,
+            -7
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "cancel-upper-layer0",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "distinct-axis-offsets-layer0",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            1,
+            -1
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "mip0-last-layer0",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "mip0-outside-layer0",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "mip0-offset-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "mip1-last-layer0",
+          "coordinate": [
+            3,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176267776,
+            1176268032,
+            1176268288,
+            1176268544
+          ]
+        },
+        {
+          "label": "mip1-outside-layer0",
+          "coordinate": [
+            4,
+            2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176267776,
+            1176268032,
+            1176268288,
+            1176268544
+          ]
+        },
+        {
+          "label": "mip1-offset-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176267776,
+            1176268032,
+            1176268288,
+            1176268544
+          ]
+        },
+        {
+          "label": "mip2-last-layer0",
+          "coordinate": [
+            1,
+            0
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184645632,
+            1184645760,
+            1184645888,
+            1184646016
+          ]
+        },
+        {
+          "label": "mip2-outside-layer0",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184645632,
+            1184645760,
+            1184645888,
+            1184646016
+          ]
+        },
+        {
+          "label": "mip2-offset-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184645632,
+            1184645760,
+            1184645888,
+            1184646016
+          ]
+        },
+        {
+          "label": "invalid-lod-layer0",
+          "coordinate": [
+            -1,
+            1
+          ],
+          "offset": [
+            7,
+            0
+          ],
+          "lod": 3,
+          "layer": 0,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "inside-layer1",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149296640,
+            1149298688,
+            1149300736,
+            1149302784
+          ]
+        },
+        {
+          "label": "low-layer1",
+          "coordinate": [
+            -1,
+            -1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149296640,
+            1149298688,
+            1149300736,
+            1149302784
+          ]
+        },
+        {
+          "label": "high-layer1",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149296640,
+            1149298688,
+            1149300736,
+            1149302784
+          ]
+        },
+        {
+          "label": "cross-before-clamp-layer1",
+          "coordinate": [
+            -2,
+            2
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149296640,
+            1149298688,
+            1149300736,
+            1149302784
+          ]
+        },
+        {
+          "label": "reverse-before-clamp-layer1",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            -8,
+            7
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149296640,
+            1149298688,
+            1149300736,
+            1149302784
+          ]
+        },
+        {
+          "label": "offset-minus8-layer1",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149296640,
+            1149298688,
+            1149300736,
+            1149302784
+          ]
+        },
+        {
+          "label": "offset-plus7-layer1",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149296640,
+            1149298688,
+            1149300736,
+            1149302784
+          ]
+        },
+        {
+          "label": "cancel-negative-layer1",
+          "coordinate": [
+            -7,
+            -7
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149296640,
+            1149298688,
+            1149300736,
+            1149302784
+          ]
+        },
+        {
+          "label": "cancel-upper-layer1",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149296640,
+            1149298688,
+            1149300736,
+            1149302784
+          ]
+        },
+        {
+          "label": "distinct-axis-offsets-layer1",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            1,
+            -1
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149296640,
+            1149298688,
+            1149300736,
+            1149302784
+          ]
+        },
+        {
+          "label": "mip0-last-layer1",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149296640,
+            1149298688,
+            1149300736,
+            1149302784
+          ]
+        },
+        {
+          "label": "mip0-outside-layer1",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149296640,
+            1149298688,
+            1149300736,
+            1149302784
+          ]
+        },
+        {
+          "label": "mip0-offset-layer1",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149296640,
+            1149298688,
+            1149300736,
+            1149302784
+          ]
+        },
+        {
+          "label": "mip1-last-layer1",
+          "coordinate": [
+            3,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 1,
+          "expectedBits": [
+            1177291776,
+            1177292032,
+            1177292288,
+            1177292544
+          ]
+        },
+        {
+          "label": "mip1-outside-layer1",
+          "coordinate": [
+            4,
+            2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 1,
+          "expectedBits": [
+            1177291776,
+            1177292032,
+            1177292288,
+            1177292544
+          ]
+        },
+        {
+          "label": "mip1-offset-layer1",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 1,
+          "layer": 1,
+          "expectedBits": [
+            1177291776,
+            1177292032,
+            1177292288,
+            1177292544
+          ]
+        },
+        {
+          "label": "mip2-last-layer1",
+          "coordinate": [
+            1,
+            0
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 1,
+          "expectedBits": [
+            1185157632,
+            1185157760,
+            1185157888,
+            1185158016
+          ]
+        },
+        {
+          "label": "mip2-outside-layer1",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 1,
+          "expectedBits": [
+            1185157632,
+            1185157760,
+            1185157888,
+            1185158016
+          ]
+        },
+        {
+          "label": "mip2-offset-layer1",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 2,
+          "layer": 1,
+          "expectedBits": [
+            1185157632,
+            1185157760,
+            1185157888,
+            1185158016
+          ]
+        },
+        {
+          "label": "invalid-lod-layer1",
+          "coordinate": [
+            -1,
+            1
+          ],
+          "offset": [
+            7,
+            0
+          ],
+          "lod": 3,
+          "layer": 1,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "inside-layer2",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157488640,
+            1157490688,
+            1157492736,
+            1157494784
+          ]
+        },
+        {
+          "label": "low-layer2",
+          "coordinate": [
+            -1,
+            -1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157488640,
+            1157490688,
+            1157492736,
+            1157494784
+          ]
+        },
+        {
+          "label": "high-layer2",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157488640,
+            1157490688,
+            1157492736,
+            1157494784
+          ]
+        },
+        {
+          "label": "cross-before-clamp-layer2",
+          "coordinate": [
+            -2,
+            2
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157488640,
+            1157490688,
+            1157492736,
+            1157494784
+          ]
+        },
+        {
+          "label": "reverse-before-clamp-layer2",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            -8,
+            7
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157488640,
+            1157490688,
+            1157492736,
+            1157494784
+          ]
+        },
+        {
+          "label": "offset-minus8-layer2",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157488640,
+            1157490688,
+            1157492736,
+            1157494784
+          ]
+        },
+        {
+          "label": "offset-plus7-layer2",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157488640,
+            1157490688,
+            1157492736,
+            1157494784
+          ]
+        },
+        {
+          "label": "cancel-negative-layer2",
+          "coordinate": [
+            -7,
+            -7
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157488640,
+            1157490688,
+            1157492736,
+            1157494784
+          ]
+        },
+        {
+          "label": "cancel-upper-layer2",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157488640,
+            1157490688,
+            1157492736,
+            1157494784
+          ]
+        },
+        {
+          "label": "distinct-axis-offsets-layer2",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            1,
+            -1
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157488640,
+            1157490688,
+            1157492736,
+            1157494784
+          ]
+        },
+        {
+          "label": "mip0-last-layer2",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157488640,
+            1157490688,
+            1157492736,
+            1157494784
+          ]
+        },
+        {
+          "label": "mip0-outside-layer2",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157488640,
+            1157490688,
+            1157492736,
+            1157494784
+          ]
+        },
+        {
+          "label": "mip0-offset-layer2",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157488640,
+            1157490688,
+            1157492736,
+            1157494784
+          ]
+        },
+        {
+          "label": "mip1-last-layer2",
+          "coordinate": [
+            3,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 2,
+          "expectedBits": [
+            1178315776,
+            1178316032,
+            1178316288,
+            1178316544
+          ]
+        },
+        {
+          "label": "mip1-outside-layer2",
+          "coordinate": [
+            4,
+            2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 2,
+          "expectedBits": [
+            1178315776,
+            1178316032,
+            1178316288,
+            1178316544
+          ]
+        },
+        {
+          "label": "mip1-offset-layer2",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 1,
+          "layer": 2,
+          "expectedBits": [
+            1178315776,
+            1178316032,
+            1178316288,
+            1178316544
+          ]
+        },
+        {
+          "label": "mip2-last-layer2",
+          "coordinate": [
+            1,
+            0
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 2,
+          "expectedBits": [
+            1185669632,
+            1185669760,
+            1185669888,
+            1185670016
+          ]
+        },
+        {
+          "label": "mip2-outside-layer2",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 2,
+          "expectedBits": [
+            1185669632,
+            1185669760,
+            1185669888,
+            1185670016
+          ]
+        },
+        {
+          "label": "mip2-offset-layer2",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 2,
+          "layer": 2,
+          "expectedBits": [
+            1185669632,
+            1185669760,
+            1185669888,
+            1185670016
+          ]
+        },
+        {
+          "label": "invalid-lod-layer2",
+          "coordinate": [
+            -1,
+            1
+          ],
+          "offset": [
+            7,
+            0
+          ],
+          "lod": 3,
+          "layer": 2,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "inside-layer3",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "low-layer3",
+          "coordinate": [
+            -1,
+            -1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "high-layer3",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "cross-before-clamp-layer3",
+          "coordinate": [
+            -2,
+            2
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "reverse-before-clamp-layer3",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            -8,
+            7
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "offset-minus8-layer3",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "offset-plus7-layer3",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "cancel-negative-layer3",
+          "coordinate": [
+            -7,
+            -7
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "cancel-upper-layer3",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "distinct-axis-offsets-layer3",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            1,
+            -1
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip0-last-layer3",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip0-outside-layer3",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip0-offset-layer3",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip1-last-layer3",
+          "coordinate": [
+            3,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip1-outside-layer3",
+          "coordinate": [
+            4,
+            2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip1-offset-layer3",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 1,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip2-last-layer3",
+          "coordinate": [
+            1,
+            0
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip2-outside-layer3",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip2-offset-layer3",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 2,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "invalid-lod-layer3",
+          "coordinate": [
+            -1,
+            1
+          ],
+          "offset": [
+            7,
+            0
+          ],
+          "lod": 3,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "geometry": "texture2d_array",
+      "mode": "mixed",
+      "queries": [
+        {
+          "label": "inside-layer0",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1095761920,
+            1096024064,
+            1096286208,
+            1096548352,
+            1095761920,
+            1096024064,
+            1096286208,
+            1096548352
+          ]
+        },
+        {
+          "label": "low-layer0",
+          "coordinate": [
+            -1,
+            -1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "high-layer0",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "cross-before-clamp-layer0",
+          "coordinate": [
+            -2,
+            2
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1086324736,
+            1086849024,
+            1087373312,
+            1087897600,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "reverse-before-clamp-layer0",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            -8,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184,
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728
+          ]
+        },
+        {
+          "label": "offset-minus8-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672,
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "offset-plus7-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728,
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "cancel-negative-layer0",
+          "coordinate": [
+            -7,
+            -7
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "cancel-upper-layer0",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "distinct-axis-offsets-layer0",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            1,
+            -1
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1082130432,
+            1082654720,
+            1083179008,
+            1083703296,
+            1095761920,
+            1096024064,
+            1096286208,
+            1096548352
+          ]
+        },
+        {
+          "label": "mip0-last-layer0",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728,
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728
+          ]
+        },
+        {
+          "label": "mip0-outside-layer0",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1108869120,
+            1108934656,
+            1109000192,
+            1109065728,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip0-offset-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1090519040,
+            1090781184,
+            1091043328,
+            1091305472,
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "mip1-last-layer0",
+          "coordinate": [
+            3,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176270848,
+            1176271104,
+            1176271360,
+            1176271616,
+            1176270848,
+            1176271104,
+            1176271360,
+            1176271616
+          ]
+        },
+        {
+          "label": "mip1-outside-layer0",
+          "coordinate": [
+            4,
+            2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176270848,
+            1176271104,
+            1176271360,
+            1176271616,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip1-offset-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176260608,
+            1176260864,
+            1176261120,
+            1176261376,
+            1176257536,
+            1176257792,
+            1176258048,
+            1176258304
+          ]
+        },
+        {
+          "label": "mip2-last-layer0",
+          "coordinate": [
+            1,
+            0
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184646144,
+            1184646272,
+            1184646400,
+            1184646528,
+            1184646144,
+            1184646272,
+            1184646400,
+            1184646528
+          ]
+        },
+        {
+          "label": "mip2-outside-layer0",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184646144,
+            1184646272,
+            1184646400,
+            1184646528,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip2-offset-layer0",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184646144,
+            1184646272,
+            1184646400,
+            1184646528,
+            1184645632,
+            1184645760,
+            1184645888,
+            1184646016
+          ]
+        },
+        {
+          "label": "invalid-lod-layer0",
+          "coordinate": [
+            -1,
+            1
+          ],
+          "offset": [
+            7,
+            0
+          ],
+          "lod": 3,
+          "layer": 0,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "inside-layer1",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149059072,
+            1149063168,
+            1149067264,
+            1149071360,
+            1149059072,
+            1149063168,
+            1149067264,
+            1149071360
+          ]
+        },
+        {
+          "label": "low-layer1",
+          "coordinate": [
+            -1,
+            -1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1148862464,
+            1148866560,
+            1148870656,
+            1148874752,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "high-layer1",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149353984,
+            1149356032,
+            1149358080,
+            1149360128,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "cross-before-clamp-layer1",
+          "coordinate": [
+            -2,
+            2
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1148944384,
+            1148948480,
+            1148952576,
+            1148956672,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "reverse-before-clamp-layer1",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            -8,
+            7
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149296640,
+            1149298688,
+            1149300736,
+            1149302784,
+            1149353984,
+            1149356032,
+            1149358080,
+            1149360128
+          ]
+        },
+        {
+          "label": "offset-minus8-layer1",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1148862464,
+            1148866560,
+            1148870656,
+            1148874752,
+            1148862464,
+            1148866560,
+            1148870656,
+            1148874752
+          ]
+        },
+        {
+          "label": "offset-plus7-layer1",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149353984,
+            1149356032,
+            1149358080,
+            1149360128,
+            1148862464,
+            1148866560,
+            1148870656,
+            1148874752
+          ]
+        },
+        {
+          "label": "cancel-negative-layer1",
+          "coordinate": [
+            -7,
+            -7
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1148862464,
+            1148866560,
+            1148870656,
+            1148874752,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "cancel-upper-layer1",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1148862464,
+            1148866560,
+            1148870656,
+            1148874752,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "distinct-axis-offsets-layer1",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            1,
+            -1
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1148911616,
+            1148915712,
+            1148919808,
+            1148923904,
+            1149059072,
+            1149063168,
+            1149067264,
+            1149071360
+          ]
+        },
+        {
+          "label": "mip0-last-layer1",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149353984,
+            1149356032,
+            1149358080,
+            1149360128,
+            1149353984,
+            1149356032,
+            1149358080,
+            1149360128
+          ]
+        },
+        {
+          "label": "mip0-outside-layer1",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1149353984,
+            1149356032,
+            1149358080,
+            1149360128,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip0-offset-layer1",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 1,
+          "expectedBits": [
+            1148977152,
+            1148981248,
+            1148985344,
+            1148989440,
+            1148862464,
+            1148866560,
+            1148870656,
+            1148874752
+          ]
+        },
+        {
+          "label": "mip1-last-layer1",
+          "coordinate": [
+            3,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 1,
+          "expectedBits": [
+            1177294848,
+            1177295104,
+            1177295360,
+            1177295616,
+            1177294848,
+            1177295104,
+            1177295360,
+            1177295616
+          ]
+        },
+        {
+          "label": "mip1-outside-layer1",
+          "coordinate": [
+            4,
+            2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 1,
+          "expectedBits": [
+            1177294848,
+            1177295104,
+            1177295360,
+            1177295616,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip1-offset-layer1",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 1,
+          "layer": 1,
+          "expectedBits": [
+            1177284608,
+            1177284864,
+            1177285120,
+            1177285376,
+            1177281536,
+            1177281792,
+            1177282048,
+            1177282304
+          ]
+        },
+        {
+          "label": "mip2-last-layer1",
+          "coordinate": [
+            1,
+            0
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 1,
+          "expectedBits": [
+            1185158144,
+            1185158272,
+            1185158400,
+            1185158528,
+            1185158144,
+            1185158272,
+            1185158400,
+            1185158528
+          ]
+        },
+        {
+          "label": "mip2-outside-layer1",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 1,
+          "expectedBits": [
+            1185158144,
+            1185158272,
+            1185158400,
+            1185158528,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip2-offset-layer1",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 2,
+          "layer": 1,
+          "expectedBits": [
+            1185158144,
+            1185158272,
+            1185158400,
+            1185158528,
+            1185157632,
+            1185157760,
+            1185157888,
+            1185158016
+          ]
+        },
+        {
+          "label": "invalid-lod-layer1",
+          "coordinate": [
+            -1,
+            1
+          ],
+          "offset": [
+            7,
+            0
+          ],
+          "lod": 3,
+          "layer": 1,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "inside-layer2",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157341184,
+            1157343232,
+            1157345280,
+            1157347328,
+            1157341184,
+            1157343232,
+            1157345280,
+            1157347328
+          ]
+        },
+        {
+          "label": "low-layer2",
+          "coordinate": [
+            -1,
+            -1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157242880,
+            1157244928,
+            1157246976,
+            1157249024,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "high-layer2",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157545984,
+            1157548032,
+            1157550080,
+            1157552128,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "cross-before-clamp-layer2",
+          "coordinate": [
+            -2,
+            2
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157283840,
+            1157285888,
+            1157287936,
+            1157289984,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "reverse-before-clamp-layer2",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            -8,
+            7
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157488640,
+            1157490688,
+            1157492736,
+            1157494784,
+            1157545984,
+            1157548032,
+            1157550080,
+            1157552128
+          ]
+        },
+        {
+          "label": "offset-minus8-layer2",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157242880,
+            1157244928,
+            1157246976,
+            1157249024,
+            1157242880,
+            1157244928,
+            1157246976,
+            1157249024
+          ]
+        },
+        {
+          "label": "offset-plus7-layer2",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157545984,
+            1157548032,
+            1157550080,
+            1157552128,
+            1157242880,
+            1157244928,
+            1157246976,
+            1157249024
+          ]
+        },
+        {
+          "label": "cancel-negative-layer2",
+          "coordinate": [
+            -7,
+            -7
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157242880,
+            1157244928,
+            1157246976,
+            1157249024,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "cancel-upper-layer2",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157242880,
+            1157244928,
+            1157246976,
+            1157249024,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "distinct-axis-offsets-layer2",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            1,
+            -1
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157267456,
+            1157269504,
+            1157271552,
+            1157273600,
+            1157341184,
+            1157343232,
+            1157345280,
+            1157347328
+          ]
+        },
+        {
+          "label": "mip0-last-layer2",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157545984,
+            1157548032,
+            1157550080,
+            1157552128,
+            1157545984,
+            1157548032,
+            1157550080,
+            1157552128
+          ]
+        },
+        {
+          "label": "mip0-outside-layer2",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157545984,
+            1157548032,
+            1157550080,
+            1157552128,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip0-offset-layer2",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 2,
+          "expectedBits": [
+            1157300224,
+            1157302272,
+            1157304320,
+            1157306368,
+            1157242880,
+            1157244928,
+            1157246976,
+            1157249024
+          ]
+        },
+        {
+          "label": "mip1-last-layer2",
+          "coordinate": [
+            3,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 2,
+          "expectedBits": [
+            1178318848,
+            1178319104,
+            1178319360,
+            1178319616,
+            1178318848,
+            1178319104,
+            1178319360,
+            1178319616
+          ]
+        },
+        {
+          "label": "mip1-outside-layer2",
+          "coordinate": [
+            4,
+            2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 2,
+          "expectedBits": [
+            1178318848,
+            1178319104,
+            1178319360,
+            1178319616,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip1-offset-layer2",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 1,
+          "layer": 2,
+          "expectedBits": [
+            1178308608,
+            1178308864,
+            1178309120,
+            1178309376,
+            1178305536,
+            1178305792,
+            1178306048,
+            1178306304
+          ]
+        },
+        {
+          "label": "mip2-last-layer2",
+          "coordinate": [
+            1,
+            0
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 2,
+          "expectedBits": [
+            1185670144,
+            1185670272,
+            1185670400,
+            1185670528,
+            1185670144,
+            1185670272,
+            1185670400,
+            1185670528
+          ]
+        },
+        {
+          "label": "mip2-outside-layer2",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 2,
+          "expectedBits": [
+            1185670144,
+            1185670272,
+            1185670400,
+            1185670528,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip2-offset-layer2",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 2,
+          "layer": 2,
+          "expectedBits": [
+            1185670144,
+            1185670272,
+            1185670400,
+            1185670528,
+            1185669632,
+            1185669760,
+            1185669888,
+            1185670016
+          ]
+        },
+        {
+          "label": "invalid-lod-layer2",
+          "coordinate": [
+            -1,
+            1
+          ],
+          "offset": [
+            7,
+            0
+          ],
+          "lod": 3,
+          "layer": 2,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "inside-layer3",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "low-layer3",
+          "coordinate": [
+            -1,
+            -1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "high-layer3",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "cross-before-clamp-layer3",
+          "coordinate": [
+            -2,
+            2
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "reverse-before-clamp-layer3",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            -8,
+            7
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "offset-minus8-layer3",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "offset-plus7-layer3",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "cancel-negative-layer3",
+          "coordinate": [
+            -7,
+            -7
+          ],
+          "offset": [
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "cancel-upper-layer3",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "distinct-axis-offsets-layer3",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            1,
+            -1
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip0-last-layer3",
+          "coordinate": [
+            7,
+            3
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip0-outside-layer3",
+          "coordinate": [
+            8,
+            4
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip0-offset-layer3",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip1-last-layer3",
+          "coordinate": [
+            3,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip1-outside-layer3",
+          "coordinate": [
+            4,
+            2
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip1-offset-layer3",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 1,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip2-last-layer3",
+          "coordinate": [
+            1,
+            0
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip2-outside-layer3",
+          "coordinate": [
+            2,
+            1
+          ],
+          "offset": [
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip2-offset-layer3",
+          "coordinate": [
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8
+          ],
+          "lod": 2,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "invalid-lod-layer3",
+          "coordinate": [
+            -1,
+            1
+          ],
+          "offset": [
+            7,
+            0
+          ],
+          "lod": 3,
+          "layer": 3,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "geometry": "texture3d",
+      "mode": "dynamic",
+      "queries": [
+        {
+          "label": "inside-layer0",
+          "coordinate": [
+            2,
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1122107392,
+            1122140160,
+            1122172928,
+            1122205696
+          ]
+        },
+        {
+          "label": "low-layer0",
+          "coordinate": [
+            -1,
+            -1,
+            -1
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "high-layer0",
+          "coordinate": [
+            8,
+            4,
+            4
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1135149056,
+            1135157248,
+            1135165440,
+            1135173632
+          ]
+        },
+        {
+          "label": "cross-before-clamp-layer0",
+          "coordinate": [
+            -2,
+            2,
+            -1
+          ],
+          "offset": [
+            7,
+            -8,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1134100480,
+            1134108672,
+            1134116864,
+            1134125056
+          ]
+        },
+        {
+          "label": "reverse-before-clamp-layer0",
+          "coordinate": [
+            7,
+            3,
+            3
+          ],
+          "offset": [
+            -8,
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "offset-minus8-layer0",
+          "coordinate": [
+            0,
+            0,
+            0
+          ],
+          "offset": [
+            -8,
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "offset-plus7-layer0",
+          "coordinate": [
+            0,
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1135149056,
+            1135157248,
+            1135165440,
+            1135173632
+          ]
+        },
+        {
+          "label": "cancel-negative-layer0",
+          "coordinate": [
+            -7,
+            -7,
+            -7
+          ],
+          "offset": [
+            7,
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "cancel-upper-layer0",
+          "coordinate": [
+            8,
+            4,
+            4
+          ],
+          "offset": [
+            -8,
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "distinct-axis-offsets-layer0",
+          "coordinate": [
+            2,
+            1,
+            1
+          ],
+          "offset": [
+            1,
+            -1,
+            1
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1129054208,
+            1129070592,
+            1129086976,
+            1129103360
+          ]
+        },
+        {
+          "label": "mip0-last-layer0",
+          "coordinate": [
+            7,
+            3,
+            3
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1135149056,
+            1135157248,
+            1135165440,
+            1135173632
+          ]
+        },
+        {
+          "label": "mip0-outside-layer0",
+          "coordinate": [
+            8,
+            4,
+            4
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1135149056,
+            1135157248,
+            1135165440,
+            1135173632
+          ]
+        },
+        {
+          "label": "mip0-offset-layer0",
+          "coordinate": [
+            0,
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8,
+            1
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1121452032,
+            1121484800,
+            1121517568,
+            1121550336
+          ]
+        },
+        {
+          "label": "mip1-last-layer0",
+          "coordinate": [
+            3,
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176373248,
+            1176373504,
+            1176373760,
+            1176374016
+          ]
+        },
+        {
+          "label": "mip1-outside-layer0",
+          "coordinate": [
+            4,
+            2,
+            2
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176373248,
+            1176373504,
+            1176373760,
+            1176374016
+          ]
+        },
+        {
+          "label": "mip1-offset-layer0",
+          "coordinate": [
+            0,
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8,
+            1
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176363008,
+            1176363264,
+            1176363520,
+            1176363776
+          ]
+        },
+        {
+          "label": "mip2-last-layer0",
+          "coordinate": [
+            1,
+            0,
+            0
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184646144,
+            1184646272,
+            1184646400,
+            1184646528
+          ]
+        },
+        {
+          "label": "mip2-outside-layer0",
+          "coordinate": [
+            2,
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184646144,
+            1184646272,
+            1184646400,
+            1184646528
+          ]
+        },
+        {
+          "label": "mip2-offset-layer0",
+          "coordinate": [
+            0,
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8,
+            1
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184646144,
+            1184646272,
+            1184646400,
+            1184646528
+          ]
+        },
+        {
+          "label": "invalid-lod-layer0",
+          "coordinate": [
+            -1,
+            1,
+            1
+          ],
+          "offset": [
+            7,
+            0,
+            0
+          ],
+          "lod": 3,
+          "layer": 0,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "geometry": "texture3d",
+      "mode": "defaults",
+      "queries": [
+        {
+          "label": "inside-layer0",
+          "coordinate": [
+            2,
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1122107392,
+            1122140160,
+            1122172928,
+            1122205696
+          ]
+        },
+        {
+          "label": "low-layer0",
+          "coordinate": [
+            -1,
+            -1,
+            -1
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "high-layer0",
+          "coordinate": [
+            8,
+            4,
+            4
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1135149056,
+            1135157248,
+            1135165440,
+            1135173632
+          ]
+        },
+        {
+          "label": "cross-before-clamp-layer0",
+          "coordinate": [
+            -2,
+            2,
+            -1
+          ],
+          "offset": [
+            7,
+            -8,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1101529088,
+            1101660160,
+            1101791232,
+            1101922304
+          ]
+        },
+        {
+          "label": "reverse-before-clamp-layer0",
+          "coordinate": [
+            7,
+            3,
+            3
+          ],
+          "offset": [
+            -8,
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1135149056,
+            1135157248,
+            1135165440,
+            1135173632
+          ]
+        },
+        {
+          "label": "offset-minus8-layer0",
+          "coordinate": [
+            0,
+            0,
+            0
+          ],
+          "offset": [
+            -8,
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "offset-plus7-layer0",
+          "coordinate": [
+            0,
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "cancel-negative-layer0",
+          "coordinate": [
+            -7,
+            -7,
+            -7
+          ],
+          "offset": [
+            7,
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "cancel-upper-layer0",
+          "coordinate": [
+            8,
+            4,
+            4
+          ],
+          "offset": [
+            -8,
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1135149056,
+            1135157248,
+            1135165440,
+            1135173632
+          ]
+        },
+        {
+          "label": "distinct-axis-offsets-layer0",
+          "coordinate": [
+            2,
+            1,
+            1
+          ],
+          "offset": [
+            1,
+            -1,
+            1
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1122107392,
+            1122140160,
+            1122172928,
+            1122205696
+          ]
+        },
+        {
+          "label": "mip0-last-layer0",
+          "coordinate": [
+            7,
+            3,
+            3
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1135149056,
+            1135157248,
+            1135165440,
+            1135173632
+          ]
+        },
+        {
+          "label": "mip0-outside-layer0",
+          "coordinate": [
+            8,
+            4,
+            4
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1135149056,
+            1135157248,
+            1135165440,
+            1135173632
+          ]
+        },
+        {
+          "label": "mip0-offset-layer0",
+          "coordinate": [
+            0,
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8,
+            1
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "mip1-last-layer0",
+          "coordinate": [
+            3,
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1122238464,
+            1122271232,
+            1122304000,
+            1122336768
+          ]
+        },
+        {
+          "label": "mip1-outside-layer0",
+          "coordinate": [
+            4,
+            2,
+            2
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1130430464,
+            1130446848,
+            1130463232,
+            1130479616
+          ]
+        },
+        {
+          "label": "mip1-offset-layer0",
+          "coordinate": [
+            0,
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8,
+            1
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "mip2-last-layer0",
+          "coordinate": [
+            1,
+            0,
+            0
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1073741824,
+            1074790400,
+            1075838976,
+            1076887552
+          ]
+        },
+        {
+          "label": "mip2-outside-layer0",
+          "coordinate": [
+            2,
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1122107392,
+            1122140160,
+            1122172928,
+            1122205696
+          ]
+        },
+        {
+          "label": "mip2-offset-layer0",
+          "coordinate": [
+            0,
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8,
+            1
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "invalid-lod-layer0",
+          "coordinate": [
+            -1,
+            1,
+            1
+          ],
+          "offset": [
+            7,
+            0,
+            0
+          ],
+          "lod": 3,
+          "layer": 0,
+          "expectedBits": [
+            1121845248,
+            1121878016,
+            1121910784,
+            1121943552
+          ]
+        }
+      ]
+    },
+    {
+      "geometry": "texture3d",
+      "mode": "boundaries",
+      "queries": [
+        {
+          "label": "inside-layer0",
+          "coordinate": [
+            2,
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "low-layer0",
+          "coordinate": [
+            -1,
+            -1,
+            -1
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "high-layer0",
+          "coordinate": [
+            8,
+            4,
+            4
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "cross-before-clamp-layer0",
+          "coordinate": [
+            -2,
+            2,
+            -1
+          ],
+          "offset": [
+            7,
+            -8,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "reverse-before-clamp-layer0",
+          "coordinate": [
+            7,
+            3,
+            3
+          ],
+          "offset": [
+            -8,
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "offset-minus8-layer0",
+          "coordinate": [
+            0,
+            0,
+            0
+          ],
+          "offset": [
+            -8,
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "offset-plus7-layer0",
+          "coordinate": [
+            0,
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "cancel-negative-layer0",
+          "coordinate": [
+            -7,
+            -7,
+            -7
+          ],
+          "offset": [
+            7,
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "cancel-upper-layer0",
+          "coordinate": [
+            8,
+            4,
+            4
+          ],
+          "offset": [
+            -8,
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "distinct-axis-offsets-layer0",
+          "coordinate": [
+            2,
+            1,
+            1
+          ],
+          "offset": [
+            1,
+            -1,
+            1
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "mip0-last-layer0",
+          "coordinate": [
+            7,
+            3,
+            3
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "mip0-outside-layer0",
+          "coordinate": [
+            8,
+            4,
+            4
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "mip0-offset-layer0",
+          "coordinate": [
+            0,
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8,
+            1
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184
+          ]
+        },
+        {
+          "label": "mip1-last-layer0",
+          "coordinate": [
+            3,
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176267776,
+            1176268032,
+            1176268288,
+            1176268544
+          ]
+        },
+        {
+          "label": "mip1-outside-layer0",
+          "coordinate": [
+            4,
+            2,
+            2
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176267776,
+            1176268032,
+            1176268288,
+            1176268544
+          ]
+        },
+        {
+          "label": "mip1-offset-layer0",
+          "coordinate": [
+            0,
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8,
+            1
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176267776,
+            1176268032,
+            1176268288,
+            1176268544
+          ]
+        },
+        {
+          "label": "mip2-last-layer0",
+          "coordinate": [
+            1,
+            0,
+            0
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184645632,
+            1184645760,
+            1184645888,
+            1184646016
+          ]
+        },
+        {
+          "label": "mip2-outside-layer0",
+          "coordinate": [
+            2,
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184645632,
+            1184645760,
+            1184645888,
+            1184646016
+          ]
+        },
+        {
+          "label": "mip2-offset-layer0",
+          "coordinate": [
+            0,
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8,
+            1
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184645632,
+            1184645760,
+            1184645888,
+            1184646016
+          ]
+        },
+        {
+          "label": "invalid-lod-layer0",
+          "coordinate": [
+            -1,
+            1,
+            1
+          ],
+          "offset": [
+            7,
+            0,
+            0
+          ],
+          "lod": 3,
+          "layer": 0,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "geometry": "texture3d",
+      "mode": "mixed",
+      "queries": [
+        {
+          "label": "inside-layer0",
+          "coordinate": [
+            2,
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1122107392,
+            1122140160,
+            1122172928,
+            1122205696,
+            1122107392,
+            1122140160,
+            1122172928,
+            1122205696
+          ]
+        },
+        {
+          "label": "low-layer0",
+          "coordinate": [
+            -1,
+            -1,
+            -1
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "high-layer0",
+          "coordinate": [
+            8,
+            4,
+            4
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1135149056,
+            1135157248,
+            1135165440,
+            1135173632,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "cross-before-clamp-layer0",
+          "coordinate": [
+            -2,
+            2,
+            -1
+          ],
+          "offset": [
+            7,
+            -8,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1134100480,
+            1134108672,
+            1134116864,
+            1134125056,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "reverse-before-clamp-layer0",
+          "coordinate": [
+            7,
+            3,
+            3
+          ],
+          "offset": [
+            -8,
+            7,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1106771968,
+            1106903040,
+            1107034112,
+            1107165184,
+            1135149056,
+            1135157248,
+            1135165440,
+            1135173632
+          ]
+        },
+        {
+          "label": "offset-minus8-layer0",
+          "coordinate": [
+            0,
+            0,
+            0
+          ],
+          "offset": [
+            -8,
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672,
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "offset-plus7-layer0",
+          "coordinate": [
+            0,
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1135149056,
+            1135157248,
+            1135165440,
+            1135173632,
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "cancel-negative-layer0",
+          "coordinate": [
+            -7,
+            -7,
+            -7
+          ],
+          "offset": [
+            7,
+            7,
+            7
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "cancel-upper-layer0",
+          "coordinate": [
+            8,
+            4,
+            4
+          ],
+          "offset": [
+            -8,
+            -8,
+            -8
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "distinct-axis-offsets-layer0",
+          "coordinate": [
+            2,
+            1,
+            1
+          ],
+          "offset": [
+            1,
+            -1,
+            1
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1129054208,
+            1129070592,
+            1129086976,
+            1129103360,
+            1122107392,
+            1122140160,
+            1122172928,
+            1122205696
+          ]
+        },
+        {
+          "label": "mip0-last-layer0",
+          "coordinate": [
+            7,
+            3,
+            3
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1135149056,
+            1135157248,
+            1135165440,
+            1135173632,
+            1135149056,
+            1135157248,
+            1135165440,
+            1135173632
+          ]
+        },
+        {
+          "label": "mip0-outside-layer0",
+          "coordinate": [
+            8,
+            4,
+            4
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1135149056,
+            1135157248,
+            1135165440,
+            1135173632,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip0-offset-layer0",
+          "coordinate": [
+            0,
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8,
+            1
+          ],
+          "lod": 0,
+          "layer": 0,
+          "expectedBits": [
+            1121452032,
+            1121484800,
+            1121517568,
+            1121550336,
+            1065353216,
+            1067450368,
+            1069547520,
+            1071644672
+          ]
+        },
+        {
+          "label": "mip1-last-layer0",
+          "coordinate": [
+            3,
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176373248,
+            1176373504,
+            1176373760,
+            1176374016,
+            1176373248,
+            1176373504,
+            1176373760,
+            1176374016
+          ]
+        },
+        {
+          "label": "mip1-outside-layer0",
+          "coordinate": [
+            4,
+            2,
+            2
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176373248,
+            1176373504,
+            1176373760,
+            1176374016,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip1-offset-layer0",
+          "coordinate": [
+            0,
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8,
+            1
+          ],
+          "lod": 1,
+          "layer": 0,
+          "expectedBits": [
+            1176363008,
+            1176363264,
+            1176363520,
+            1176363776,
+            1176257536,
+            1176257792,
+            1176258048,
+            1176258304
+          ]
+        },
+        {
+          "label": "mip2-last-layer0",
+          "coordinate": [
+            1,
+            0,
+            0
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184646144,
+            1184646272,
+            1184646400,
+            1184646528,
+            1184646144,
+            1184646272,
+            1184646400,
+            1184646528
+          ]
+        },
+        {
+          "label": "mip2-outside-layer0",
+          "coordinate": [
+            2,
+            1,
+            1
+          ],
+          "offset": [
+            0,
+            0,
+            0
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184646144,
+            1184646272,
+            1184646400,
+            1184646528,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "label": "mip2-offset-layer0",
+          "coordinate": [
+            0,
+            0,
+            0
+          ],
+          "offset": [
+            7,
+            -8,
+            1
+          ],
+          "lod": 2,
+          "layer": 0,
+          "expectedBits": [
+            1184646144,
+            1184646272,
+            1184646400,
+            1184646528,
+            1184645632,
+            1184645760,
+            1184645888,
+            1184646016
+          ]
+        },
+        {
+          "label": "invalid-lod-layer0",
+          "coordinate": [
+            -1,
+            1,
+            1
+          ],
+          "offset": [
+            7,
+            0,
+            0
+          ],
+          "lod": 3,
+          "layer": 0,
+          "expectedBits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ]
+}

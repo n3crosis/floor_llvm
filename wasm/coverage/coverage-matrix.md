@@ -1,16 +1,40 @@
 # Detailed coverage matrix
 
-Baseline: `81d255965a578d9dd55ec4cd2b53a2f239a989f1`. Selected direction: genuine Metal 4.1.
+## Current feature tracks
 
-The current public WASM API still selects metal3.2 for iOS 18 and iOS 26. Earlier compiler internals may expose additional language modes; the matrix audits the authored WASM surface and qualified evidence, not every inherited parser capability.
+The built `1accfd4` checkpoint passes 497 compiler cases and all 82 reference compile/link pairs. Both libraries load in 48 GPU-eligible pairs; native outcomes are 8 numerical passes, 4 constant-integer disagreements and 36 Apple interleave pipeline failures. FLOOR interleave pipelines and numerics are unrun. Hardware Mac validation has returned; the paired gate remains failed, with separate FLOOR-only passes recorded below.
 
-Source support `partial` means only the listed subset. `not_covered` means no qualifying declared surface or tests found, not proof that every inherited parser/backend path rejects it. All exact-head stages below are snapshot statuses. See README for exact-head 285-case CI, Mac continuation results, known legacy metadata mismatch and evidence-promotion rules. Source-staged 4.1 work is tracked separately in development-status.json.
+| Feature | FLOOR compiler | Apple/native evidence | Remaining limit |
+|---|---|---|---|
+| Explicit Metal 4.1 API v3, truthful macros, OS 27 and matched metadata | Built checkpoint authored tests passed | 12 language/API reference pairs passed | Not a full language conformance audit; no GPU qualification for these probes |
+| Metal 4.1 interleave/deinterleave | Built checkpoint tests passed | 36 compile/link pairs and both original library loads passed | Paired run: 36 Apple pipelines failed, FLOOR pipeline/execution unrun. Separate hardware FLOOR-only CPU-oracle checks passed; no Apple parity |
+| Dynamic int/uint vectors, widths 2–4 | Passed | 4 GPU passes, 46,656 checks each | Bounded fixture coverage |
+| Constant integer boundary fixtures | Passed | 4 Apple-only sentinel discrepancies; FLOOR matches CPU | Unresolved endpoint discrepancy; later entry points unrun |
+| Float position-derived dfdx, dfdy, fwidth | Passed | 4 GPU passes, 4,320 checks each | No negative/mixed-slope or divergent-control-flow coverage |
+| Float mix, step, smoothstep, sign | Passed | 22 reference compile/link pairs passed | No GPU harness |
+| Placement new | Published source candidate, not built | Apple preflight / harness-build evidence only | 74 compiler cases and 6 separate supplemental GPU cases configured, not passed |
+| New texture reads | Published source candidate, not built | Apple preflight / harness-build evidence only | 71 compiler cases and 24 separate supplemental GPU cases configured, not passed |
+| Acquire/release barriers | Published source candidate, not built | Apple preflight / harness-build evidence only | 141 compiler cases and 8 separate supplemental GPU cases configured, not passed; broader atomics unqualified |
+| Other 4.1 families | Unsupported or unvalidated | No qualifying feature corpus | RTZ conversion option, ray-tracing function_id, block scaling, multiplane tensors/tensor_blockwise and expanded MPP matrix types |
 
-## Latest follow-up, separate from the original matrix
+The newer published source candidate is unbuilt: 788 compiler cases and 172 Apple pairs are configured, not passing counts. Its 48 generic GPU pairs and 24 texture / 6 placement / 8 barrier supplemental GPU cases are separate plans. See CURRENT-SUPPORT.md, checkpoint-evidence.json and development-status.json.
 
-The corrected position-derivative fixture/harness **passed all 4 pairs, with 4,320 pixel-lane checks per pair** on the same authenticated `81d2559` runtime. It used augmented source and newly compiled libraries, not the original source-hash pairs. The original four pipeline failures below remain historically accurate. Private evidence bundle SHA-256: `edccc10a35193fea3c5faffc500dcba8418e64f1491802c2e053677b5070beda`.
 
-The first Metal 4.1 source candidate remains separate and unbuilt. All **36 Apple interleave/deinterleave reference cases** compiled and linked; no matching new FLOOR runtime or dual-backend GPU pass is claimed. Configured candidate counts (497 compiler cases, 82 Apple pairs, 48 GPU-eligible pairs) are plans, not results.
+## Hardware checkpoint follow-up, separate evidence
+
+The same authenticated `1accfd4` compiler was tested on **Apple M1 Max, macOS 27.2, Xcode/iPhoneOS SDK 27.2**. Its unchanged paired gate remains **failed**: 82 compile/link pairs, both libraries loaded in 48 eligible pairs, 8 numerical passes, 4 known Apple-only constant-boundary sentinel discrepancies, and 36 Apple interleave pipeline failures. The hardware diagnostic reports **unlowered air.interleave / air.deinterleave intrinsic calls**. Original paired FLOOR interleave pipeline creation and both backends' interleave execution remain `not_run`.
+
+Separate diagnostics created both Apple and FLOOR pipelines for the original no-interleave MSL4.1/iOS27 control. All 36 original FLOOR interleave pipelines then created successfully, while all 36 Apple interleave pipelines still failed. This isolates Apple intrinsic lowering on this device/toolchain, rather than a blanket inability to create any 4.1 pipeline. It does not distinguish an unsupported GPU feature from an Apple compiler/driver defect or establish failure on other devices. No control GPU execution is claimed.
+
+A **separate FLOOR-only run passed all 36 cases, 1,446 dispatches and 2,192 output words against an independent CPU oracle** using original libraries. This is bounded unsigned 8/16/32-bit scalar/vector interleave and deinterleave coverage across dynamic/constants and both math settings. **It is not Apple/FLOOR parity:** Apple interleave execution remains unrun and the original aggregate remains failed. Neither these results nor source publication qualify the newer unbuilt candidate.
+
+The independent evidence audit checked 662 shared files, all 82 source identities and 48 original GPU report contracts, replayed 203,984 original logical values, and separately replayed all 1,446 FLOOR-only dispatch records / 2,192 words. Omitted binaries (249 main entries and 3 supplement entries) were not rehashed; their retained hashes are provenance, not another binary verification. No GPU execution was rerun during the audit.
+
+See `hardware-checkpoint-evidence.json`, `hardware-checkpoint-case-matrix.csv` and `floor-only-interleave-case-matrix.csv`. The hosted `checkpoint-evidence.json` and `checkpoint-case-matrix.csv` remain unchanged historical records; their hardware-pending field describes that earlier snapshot only. The main hardware return ZIP is a path-redacted copy, not the original locally retained ZIP. Its SHA-256 is `01c85d2645f9d4f3749ca923826f341b83b0f5523cbb94731365b69e2f93d40d`; the separate supplement SHA-256 is `8bebb55f9c8f36640e783a2b9bb50ec8124afdb2603a75b0caa6cfb5176fc938`.
+
+## Historical 81d2559 baseline: 30-family table
+
+**Everything below, including present-tense implementation descriptions and next steps, is the original baseline audit at `81d255965a578d9dd55ec4cd2b53a2f239a989f1`, not current checkpoint status.** These rows are deliberately retained without promotion or rewritten history. The original 285-case suite, 34 reference pairs, 12 load pairs and original derivative pipeline failures remain scoped to that baseline. Later corrected derivative results and the built 1accfd4 checkpoint are separate evidence.
 
 | Feature | Source | Exact-head AIR | Apple compile/link | Original library load | Pipeline | GPU commands | GPU numerics | Priority |
 |---|---|---|---|---|---|---|---|---|

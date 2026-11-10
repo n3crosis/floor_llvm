@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "checkpointCommit": "1accfd44d88898b2885390cafd527e48b4f00479",
+  "compilerEvidenceFile": "checkpoint-evidence.json",
+  "mainSharedZipSha256": "01c85d2645f9d4f3749ca923826f341b83b0f5523cbb94731365b69e2f93d40d",
+  "supplementZipSha256": "8bebb55f9c8f36640e783a2b9bb50ec8124afdb2603a75b0caa6cfb5176fc938",
+  "mainBundleScope": "Path-redacted return copy, not the original locally retained runner ZIP. Status and matrix outcomes preserved. Compiler binaries and original native libraries omitted from the return packet; hashes retained.",
+  "host": {
+    "device": "Apple M1 Max",
+    "os": "macOS 27.2 (26B123)",
+    "xcode": "27.2 (27B52)",
+    "iPhoneOSSDK": "27.2",
+    "metal": "32023.922"
+  },
+  "originalPairedRun": {
+    "appleCompilePassed": 82,
+    "appleLinkPassed": 82,
+    "floorCompilePassed": 82,
+    "bothOriginalLibrariesLoaded": 48,
+    "dynamicNumericalPasses": 4,
+    "dynamicChecksPerPair": 46656,
+    "derivativeNumericalPasses": 4,
+    "derivativeChecksPerPair": 4320,
+    "constantNumericalDisagreements": 4,
+    "interleavePairs": 36,
+    "interleaveApplePipeline": "failed",
+    "interleaveFloorPipeline": "not_run",
+    "interleaveGpuExecution": "not_run",
+    "interleaveNumerics": "not_run",
+    "interleaveDiagnostic": "AGXMetalG13X Code=3: unlowered air.interleave / air.deinterleave intrinsic calls",
+    "aggregateStatus": "failed",
+    "ordered497CompilerCasesRerunOnMac": false
+  },
+  "separatePipelineDiagnostics": {
+    "controlCase": "case-38",
+    "controlLanguage": "MSL4.1 / iOS27 / API3; no interleave",
+    "controlApplePipeline": "passed",
+    "controlFloorPipeline": "passed",
+    "controlGpuExecution": "not_run",
+    "interleaveApplePipelinesFailed": 36,
+    "interleaveFloorPipelinesPassed": 36,
+    "originalLibrariesUnmodified": true,
+    "meaning": "Isolates Apple intrinsic lowering on this M1 Max/toolchain combination, rather than general MSL4.1 pipeline creation. Cannot distinguish unsupported hardware feature from Apple compiler/driver defect or generalize to all devices."
+  },
+  "separateFloorOnlyNumerics": {
+    "casesPassed": 36,
+    "completedDispatches": 1446,
+    "checkedOutputWords": 2192,
+    "appleComparison": "not_run",
+    "oracle": "Independent Python bit-list CPU oracle; fixtures also checked against pinned JavaScript bit-list oracle",
+    "scope": "Unsigned 8/16/32-bit scalar interleave, vector2 interleave and deinterleave; dynamic/constants; conservative/fast math. Original FLOOR libraries, one physical M1 Max/toolchain, bounded authored inputs.",
+    "appleParity": false
+  },
+  "reportHashes": {
+    "evidence/result.json": "2801f1b0f90f30fc32e2df32bf82b0ca95ef49c7f3a183419e02e004f44d7e83",
+    "evidence/validation-matrix.json": "a69861cea4785bc138fa5e4568de727e8db0d9deb3e05ce71df1b9bc6ac0aa28",
+    "interleave-supplement/independent-pipelines/result.json": "57ec407c0a72c46b52ef521d91576d1994888a567517f54149843eed042e9358",
+    "interleave-supplement/floor-only-numerics/result.json": "f3cbb4e91c93a57c050d2e61b64ccc0d079bd4d4c82c5873d86d36e774927795",
+    "mainSharedAppleReferenceReport": "67371e2e6addb64ccec50b6dc1dc6b7c6deb350522e2dddc8ec91cb8b74ae5a9"
+  },
+  "limits": [
+    "Original paired gate remains failed. Separate diagnostics never overwrite original matrix.",
+    "No Apple interleave execution or Apple/FLOOR parity.",
+    "No full Metal 4.1 conformance, iPhone/iPad or performance qualification.",
+    "Newer source candidate remains unbuilt; these results use only the authenticated 1accfd4 compiler."
+  ],
+  "independentAudit": {
+    "sharedFilesHashed": 662,
+    "mainSharedFilesHashed": 392,
+    "supplementSharedFilesHashed": 270,
+    "mainOmittedEntries": 249,
+    "supplementOmittedEntries": 3,
+    "omittedOriginalsRehashed": false,
+    "exactCheckpointSourcesMatched": 82,
+    "mainReportContractsValidated": 48,
+    "mainLogicalValuesReplayed": 203984,
+    "floorOnlyDispatchRecordsReplayed": 1446,
+    "floorOnlyOutputWordsReplayed": 2192,
+    "fixturesMatchedExactCheckpointJavaScript": true,
+    "gpuExecutionRerunDuringAudit": false
+  }
+}

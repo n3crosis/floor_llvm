@@ -1,0 +1,55 @@
+Checkpoint runner validation, 2026-11-10
+
+COMPLETED LOCALLY (Linux, no Metal execution)
+- 41 offline Python synthetic runner tests passed.
+- 33 checkpoint Node Apple-reference/derivative helper tests passed.
+- Python bytecode compilation succeeded.
+- 82 case definitions derived from checkpoint referenceCases(); 48 GPU eligible,
+  including exactly 36 interleave pairs. Sources and all API/language identities
+  are embedded, with the executable harness dependency closure pinned.
+- Exact API3 capabilities checked in manifest/receipt; exact ordered inventory
+  of 497 passing receipt case names required, plus ABI/header verification.
+- Original ZIP size/hash before parsing, folder binding, source identity,
+  tamper/path/symlink checks, privacy, timeout, partial failure, unavailable,
+  contradiction and positive synthetic evidence paths tested.
+- Apple4.1 unavailable leaves 40 Apple4.1 comparisons unavailable and still
+  preserves all 82 independent FLOOR results in a synthetic complete fixture.
+- Tests verify every unsigned interleave width/form/mode/math combination.
+- All original baseline-v2 SHA256SUMS still pass; its files were not changed.
+
+ACTUAL COMPILER ARTIFACT VERIFIED
+Run: https://github.com/n3crosis/floor_llvm/actions/runs/42801805934
+Build job: 129780937656
+Commit: 1accfd44d88898b2885390cafd527e48b4f00479
+Artifact ID: 13758518162
+Original ZIP bytes: 186307629
+Original ZIP SHA-256:
+d12ee8cff0597baae8f684048ead6efe0a458619e40aa90933ce95140189e063
+Manifest SHA-256:
+f9f202c5b63e5ba45a038c34b50596bda029f8cdc58cb8b974d1a9cd8872362f
+Build receipt SHA-256:
+7b6f5b6364ed2f7f8c47197584a5d42ae4428b0d54a3a6f650fdd551e6834965
+
+Verified the original ZIP and all three declared asset sizes/digests; source
+lock/fingerprint and 63 locked input files; 82 corresponding-source members
+covering locked inputs and executable harness; all 33 runtime member sizes and
+hashes; runtime/module files against receipt; exact repository/commit/tree,
+capabilities and header bundle identity; every extracted runtime file against
+original archive bytes. Exact ordered 497-case receipt passed: 258 positive
+cases and 239 expected rejections. This authenticates the CI build report,
+not an independent compiler rebuild or local rerun of the entire CI corpus.
+Machine-readable record: artifact-verification.json.
+
+NOT CLAIMED PASSED
+- Full Mac Swift compilation, Apple 82-pair acceptance/linking, FLOOR compilation,
+  original-library loading, pipelines, GPU execution and numeric comparisons.
+- Native Apple/GPU CI evidence is separate and is not asserted by this package.
+- Full Metal4.1 conformance, browser/device/full-application correctness.
+
+Capability-only remains independent of artifact, checkout, Node and Git.
+The final runner accepts only the pinned original artifact, never caller-chosen
+hashes. Missing identity pins fail closed before archive parsing.
+
+No CI trigger, publication, repository/source modification, installation,
+credential use, settings change or automatic evidence upload was performed.
+The original compiler artifact ZIP was retained unchanged.

@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "scope": "native_preparation_only",
+  "reportedBy": "Native preparation receipt; original evidence retained privately.",
+  "bundleSha256": "a09436e82c42a191a5072528e6668bca81167e55637afafc194de2f42fe03c67",
+  "swiftRevision": "v2",
+  "swiftSha256": "dc931fd32678409d9087fc2c78ab18d67c5b0215a173ceed0eb46256885e1f21",
+  "swiftCompilation": {
+    "status": "passed",
+    "diagnostics": "none"
+  },
+  "swiftCPUOracleCrossCheck": {
+    "status": "passed",
+    "fixtures": 72
+  },
+  "appleSourceCompilation": {
+    "status": "passed",
+    "cases": 6,
+    "metalVersion": 410
+  },
+  "appleLink": {
+    "status": "passed",
+    "cases": 6
+  },
+  "gpuExecution": "not_run"
+}

@@ -1,0 +1,46 @@
+test_folder_and_wrapped_folder (test_runner.ArtifactTests.test_folder_and_wrapped_folder) ... ok
+test_missing_artifact_blocks (test_runner.ArtifactTests.test_missing_artifact_blocks) ... ok
+test_symlink_folder_asset (test_runner.ArtifactTests.test_symlink_folder_asset) ... ok
+test_tampered_or_missing_asset (test_runner.ArtifactTests.test_tampered_or_missing_asset) ... ok
+test_wrong_commit_tree_header_and_status (test_runner.ArtifactTests.test_wrong_commit_tree_header_and_status) ... ok
+test_zip_and_wrapped_zip (test_runner.ArtifactTests.test_zip_and_wrapped_zip) ... ok
+test_zip_slip_and_symlink (test_runner.ArtifactTests.test_zip_slip_and_symlink) ... ok
+test_apple41_unavailable_preserves_floor_and_exit77 (test_runner.CheckpointTests.test_apple41_unavailable_preserves_floor_and_exit77) ... ok
+test_case_scope_and_identity (test_runner.CheckpointTests.test_case_scope_and_identity) ... ok
+test_exact_api3_capabilities (test_runner.CheckpointTests.test_exact_api3_capabilities) ... ok
+test_language_mismatch_rejected (test_runner.CheckpointTests.test_language_mismatch_rejected) ... ok
+test_only_checkpoint_harness_is_pinned (test_runner.CheckpointTests.test_only_checkpoint_harness_is_pinned) ... ok
+test_partial_failure_keeps_later_results (test_runner.CheckpointTests.test_partial_failure_keeps_later_results) ... ok
+test_receipt_exact_case_inventory (test_runner.CheckpointTests.test_receipt_exact_case_inventory) ... ok
+test_apple_load_floor_rejection_is_failure (test_runner.MatrixTests.test_apple_load_floor_rejection_is_failure) ... ok
+test_apple_rejection_is_unavailable (test_runner.MatrixTests.test_apple_rejection_is_unavailable) ... ok
+test_complete_bounded_pass_and_dialect (test_runner.MatrixTests.test_complete_bounded_pass_and_dialect) ... ok
+test_false_gpu_pass_and_wrong_hash_rejected (test_runner.MatrixTests.test_false_gpu_pass_and_wrong_hash_rejected) ... ok
+test_no_report_never_passes (test_runner.MatrixTests.test_no_report_never_passes) ... ok
+test_wrong_case_identity_rejected (test_runner.MatrixTests.test_wrong_case_identity_rejected) ... ok
+test_folder_asset_tampering_rejected (test_runner.PinnedArtifactTests.test_folder_asset_tampering_rejected) ... ok
+test_folder_bound_to_original_zip (test_runner.PinnedArtifactTests.test_folder_bound_to_original_zip) ... ok
+test_folder_requires_original_zip (test_runner.PinnedArtifactTests.test_folder_requires_original_zip) ... ok
+test_mismatching_original_zip_does_not_authenticate_folder (test_runner.PinnedArtifactTests.test_mismatching_original_zip_does_not_authenticate_folder) ... ok
+test_missing_pin_fails_before_archive_parse (test_runner.PinnedArtifactTests.test_missing_pin_fails_before_archive_parse) ... ok
+test_pinned_zip_accepted (test_runner.PinnedArtifactTests.test_pinned_zip_accepted) ... ok
+test_real_download_pin_is_recorded_exactly (test_runner.PinnedArtifactTests.test_real_download_pin_is_recorded_exactly) ... ok
+test_same_size_zip_tampering_rejected_before_parsing (test_runner.PinnedArtifactTests.test_same_size_zip_tampering_rejected_before_parsing) ... ok
+test_self_consistent_folder_forgery_rejected (test_runner.PinnedArtifactTests.test_self_consistent_folder_forgery_rejected) ... ok
+test_zip_wrong_size_rejected_before_parsing (test_runner.PinnedArtifactTests.test_zip_wrong_size_rejected_before_parsing) ... ok
+test_binary_privacy_and_float_evidence (test_runner.RunnerTests.test_binary_privacy_and_float_evidence) ... ok
+test_capability_only_states_and_flags (test_runner.RunnerTests.test_capability_only_states_and_flags) ... ok
+test_finish_partial_unavailable_pass_and_failure (test_runner.RunnerTests.test_finish_partial_unavailable_pass_and_failure) ... ok
+test_malformed_report_still_packages_failure (test_runner.RunnerTests.test_malformed_report_still_packages_failure) ... ok
+test_missing_artifact_keeps_evidence (test_runner.RunnerTests.test_missing_artifact_keeps_evidence) ... ok
+test_no_mac_claim_on_linux (test_runner.RunnerTests.test_no_mac_claim_on_linux) ... ok
+test_no_overwrite (test_runner.RunnerTests.test_no_overwrite) ... ok
+test_output_budget_is_enforced (test_runner.RunnerTests.test_output_budget_is_enforced) ... ok
+test_privacy_redaction (test_runner.RunnerTests.test_privacy_redaction) ... ok
+test_real_local_sparse_checkout_without_network (test_runner.RunnerTests.test_real_local_sparse_checkout_without_network) ... ok
+test_timeout_kills_group_and_records_command (test_runner.RunnerTests.test_timeout_kills_group_and_records_command) ... ok
+
+----------------------------------------------------------------------
+Ran 41 tests in 0.305s
+
+OK

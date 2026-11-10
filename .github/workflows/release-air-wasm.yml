@@ -46,7 +46,10 @@ jobs:
       - name: Test build and release helper behavior
         run: |
           python3 -m unittest discover -s wasm/release -p 'test_*.py' -v
+          python3 -m unittest discover -s wasm/release/gpu/texture -v
           node --test wasm/release/*.test.mjs
+          node --test wasm/release/gpu/placement/*.test.mjs
+          node --test wasm/release/gpu/barrier/*.test.mjs
           g++ -std=c++17 -Wall -Wextra -Werror wasm/api/tests/target-options.cpp -o "$RUNNER_TEMP/air-target-options-test"
           "$RUNNER_TEMP/air-target-options-test"
       - name: Resolve an explicit one-push release request
@@ -134,7 +137,8 @@ jobs:
   apple_reference:
     needs: build
     runs-on: xcode-27
-    timeout-minutes: 35
+    # Separate bounded feature matrices need time even after an earlier failure.
+    timeout-minutes: 75
     permissions:
       contents: read
     steps:
@@ -172,11 +176,79 @@ jobs:
               f.write('DEVELOPER_DIR='+max(candidates)[1]+'\n')
           PY
       - name: Verify manifest, exact commit, runtime hashes and header identity
+        id: verify_runtime
         run: python3 wasm/release/verify-apple-runtime.py "$RUNNER_TEMP/compiler-artifact" "$GITHUB_WORKSPACE" "$RUNNER_TEMP/verified-runtime" "$GITHUB_SHA"
       - name: Compile the optional Metal numerical probe
         run: xcrun -sdk macosx swiftc wasm/release/metal-numerical.swift -framework Metal -framework Foundation -o "$RUNNER_TEMP/metal-numerical"
       - name: Compare same-source Apple acceptance and FLOOR compilation
+        if: ${{ always() && steps.verify_runtime.outcome == 'success' }}
         run: node wasm/release/apple-reference.mjs "$RUNNER_TEMP/verified-runtime" "$RUNNER_TEMP/apple-reference" --gpu-probe "$RUNNER_TEMP/metal-numerical"
+      - name: Compare sampler-read GPU results independently of prior failures
+        if: ${{ always() && steps.verify_runtime.outcome == 'success' }}
+        shell: bash
+        run: |
+          HOST="$RUNNER_TEMP/apple-reference/texture-host"
+          mkdir -p "$HOST"
+          set +e
+          xcrun -sdk macosx swiftc -O wasm/release/gpu/texture/metal-texture-read-numerical.swift -framework Metal -o "$HOST/texture-probe" > "$HOST/swift.stdout.txt" 2> "$HOST/swift.stderr.txt"
+          SWIFT_STATUS=$?
+          python3 - "$SWIFT_STATUS" "$HOST" <<'PYHOST'
+          import hashlib, json, pathlib, sys
+          status, out = int(sys.argv[1]), pathlib.Path(sys.argv[2])
+          source = pathlib.Path('wasm/release/gpu/texture/metal-texture-read-numerical.swift')
+          binary = out / 'texture-probe'
+          result = {'schemaVersion': 1, 'phase': 'swift_compilation', 'status': 'passed' if status == 0 else 'failed', 'exitCode': status, 'sourceSha256': hashlib.sha256(source.read_bytes()).hexdigest(), 'gpuExecution': 'not_run'}
+          if binary.is_file(): result['executableSha256'] = hashlib.sha256(binary.read_bytes()).hexdigest()
+          (out / 'build.json').write_text(json.dumps(result, indent=2) + '\n')
+          PYHOST
+          python3 wasm/release/gpu/texture/run_texture_read_gpu_matrix.py --compile-dir "$RUNNER_TEMP/apple-reference" --harness "$HOST/texture-probe" --output "$RUNNER_TEMP/apple-reference/texture-gpu"
+          GPU_STATUS=$?
+          if [ "$SWIFT_STATUS" -ne 0 ]; then exit "$SWIFT_STATUS"; fi
+          exit "$GPU_STATUS"
+      - name: Compare placement GPU results independently of prior failures
+        if: ${{ always() && steps.verify_runtime.outcome == 'success' }}
+        shell: bash
+        run: |
+          HOST="$RUNNER_TEMP/apple-reference/placement-host"
+          mkdir -p "$HOST"
+          set +e
+          xcrun -sdk macosx swiftc wasm/release/gpu/placement/metal-placement-numerical.swift -framework Metal -o "$HOST/placement-probe" > "$HOST/swift.stdout.txt" 2> "$HOST/swift.stderr.txt"
+          SWIFT_STATUS=$?
+          python3 - "$SWIFT_STATUS" "$HOST" <<'PYHOST'
+          import hashlib, json, pathlib, sys
+          status, out = int(sys.argv[1]), pathlib.Path(sys.argv[2])
+          source = pathlib.Path('wasm/release/gpu/placement/metal-placement-numerical.swift')
+          binary = out / 'placement-probe'
+          result = {'schemaVersion': 1, 'phase': 'swift_compilation', 'status': 'passed' if status == 0 else 'failed', 'exitCode': status, 'sourceSha256': hashlib.sha256(source.read_bytes()).hexdigest(), 'gpuExecution': 'not_run'}
+          if binary.is_file(): result['executableSha256'] = hashlib.sha256(binary.read_bytes()).hexdigest()
+          (out / 'build.json').write_text(json.dumps(result, indent=2) + '\n')
+          PYHOST
+          node wasm/release/gpu/placement/run-placement-matrix.mjs --reference-directory "$RUNNER_TEMP/apple-reference" --harness "$HOST/placement-probe" --output "$RUNNER_TEMP/apple-reference/placement-gpu" --timeout-ms 180000
+          GPU_STATUS=$?
+          if [ "$SWIFT_STATUS" -ne 0 ]; then exit "$SWIFT_STATUS"; fi
+          exit "$GPU_STATUS"
+      - name: Compare barrier GPU results independently of prior failures
+        if: ${{ always() && steps.verify_runtime.outcome == 'success' }}
+        shell: bash
+        run: |
+          HOST="$RUNNER_TEMP/apple-reference/barrier-host"
+          mkdir -p "$HOST"
+          set +e
+          xcrun -sdk macosx swiftc -O wasm/release/metal-barrier-gpu.swift -framework Metal -o "$HOST/barrier-probe" > "$HOST/swift.stdout.txt" 2> "$HOST/swift.stderr.txt"
+          SWIFT_STATUS=$?
+          python3 - "$SWIFT_STATUS" "$HOST" <<'PYHOST'
+          import hashlib, json, pathlib, sys
+          status, out = int(sys.argv[1]), pathlib.Path(sys.argv[2])
+          source = pathlib.Path('wasm/release/metal-barrier-gpu.swift')
+          binary = out / 'barrier-probe'
+          result = {'schemaVersion': 1, 'phase': 'swift_compilation', 'status': 'passed' if status == 0 else 'failed', 'exitCode': status, 'sourceSha256': hashlib.sha256(source.read_bytes()).hexdigest(), 'gpuExecution': 'not_run'}
+          if binary.is_file(): result['executableSha256'] = hashlib.sha256(binary.read_bytes()).hexdigest()
+          (out / 'build.json').write_text(json.dumps(result, indent=2) + '\n')
+          PYHOST
+          node wasm/release/gpu/barrier/run-barrier-matrix.mjs --reference-directory "$RUNNER_TEMP/apple-reference" --harness "$HOST/barrier-probe" --output "$RUNNER_TEMP/apple-reference/barrier-gpu" --timeout-ms 150000 --matrix-timeout-ms 1200000
+          GPU_STATUS=$?
+          if [ "$SWIFT_STATUS" -ne 0 ]; then exit "$SWIFT_STATUS"; fi
+          exit "$GPU_STATUS"
       - name: Upload layered Apple reference evidence even on failure
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

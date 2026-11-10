@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "suite": "floor-metal41-placement-gpu-v1",
+  "feature": "msl41-placement-gpu",
+  "status": "source_ready_native_preparation_passed_gpu_not_run",
+  "swiftRevision": "v2",
+  "swiftSha256": "dc931fd32678409d9087fc2c78ab18d67c5b0215a173ceed0eb46256885e1f21",
+  "frozenCompilerPatchSha256": "740da24639284b4659ecd4b752c911899051667d5177b38c1275290ff2c804b4",
+  "localTests": {
+    "command": "node --test placement-gpu.test.mjs placement-matrix.test.mjs",
+    "runtime": "v24.22.1",
+    "status": "passed",
+    "tests": 296,
+    "sourceOracleVerifierTests": 228,
+    "matrixTests": 68,
+    "failed": 0,
+    "skipped": 0,
+    "scope": "offline_units_and_synthetic_non_GPU_subprocess_tests_only"
+  },
+  "native": {
+    "swiftCompilation": "passed_no_diagnostics",
+    "swiftCPUOracleCrossCheck": "passed_72_fixtures",
+    "appleSourceCompilation": "passed_all_6_exact_sources",
+    "appleLink": "passed_all_6",
+    "floorCompilation": "not_run_no_original_placement_pair_supplied",
+    "pairedLibraryLoad": "not_run",
+    "pairedPipelineCreation": "not_run",
+    "pairedExecution": "not_run",
+    "pairedNumericalComparison": "not_run",
+    "evidence": {
+      "schema": 1,
+      "scope": "native_preparation_only",
+      "reportedBy": "Native preparation receipt; original evidence retained privately.",
+      "bundleSha256": "a09436e82c42a191a5072528e6668bca81167e55637afafc194de2f42fe03c67",
+      "swiftRevision": "v2",
+      "swiftSha256": "dc931fd32678409d9087fc2c78ab18d67c5b0215a173ceed0eb46256885e1f21",
+      "swiftCompilation": {
+        "status": "passed",
+        "diagnostics": "none"
+      },
+      "swiftCPUOracleCrossCheck": {
+        "status": "passed",
+        "fixtures": 72
+      },
+      "appleSourceCompilation": {
+        "status": "passed",
+        "cases": 6,
+        "metalVersion": 410
+      },
+      "appleLink": {
+        "status": "passed",
+        "cases": 6
+      },
+      "gpuExecution": "not_run"
+    }
+  },
+  "sources": {
+    "placement_gpu_thread_scalar": {
+      "sha256": "821648c4169f54bb3780bf4f96b09768031113eb7f60c10dc7220c7e11ddc0d2",
+      "bytes": 2039
+    },
+    "placement_gpu_thread_array": {
+      "sha256": "5191ef8619b4e6062e6d093f6453f2bc48784b213331b6a447db777ffcd1f73a",
+      "bytes": 2230
+    },
+    "placement_gpu_threadgroup_scalar": {
+      "sha256": "ff24647449c6c568e932a49e16824074ff7a96bd70974e14ad604650119335ed",
+      "bytes": 2190
+    },
+    "placement_gpu_threadgroup_array": {
+      "sha256": "b9a8b7ace3cf5baaaa217f648f3202c66492fcf556fabab432d4cc954fdb0791",
+      "bytes": 2421
+    },
+    "placement_gpu_device_scalar": {
+      "sha256": "ffe3181108b7eced88eb78a8e865cbf26bb9a07fe436e6dfb6f65c75720a76b9",
+      "bytes": 2040
+    },
+    "placement_gpu_device_array": {
+      "sha256": "dfc3043eea50aa23e8f0346bed1b0c6c6968ed9784128dbe088fb14baeb587be",
+      "bytes": 2231
+    }
+  },
+  "limits": [
+    "Numerical evidence does not establish compiler/source/target provenance without producing command records.",
+    "Alignment4 only; Apple align32 placement crash remains unresolved and unqualified.",
+    "Single GPU thread; no synchronization or cross-thread visibility coverage.",
+    "Explicit scalar/element destruction only; no automatic reverse array destruction coverage.",
+    "Array constructor order/count side effects are not established.",
+    "Final arena canaries only; transient corruption later restored may be unobservable.",
+    "Soft pre-dispatch deadline; outer process timeout required for synchronous Metal APIs.",
+    "Frozen-v2 persistence-error path can duplicate a failed trial; never a pass."
+  ],
+  "nativeTransfer": {
+    "file": "native-compile-inputs-v2.tgz",
+    "sha256": "0c78bf0e28fc8a8afab182d12423f4c0b418477036a0e0f75f98b59509e22cf4"
+  },
+  "bundleRevision": 3,
+  "matrixRevision": 1,
+  "matrix": {
+    "cli": "node run-placement-matrix.mjs --reference-directory EXISTING_FULL_REFERENCE_OUTPUT --harness SWIFT_EXECUTABLE --output NEW_MATRIX_DIRECTORY [--timeout-ms 180000]",
+    "caseCount": 6,
+    "primaryGateFailureIndependent": true,
+    "strictRawEvidenceVerification": true,
+    "actualGPUExecution": "not_run",
+    "review": "All three reported postprocessor findings corrected and independently rereviewed; no remaining blocker in review scope.",
+    "inspectedBaselineHadExactPlacementGPUAliases": false
+  }
+}

@@ -6,6 +6,7 @@ import { integerVectorCases, assertIntegerVectorIR } from "./integer-vector.mjs"
 import { derivativeVectorCases, assertDerivativeVectorIR } from "./derivative-vector.mjs";
 import { commonFunctionCases, assertCommonFunctionIR } from "./common-functions.mjs";
 import { msl41BarrierCases, assertMSL41BarrierIR, assertMSL41BarrierMetallib, assertMSL41BarrierDiagnostic } from "./msl41-barriers.mjs";
+import { placementGPUCases } from "./gpu/placement/placement-gpu.mjs";
 import { msl41PlacementCases, assertMSL41PlacementIR, assertMSL41PlacementMetallib, assertMSL41PlacementDiagnostic } from "./msl41-placement.mjs";
 import { msl41TextureReadCases, assertMSL41TextureReadIR, assertMSL41TextureReadMetallib, assertMSL41TextureReadDiagnostic } from "./msl41-texture-read.mjs";
 import { msl41BitInterleaveCases, assertMSL41BitInterleaveIR } from "./msl41-bit-interleave.mjs";
@@ -189,7 +190,7 @@ for (const ios of [18,26]) for (const math of [0,1]) for (const kind of [0,1])
     source:conditionalColorSource,ios,math,kind,shader:'conditional-color',status:0});
 
 // Generic authored MSL coverage, independent of application shader corpora.
-cases.push(...integerVectorCases, ...derivativeVectorCases, ...commonFunctionCases, ...metalLanguageCases(), ...msl41BitInterleaveCases, ...msl41PlacementCases, ...msl41TextureReadCases, ...msl41BarrierCases);
+cases.push(...integerVectorCases, ...derivativeVectorCases, ...commonFunctionCases, ...metalLanguageCases(), ...msl41BitInterleaveCases, ...msl41PlacementCases, ...placementGPUCases(), ...msl41TextureReadCases, ...msl41BarrierCases);
 assert.equal(new Set(cases.map(test => test.name)).size, cases.length, "Duplicate probe names");
 assert(cases.every(test => new TextEncoder().encode(test.source).length <= 4096), "Probe source exceeds bound");
 
@@ -276,7 +277,10 @@ async function runCase(build, name) {
     let metadata = null;
     if (status === 0) {
       assert(output.length > 4, "Empty compiled library");
-      if (test.msl41Barrier) {
+      if (test.msl41PlacementGPU) {
+        assert.equal(test.kind, 0, "Placement GPU compile contract requires metallib output");
+        metadata = assertMSL41PlacementMetallib(output, test);
+      } else if (test.msl41Barrier) {
         if (test.kind === 1)
           assertMSL41BarrierIR(new TextDecoder('utf-8',{fatal:true}).decode(output), test);
         else

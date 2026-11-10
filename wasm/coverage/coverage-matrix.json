@@ -1,8 +1,8 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "sourceCommit": "81d255965a578d9dd55ec4cd2b53a2f239a989f1",
   "snapshotDate": "2026-11-10",
-  "scope": "Audited authored WASM compatibility surface against selected MSL 4.1 specification families; not a complete language conformance census.",
+  "scope": "Historical baseline family rows plus separately scoped current feature tracks. No complete Metal 4.1 conformance claim.",
   "statusLegend": {
     "partial": "Authored source implementation exists for explicitly listed subset; does not imply exact-head compiler or device success.",
     "not_covered": "No declared implementation or qualifying test found in audited surface; parser/backend support must be probed, not assumed absent.",
@@ -641,7 +641,7 @@
       ]
     }
   ],
-  "tableScope": "Original 81d2559 corpus only. Corrected derivative follow-up and staged 4.1 work are recorded separately; original row outcomes are not overwritten.",
+  "tableScope": "The features array is immutable historical 81d2559 coverage, including then-current next steps. It is not current checkpoint status. See currentFeatureTracks and checkpoint-evidence.json.",
   "latestCorrectedDerivativeFollowup": {
     "id": "corrected_derivative_followup_20261110",
     "status": "passed",
@@ -661,5 +661,99 @@
     "privatelyRetainedEvidenceBundleSha256": "edccc10a35193fea3c5faffc500dcba8418e64f1491802c2e053677b5070beda",
     "evidenceProvenance": "Returned native Mac follow-up receipt records this digest and the passed outcomes. This documentation snapshot does not claim a separate local rehash of that private bundle.",
     "originalBaselineResult": "All four original derivative cases failed at the Apple pipeline because of the harness format mismatch. Original case-ledger rows remain unchanged."
-  }
+  },
+  "currentCheckpointCommit": "1accfd44d88898b2885390cafd527e48b4f00479",
+  "checkpointEvidenceFile": "checkpoint-evidence.json",
+  "currentFeatureTracks": [
+    {
+      "id": "explicit_msl41_core",
+      "scope": "API v3 matched (18,320), (26,400), (27,410) tuples, macros, OS27, AIR/VERS coherence and authored language restrictions",
+      "sourceStatus": "built_checkpoint",
+      "floorCompiler": "passed_ci",
+      "appleCompileLink": "passed",
+      "gpuNumerics": "not_covered",
+      "detail": "12 language/API reference pairs passed. Authored subset only; not a complete language conformance audit."
+    },
+    {
+      "id": "interleave_deinterleave",
+      "scope": "Three unsigned type pairs, both interleave forms and deinterleave; version gates",
+      "sourceStatus": "built_checkpoint",
+      "floorCompiler": "passed_ci",
+      "appleCompileLink": "passed",
+      "originalLibraryLoad": "passed",
+      "applePipeline": "failed",
+      "floorPipeline": "not_run",
+      "gpuExecution": "not_run",
+      "gpuNumerics": "not_run",
+      "detail": "Hosted and hardware paired runs: all 36 Apple pipelines failed, original FLOOR pipeline/execution unrun. Separate hardware diagnostics: all 36 FLOOR pipelines passed; FLOOR-only 1,446 dispatches and 2,192 output words passed CPU oracle. No Apple parity.",
+      "separateHardwareFloorOnlyNumerics": "passed",
+      "separateHardwareEvidenceFile": "hardware-checkpoint-evidence.json"
+    },
+    {
+      "id": "placement_new",
+      "scope": "Authored placement-new subset and diagnostics",
+      "sourceStatus": "source_candidate_unbuilt",
+      "floorCompiler": "not_run",
+      "appleCompileLink": "preflight_only",
+      "gpuNumerics": "not_run",
+      "configuredCompilerCases": 74,
+      "supplementalGpuCases": 6,
+      "detail": "Source/tests and Apple preflight or Swift build evidence only; fresh compiler and dual-backend GPU pending."
+    },
+    {
+      "id": "texture_reads",
+      "scope": "Authored Metal 4.1 texture-read subset",
+      "sourceStatus": "source_candidate_unbuilt",
+      "floorCompiler": "not_run",
+      "appleCompileLink": "preflight_only",
+      "gpuNumerics": "not_run",
+      "configuredCompilerCases": 71,
+      "supplementalGpuCases": 24,
+      "detail": "Source/tests and Apple preflight or Swift build evidence only; fresh compiler and dual-backend GPU pending."
+    },
+    {
+      "id": "acquire_release_barriers",
+      "scope": "Authored barrier subset; does not qualify all acquire/release atomics",
+      "sourceStatus": "source_candidate_unbuilt",
+      "floorCompiler": "not_run",
+      "appleCompileLink": "preflight_only",
+      "gpuNumerics": "not_run",
+      "configuredCompilerCases": 141,
+      "supplementalGpuCases": 8,
+      "detail": "Source/tests and Apple preflight or Swift build evidence only; fresh compiler and dual-backend GPU pending."
+    },
+    {
+      "id": "remaining_msl41",
+      "scope": "Float-to-float round-toward-zero, ray-tracing function_id, block scaling, multiplane tensors/tensor_blockwise, expanded MPP matrix types and broader atomics",
+      "sourceStatus": "unsupported_or_unvalidated",
+      "floorCompiler": "not_covered",
+      "appleCompileLink": "not_covered",
+      "gpuNumerics": "not_covered",
+      "detail": "No qualification inferred from inherited parser capabilities or other tracks."
+    },
+    {
+      "id": "legacy_ios26_version_coherence",
+      "scope": "v1/v2 FLOOR MSL3.2/AIR2.7 versus wrapper MSL4.0/AIR2.8",
+      "sourceStatus": "open_follow_up",
+      "floorCompiler": "known_mismatch",
+      "gpuNumerics": "not_resolved_by_loading",
+      "detail": "New v3 matched tuples do not fix legacy behavior."
+    }
+  ],
+  "configuredNextCandidateCases": {
+    "floorCompiler": 788,
+    "positiveAIR": 215,
+    "positiveMetallib": 229,
+    "expectedRejections": 344,
+    "appleReferencePairs": 172,
+    "genericGpuEligiblePairs": 48,
+    "supplementalGpuCases": {
+      "texture": 24,
+      "placement": 6,
+      "barrier": 8
+    },
+    "status": "configured_not_built_or_executed_with_new_floor_runtime",
+    "note": "Supplemental GPU counts are separate harness plans, not extra completed generic GPU pairs."
+  },
+  "hardwareEvidenceFile": "hardware-checkpoint-evidence.json"
 }
