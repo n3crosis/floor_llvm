@@ -964,6 +964,31 @@ namespace {
 					//       I'm assuming this whole family of intrinsics is allowed
 					break;
 					
+				case Intrinsic::bitreverse: {
+					// InstCombine can introduce this even without a source builtin.
+					// Only the scalar 32-bit AIR operation is supported here.
+					if (!I.getType()->isIntegerTy(32)) {
+						ctx->emitError(&I, "unsupported bitreverse type (expected scalar i32):\n" + print_instr(I));
+						return;
+					}
+					const auto intrinsic_attrs = I.getCalledFunction()->getAttributes();
+					auto air_callee = M->getOrInsertFunction(
+						"air.reverse_bits.i32", I.getFunctionType(), intrinsic_attrs);
+					auto* air_func = dyn_cast<Function>(air_callee.getCallee());
+					if (!air_func || air_func->getFunctionType() != I.getFunctionType() || !air_func->isDeclaration()) {
+						ctx->emitError(&I, "incompatible air.reverse_bits.i32 declaration");
+						return;
+					}
+					// Retain the intrinsic guarantees when reusing an existing AIR
+					// declaration, without dropping that declaration's attributes.
+					air_func->addFnAttrs(AttrBuilder(*ctx, intrinsic_attrs.getFnAttrs()));
+					// Retarget in place to preserve SSA uses, call attributes, tail
+					// kind, operand bundles, metadata and the debug location.
+					I.setCalledFunction(air_func);
+					was_modified = true;
+					break;
+				}
+
 				// single arguments cases
 				case Intrinsic::abs:
 				case Intrinsic::fabs: {
@@ -972,9 +997,12 @@ namespace {
 					// handled signedness and AIR function name
 					bool is_signed = true;
 					std::string func_name = "air.";
+					// A float type alone does not authorize relaxed AIR math.
+					// InstCombine can form fabs from an exact sign-bit clear.
 					const bool is_fast = (op_val->getType()->isFloatTy() ||
 										  (op_val->getType()->isVectorTy() &&
-										   cast<FixedVectorType>(op_val->getType())->getElementType()->isFloatTy()));
+										   cast<FixedVectorType>(op_val->getType())->getElementType()->isFloatTy())) &&
+						I.getFastMathFlags().isFast();
 					switch (I.getIntrinsicID()) {
 						case Intrinsic::abs:
 							func_name += "abs";
@@ -1026,7 +1054,8 @@ namespace {
 					std::string func_name = "air.";
 					const bool is_fast = (op_lhs->getType()->isFloatTy() ||
 										  (op_lhs->getType()->isVectorTy() &&
-										   cast<FixedVectorType>(op_lhs->getType())->getElementType()->isFloatTy()));
+										   cast<FixedVectorType>(op_lhs->getType())->getElementType()->isFloatTy())) &&
+						I.getFastMathFlags().isFast();
 					switch (I.getIntrinsicID()) {
 						case Intrinsic::umin:
 							is_signed = false;
@@ -1075,6 +1104,10 @@ namespace {
 				}
 					
 				// three arguments cases
+				// llvm.fmuladd permits either intermediate rounding or fusion.
+				// AIR provides native fma for the same scalar/vector types; no
+				// relaxed fast-math flags are needed to choose fused lowering.
+				case Intrinsic::fmuladd:
 				case Intrinsic::fma: {
 					auto op_0 = I.getOperand(0);
 					auto op_1 = I.getOperand(1);
@@ -1458,7 +1491,8 @@ namespace {
 				vec_type_name = "v" + std::to_string(from_vec_type->getNumElements());
 			}
 			
-			static const std::unordered_map<llvm::Type*, const char*> type_map {
+			// Type pointers belong to this invocation's LLVMContext.
+			const std::unordered_map<llvm::Type*, const char*> type_map {
 				{ llvm::Type::getInt1Ty(*ctx), "i1" }, // not sure about signed/unsigned conversion here
 				{ llvm::Type::getInt8Ty(*ctx), "i8" },
 				{ llvm::Type::getInt16Ty(*ctx), "i16" },
@@ -1532,19 +1566,35 @@ namespace {
 			return builder->CreateCall(M->getOrInsertFunction(func_name, func_type), from);
 		}
 		
-		// si/ui/fp -> si/ui/fp conversions require a call to an intrinsic air function (air.convert.*)
+		// Most si/ui/fp conversions require a call to an intrinsic air function (air.convert.*).
 		template <Instruction::CastOps cast_op>
 		__attribute__((always_inline))
 		void scalar_or_vector_conversion(CastInst& I) {
 			builder->SetInsertPoint(&I);
 			
-			// replace original conversion
-			auto conv_instr = call_conversion_func<cast_op>(I.getOperand(0), I.getDestTy());
+			// Scalar i1 is 0/-1 when signed, or 0/1 when unsigned.
+			// Use an exact select instead of depending on an air.convert.*.i1 call.
+			llvm::Value* conv_instr = nullptr;
+			if constexpr (cast_op == Instruction::SIToFP || cast_op == Instruction::UIToFP) {
+				auto* from = I.getOperand(0);
+				auto* to_type = I.getDestTy();
+				if (from->getType()->isIntegerTy(1) &&
+					(to_type->isHalfTy() || to_type->isFloatTy() || to_type->isDoubleTy())) {
+					conv_instr = builder->CreateSelect(from,
+						ConstantFP::get(to_type, cast_op == Instruction::SIToFP ? -1.0 : 1.0),
+						ConstantFP::get(to_type, 0.0));
+				}
+			}
+			if (!conv_instr) {
+				conv_instr = call_conversion_func<cast_op>(I.getOperand(0), I.getDestTy());
+			}
 			if (!conv_instr) {
 				// something failed, don't continue replacing the instruction
 				return;
 			}
-			conv_instr->setDebugLoc(I.getDebugLoc());
+			if (auto* inst = dyn_cast<Instruction>(conv_instr)) {
+				inst->setDebugLoc(I.getDebugLoc());
+			}
 			I.replaceAllUsesWith(conv_instr);
 			I.eraseFromParent();
 			was_modified = true;
@@ -1668,9 +1718,13 @@ namespace {
 				// kill all functions named floor.*
 				auto& func = *func_iter;
 				if (func.getName().startswith("floor.")) {
-					if (func.getNumUses() != 0) {
-						errs() << func.getName() << " should not have any uses at this point!\n";
-					}
+                    if (!func.use_empty()) {
+                        // An earlier lowering diagnostic can leave an intrinsic
+                        // call alive. Never erase a value with live uses.
+                        ctx->emitError("unlowered floor intrinsic remains: " + func.getName());
+                        ++func_iter;
+                        continue;
+                    }
 					++func_iter; // inc before erase
 					func.eraseFromParent();
 					continue;
@@ -1686,8 +1740,10 @@ namespace {
 					}
 				}
 				
-				// remove dso_local from all functions
-				func.setDSOLocal(false);
+				// Clear explicit dso_local for AIR, but retain locality required by
+				// internal/private linkage or non-default visibility. The remaining
+				// LLVM passes and verifier must still receive valid IR.
+				func.setDSOLocal(func.isImplicitDSOLocal());
 				
 				// strip debug info from declarations
 				if (func.isDeclaration()) {
