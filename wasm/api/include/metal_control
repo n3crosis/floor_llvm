@@ -10,10 +10,30 @@ float shuffle(float,ushort) __asm__("air.simd_shuffle.f32") __attribute__((conve
 }
 inline __attribute__((always_inline)) float dfdx(float x) { return __control_detail::dx(x); }
 inline __attribute__((always_inline)) float dfdy(float x) { return __control_detail::dy(x); }
+// MSL 4.1, section 6.11.1.1, Table 6.19 (page 235).
+// Scalarize through the existing convergent operations; do not invent vector AIR names.
+#define FLOOR_CONTROL_VECTOR(OP) \
+inline __attribute__((always_inline)) float2 OP(float2 x) { return float2(OP(x.x),OP(x.y)); } \
+inline __attribute__((always_inline)) float3 OP(float3 x) { return float3(OP(x.x),OP(x.y),OP(x.z)); } \
+inline __attribute__((always_inline)) float4 OP(float4 x) { return float4(OP(x.x),OP(x.y),OP(x.z),OP(x.w)); }
+FLOOR_CONTROL_VECTOR(dfdx)
+FLOOR_CONTROL_VECTOR(dfdy)
+namespace __control_detail {
+// Clear only the sign, including for negative zero and NaNs. No fast-math helper.
+inline __attribute__((always_inline)) float magnitude(float x) {
+  return __builtin_bit_cast(float,__builtin_bit_cast(uint,x) & 0x7fffffffU);
+}
+}
+inline __attribute__((always_inline)) float fwidth(float x) {
+  return __control_detail::magnitude(dfdx(x)) + __control_detail::magnitude(dfdy(x));
+}
+FLOOR_CONTROL_VECTOR(fwidth)
+#undef FLOOR_CONTROL_VECTOR
 inline __attribute__((always_inline)) void discard_fragment() { __control_detail::discard(); }
 inline __attribute__((always_inline)) float simd_shuffle(float x,ushort lane) { return __control_detail::shuffle(x,lane); }
 template<class T> T dfdx(T) = delete;
 template<class T> T dfdy(T) = delete;
+template<class T> T fwidth(T) = delete;
 template<class T> T simd_shuffle(T,ushort) = delete;
 }
 #endif
