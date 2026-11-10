@@ -997,9 +997,12 @@ namespace {
 					// handled signedness and AIR function name
 					bool is_signed = true;
 					std::string func_name = "air.";
+					// A float type alone does not authorize relaxed AIR math.
+					// InstCombine can form fabs from an exact sign-bit clear.
 					const bool is_fast = (op_val->getType()->isFloatTy() ||
 										  (op_val->getType()->isVectorTy() &&
-										   cast<FixedVectorType>(op_val->getType())->getElementType()->isFloatTy()));
+										   cast<FixedVectorType>(op_val->getType())->getElementType()->isFloatTy())) &&
+						I.getFastMathFlags().isFast();
 					switch (I.getIntrinsicID()) {
 						case Intrinsic::abs:
 							func_name += "abs";
@@ -1051,7 +1054,8 @@ namespace {
 					std::string func_name = "air.";
 					const bool is_fast = (op_lhs->getType()->isFloatTy() ||
 										  (op_lhs->getType()->isVectorTy() &&
-										   cast<FixedVectorType>(op_lhs->getType())->getElementType()->isFloatTy()));
+										   cast<FixedVectorType>(op_lhs->getType())->getElementType()->isFloatTy())) &&
+						I.getFastMathFlags().isFast();
 					switch (I.getIntrinsicID()) {
 						case Intrinsic::umin:
 							is_signed = false;
@@ -1100,6 +1104,10 @@ namespace {
 				}
 					
 				// three arguments cases
+				// llvm.fmuladd permits either intermediate rounding or fusion.
+				// AIR provides native fma for the same scalar/vector types; no
+				// relaxed fast-math flags are needed to choose fused lowering.
+				case Intrinsic::fmuladd:
 				case Intrinsic::fma: {
 					auto op_0 = I.getOperand(0);
 					auto op_1 = I.getOperand(1);

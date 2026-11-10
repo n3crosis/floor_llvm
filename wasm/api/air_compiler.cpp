@@ -142,11 +142,15 @@ class RejectAssembly final : public clang::RecursiveASTVisitor<RejectAssembly> {
     for (const auto candidate : {"air.fast_sqrt.f32", "air.fast_rsqrt.f32",
           "air.fast_exp2.f32", "air.fast_log2.f32", "air.fast_sin.f32",
           "air.fast_cos.f32", "air.fast_ceil.f32", "air.fast_floor.f32",
-          "air.fast_trunc.f32", "air.fast_rint.f32", "air.fast_fabs.f32"})
+          "air.fast_trunc.f32", "air.fast_rint.f32", "air.fast_fabs.f32",
+          "air.sqrt.f32", "air.rsqrt.f32", "air.exp2.f32", "air.log2.f32",
+          "air.sin.f32", "air.cos.f32", "air.ceil.f32", "air.rint.f32"})
       if (name == candidate) count = 1;
-    if (name == "air.fast_fmin.f32" || name == "air.fast_fmax.f32") count = 2;
-    if (name == "air.fast_clamp.f32" || name == "air.fma.f32") count = 3;
-    if (!count || function->getNumParams() != count ||
+    if (name == "air.fast_fmin.f32" || name == "air.fast_fmax.f32" ||
+        name == "air.fmin.f32" || name == "air.fmax.f32") count = 2;
+    if (name == "air.fast_clamp.f32" || name == "air.clamp.f32" || name == "air.fma.f32") count = 3;
+    if (!count || file->getName() != "/include/metal_math" ||
+        !function->hasAttr<clang::ConstAttr>() || function->getNumParams() != count ||
         !function->getReturnType()->isSpecificBuiltinType(clang::BuiltinType::Float)) return false;
     for (const auto *parameter : function->parameters())
       if (!parameter->getType()->isSpecificBuiltinType(clang::BuiltinType::Float)) return false;

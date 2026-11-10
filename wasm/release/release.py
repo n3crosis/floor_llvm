@@ -28,7 +28,8 @@ REPOSITORY = os.environ.get("GITHUB_REPOSITORY", "")
 SDK_COMMIT = "e4fe26ef59168ff44f4c23c466e497bf60b3411e"
 OUTPUTS = ("air_wasm.mjs", "air_wasm.wasm")
 TOOLING = (".github/workflows/release-air-wasm.yml", "wasm/release/github_release.py",
-           "wasm/release/probe.mjs", "wasm/release/release-config.json", "wasm/release/release.py")
+           "wasm/release/probe.mjs", "wasm/release/conditional-color.mjs",
+           "wasm/release/metallib-metadata.mjs", "wasm/release/release-config.json", "wasm/release/release.py")
 NOTICE_PATHS = ("llvm/LICENSE.TXT", "clang/LICENSE.TXT", "llvm/include/llvm/Support/LICENSE.TXT",
                 "llvm/include/llvm/Transforms/LibFloor/cfg/LICENSE", "llvm/lib/Transforms/LibFloor/cfg/LICENSE",
                 "llvm/lib/Bitcode/MetalLib/bzip2/LICENSE", "llvm/lib/Bitcode/MetalLib/tar/LICENSE")

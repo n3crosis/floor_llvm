@@ -3028,9 +3028,10 @@ static void handleMetalFunctionConstantAttr(Sema &S, Decl *D,
     for (const auto *A : D->attrs()) ColorCount += isa<GraphicsFBOColorLocationAttr>(A);
     if (ColorCount != 1 || !Color || Color->getEvalLocation() > 7 || !Vec ||
         Vec->getNumElements() != 4 ||
-        !Vec->getElementType()->isSpecificBuiltinType(BuiltinType::Float) ||
+        !(Vec->getElementType()->isSpecificBuiltinType(BuiltinType::Float) ||
+          Vec->getElementType()->isSpecificBuiltinType(BuiltinType::UInt)) ||
         D->hasAttr<MetalFunctionConstantPredicateAttr>()) {
-      error("conditional function_constant requires float4 with preceding color(0..7)");
+      error("conditional function_constant requires float4 or uint4 with preceding color(0..7)");
       return;
     }
     if (!AL.isArgExpr(0)) {

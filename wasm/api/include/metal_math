@@ -26,6 +26,19 @@ float fmax(float, float) __asm__("air.fast_fmax.f32") __attribute__((const));
 float fma(float,float,float) __asm__("air.fma.f32") __attribute__((const));
 float clamp(float,float,float) __asm__("air.fast_clamp.f32") __attribute__((const));
 }
+namespace __air_precise {
+float sqrt(float) __asm__("air.sqrt.f32") __attribute__((const));
+float rsqrt(float) __asm__("air.rsqrt.f32") __attribute__((const));
+float exp2(float) __asm__("air.exp2.f32") __attribute__((const));
+float log2(float) __asm__("air.log2.f32") __attribute__((const));
+float sin(float) __asm__("air.sin.f32") __attribute__((const));
+float cos(float) __asm__("air.cos.f32") __attribute__((const));
+float ceil(float) __asm__("air.ceil.f32") __attribute__((const));
+float rint(float) __asm__("air.rint.f32") __attribute__((const));
+float min(float,float) __asm__("air.fmin.f32") __attribute__((const));
+float max(float,float) __asm__("air.fmax.f32") __attribute__((const));
+float clamp(float,float,float) __asm__("air.clamp.f32") __attribute__((const));
+}
 #define AIR_INLINE inline __attribute__((always_inline))
 AIR_INLINE float fma(float a,float b,float c) { return __air_detail::fma(a,b,c); }
 AIR_INLINE bool isnan(float x) { return (__builtin_bit_cast(uint,x) & 0x7fffffffU) > 0x7f800000U; }
@@ -61,6 +74,61 @@ AIR_INLINE float3 select(float3 a,float3 b,__bool_mask3 mask) { float3 r; for(ui
 struct __bool_mask4 { bool lane[4]; };
 AIR_INLINE __bool_mask4 isnan(float4 x) { __bool_mask4 r; for(uint i=0;i<4;++i) r.lane[i]=isnan(x[i]); return r; }
 AIR_INLINE float4 select(float4 a,float4 b,__bool_mask4 mask) { float4 r; for(uint i=0;i<4;++i) r[i]=mask.lane[i]?b[i]:a[i]; return r; }
+// Explicit precise names select non-fast AIR operations. The default profile
+// preserves conservative call flags; the opt-in global fast profile remains
+// relaxed and does not promise NaN, infinity or signed-zero preservation.
+namespace precise {
+template<class T> T sqrt(T) = delete;
+template<class T> T rsqrt(T) = delete;
+template<class T> T exp2(T) = delete;
+template<class T> T log2(T) = delete;
+template<class T> T sin(T) = delete;
+template<class T> T cos(T) = delete;
+template<class T> T trunc(T) = delete;
+template<class T> T ceil(T) = delete;
+template<class T> T rint(T) = delete;
+template<class T> T abs(T) = delete;
+template<class A,class B> A min(A,B) = delete;
+template<class A,class B> A max(A,B) = delete;
+template<class A,class B,class C> A clamp(A,B,C) = delete;
+AIR_INLINE float sqrt(float x) { return __air_precise::sqrt(x); }
+AIR_INLINE float rsqrt(float x) { return __air_precise::rsqrt(x); }
+AIR_INLINE float exp2(float x) { return __air_precise::exp2(x); }
+AIR_INLINE float log2(float x) { return __air_precise::log2(x); }
+AIR_INLINE float sin(float x) { return __air_precise::sin(x); }
+AIR_INLINE float cos(float x) { return __air_precise::cos(x); }
+AIR_INLINE float ceil(float x) { return __air_precise::ceil(x); }
+AIR_INLINE float rint(float x) { return __air_precise::rint(x); }
+AIR_INLINE float abs(float x) { return as_type<float>(as_type<uint>(x) & 0x7fffffffu); }
+AIR_INLINE float min(float a,float b) { return __air_precise::min(a,b); }
+AIR_INLINE float max(float a,float b) { return __air_precise::max(a,b); }
+AIR_INLINE float clamp(float x,float lo,float hi) { return __air_precise::clamp(x,lo,hi); }
+// IEEE binary32 truncation: preserve signed zero, NaNs and infinities without
+// a float-to-integer conversion or an approximate math intrinsic.
+AIR_INLINE float trunc(float x) {
+  uint bits=as_type<uint>(x); int exponent=int((bits >> 23) & 255u)-127;
+  if (exponent<0) return as_type<float>(bits & 0x80000000u);
+  if (exponent>=23) return x;
+  return as_type<float>(bits & ~((1u << uint(23-exponent))-1u));
+}
+#define AIR_PRECISE_UNARY(NAME,N) \
+  AIR_INLINE float##N NAME(float##N x) { float##N r; for(uint i=0;i<N;++i) r[i]=precise::NAME(x[i]); return r; }
+#define AIR_PRECISE_VECTOR(N) \
+  AIR_PRECISE_UNARY(sqrt,N) AIR_PRECISE_UNARY(rsqrt,N) AIR_PRECISE_UNARY(exp2,N) \
+  AIR_PRECISE_UNARY(log2,N) AIR_PRECISE_UNARY(sin,N) AIR_PRECISE_UNARY(cos,N) AIR_PRECISE_UNARY(trunc,N) \
+  AIR_PRECISE_UNARY(ceil,N) AIR_PRECISE_UNARY(rint,N) AIR_PRECISE_UNARY(abs,N) \
+  AIR_INLINE float##N min(float##N a,float##N b) { float##N r; for(uint i=0;i<N;++i) r[i]=precise::min(a[i],b[i]); return r; } \
+  AIR_INLINE float##N min(float##N a,float b) { return precise::min(a,float##N(b)); } \
+  AIR_INLINE float##N max(float##N a,float##N b) { float##N r; for(uint i=0;i<N;++i) r[i]=precise::max(a[i],b[i]); return r; } \
+  AIR_INLINE float##N max(float##N a,float b) { return precise::max(a,float##N(b)); } \
+  AIR_INLINE float##N clamp(float##N x,float##N lo,float##N hi) { float##N r; for(uint i=0;i<N;++i) r[i]=precise::clamp(x[i],lo[i],hi[i]); return r; } \
+  AIR_INLINE float##N clamp(float##N x,float lo,float hi) { return precise::clamp(x,float##N(lo),float##N(hi)); }
+AIR_PRECISE_VECTOR(2)
+AIR_PRECISE_VECTOR(3)
+AIR_PRECISE_VECTOR(4)
+#undef AIR_PRECISE_VECTOR
+#undef AIR_PRECISE_UNARY
+}
 namespace fast {
 template<class T> T sqrt(T) = delete;
 template<class T> T rsqrt(T) = delete;
@@ -129,6 +197,14 @@ AIR_INLINE float4 max(float4 a,float4 b) { float4 r; for(uint i=0;i<4;++i) r[i]=
 AIR_INLINE float4 max(float4 a,float b) { return max(a,float4(b)); }
 AIR_INLINE float4 clamp(float4 x,float4 lo,float4 hi) { float4 r; for(uint i=0;i<4;++i) r[i]=clamp(x[i],lo[i],hi[i]); return r; }
 AIR_INLINE float4 clamp(float4 x,float lo,float hi) { return clamp(x,(float4)lo,(float4)hi); }
+#define AIR_FAST_EXTRA_VECTOR(N) \
+  AIR_INLINE float##N sin(float##N x) { float##N r; for(uint i=0;i<N;++i) r[i]=fast::sin(x[i]); return r; } \
+  AIR_INLINE float##N cos(float##N x) { float##N r; for(uint i=0;i<N;++i) r[i]=fast::cos(x[i]); return r; } \
+  AIR_INLINE float##N ceil(float##N x) { float##N r; for(uint i=0;i<N;++i) r[i]=fast::ceil(x[i]); return r; }
+AIR_FAST_EXTRA_VECTOR(2)
+AIR_FAST_EXTRA_VECTOR(3)
+AIR_FAST_EXTRA_VECTOR(4)
+#undef AIR_FAST_EXTRA_VECTOR
 }
 // Standard-namespace fast lowering is explicit, never silently enabled.
 #if defined(AIR_FAST_MATH) && AIR_FAST_MATH == 1
@@ -146,6 +222,20 @@ using fast::abs;
 using fast::min;
 using fast::max;
 using fast::clamp;
+#endif
+#if !defined(AIR_FAST_MATH) || AIR_FAST_MATH != 1
+using precise::sqrt;
+using precise::rsqrt;
+using precise::exp2;
+using precise::log2;
+using precise::sin;
+using precise::cos;
+using precise::trunc;
+using precise::ceil;
+using precise::rint;
+using precise::abs;
+using precise::min;
+using precise::clamp;
 #endif
 AIR_INLINE float2 fma(float2 a,float2 b,float2 c) { float2 r; for(uint i=0;i<2;++i) r[i]=fma(a[i],b[i],c[i]); return r; }
 AIR_INLINE float3 fma(float3 a,float3 b,float3 c) { float3 r; for(uint i=0;i<3;++i) r[i]=fma(a[i],b[i],c[i]); return r; }

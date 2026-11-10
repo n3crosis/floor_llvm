@@ -1,12 +1,14 @@
 // CI-only release integrity check. Each compilation gets a fresh process.
 import assert from "node:assert/strict";
+import { assertMetallibMetadata, metadataExpectations } from "./metallib-metadata.mjs";
+import { conditionalColorSource, assertConditionalColorIR } from "./conditional-color.mjs";
 import { spawnSync } from "node:child_process";
 import { lstat, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import process from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-const expectedHeader = "5b12c0fd953caf1d7a470478f47cc0e81340fb6677934dc79786e27dd4de97c5";
+const expectedHeader = "648599fb8b756cf5256be2938c2c728d385ec8a69135e5120544af3870f6fc6e";
 const outputLimit = 64 * 1024 * 1024;
 const requiredExports = [
   "malloc", "free", "air_compile_v1", "air_compile_v2", "air_result_status",
@@ -66,6 +68,52 @@ for (const ios of [18,26]) for(const math of [0,1]) {
 }
 cases.push({name:'exact-math-ir',source:metalHeader+mathBody,ios:18,math:0,kind:1,shader:'exact-math',status:0});
 
+// Public ABI names are exercised by fresh authored inputs. These probes check
+// lowering, not numerical agreement on an Apple GPU.
+const conservativeBody = `kernel void unary_math(device const float* in [[buffer(0)]], device float* out [[buffer(1)]]) {
+  float x=in[0]; out[0]=sqrt(x); out[1]=rsqrt(x); out[2]=exp2(x);
+  out[3]=log2(x); out[4]=sin(x); out[5]=cos(x); out[6]=trunc(x);
+  float2 v=float2(x,in[1]); out[7]=sqrt(v).y+rsqrt(v).x+exp2(v).y;
+  out[8]=log2(float3(v,x)).z+sin(float4(v,v)).x+cos(v).y+trunc(v).x;
+  out[9]=ceil(x)+rint(x)+ceil(v).y+rint(v).x;
+  out[10]=abs(x)+abs(v).y+min(x,in[1])+clamp(x,in[1],in[2]);
+}`;
+const preciseBody = `kernel void precise_math(device const float* in [[buffer(0)]], device float* out [[buffer(1)]]) {
+  float x=in[0],y=in[1],z=in[2];
+  out[0]=precise::min(x,y); out[1]=precise::max(x,y); out[2]=precise::clamp(x,y,z);
+  out[3]=precise::sqrt(x); out[4]=precise::rsqrt(x); out[5]=precise::exp2(x);
+  out[6]=precise::log2(x); out[7]=precise::sin(x); out[8]=precise::cos(x);
+  float4 v=float4(x,y,z,x); out[9]=precise::min(v,y).x+precise::max(v,z).y;
+  out[10]=precise::clamp(v,y,z).z+precise::trunc(v).w;
+  out[11]=precise::ceil(x)+precise::rint(x);
+}`;
+const truncBody = `kernel void trunc_bits(device uint* out [[buffer(0)]]) {
+  out[0]=as_type<uint>(trunc(-0.25f)); out[1]=as_type<uint>(trunc(-1.75f));
+  out[2]=as_type<uint>(trunc(1.75f)); out[3]=as_type<uint>(trunc(as_type<float>(1u)));
+  out[4]=as_type<uint>(trunc(as_type<float>(0x7fc12345u)));
+  out[5]=as_type<uint>(trunc(as_type<float>(0xff800000u)));
+  out[6]=as_type<uint>(abs(-0.5f)); out[7]=as_type<uint>(abs(-0.0f));
+  out[8]=as_type<uint>(abs(as_type<float>(0x80000001u)));
+  out[9]=as_type<uint>(abs(as_type<float>(0xffc12345u)));
+}`;
+const uintColorBody = `constant bool enabled [[function_constant(203)]];
+struct Out { uint4 value [[color(0),function_constant(enabled)]]; };
+fragment Out uint_side(uint4 current [[color(0),function_constant(enabled)]]) {
+  Out o; o.value=enabled?current^uint4(15u):uint4(0u);return o;
+}`;
+for(const ios of [18,26]) for(const math of [0,1]) {
+  cases.push({name:`unary-math-ios${ios}-math${math}`,source:metalHeader+conservativeBody,ios,math,status:0});
+  cases.push({name:`precise-math-ios${ios}-math${math}`,source:metalHeader+preciseBody,ios,math,status:0});
+  cases.push({name:`uint-color-ios${ios}-math${math}`,source:metalHeader+uintColorBody,ios,math,status:0});
+}
+cases.push({name:'conservative-unary-ir',source:metalHeader+conservativeBody,ios:18,math:0,kind:1,shader:'conservative-unary',status:0});
+cases.push({name:'exact-trunc-ir',source:metalHeader+truncBody,ios:18,math:0,kind:1,shader:'exact-trunc',status:0});
+for(const math of [0,1]) cases.push({name:`precise-ir-math${math}`,source:metalHeader+preciseBody,ios:18,math,kind:1,shader:'precise',status:0});
+cases.push({name:'uint-color-ir',source:metalHeader+uintColorBody,ios:18,math:0,kind:1,shader:'uint-color',status:0});
+for(const type of ['int','half'])cases.push({name:`reject-unary-${type}`,source:metalHeader+`kernel void bad(device float* out [[buffer(0)]]) {out[0]=sqrt(${type}(2));}`,ios:18,math:0,status:3});
+cases.push({name:'reject-user-precise-asm',source:metalHeader+'float user(float) __asm__("air.sqrt.f32"); kernel void bad(device float* out [[buffer(0)]]) {out[0]=user(out[0]);}',ios:18,status:3});
+cases.push({name:'reject-conditional-uint3',source:metalHeader+uintColorBody.replaceAll('uint4','uint3'),ios:18,status:3});
+
 // Generic authored vertex-storage and normalized-unpack probes. Intrinsics use
 // the existing AIR ABI, while packed storage and mask arithmetic stay explicit.
 const packedBody = `kernel void packed_read(device const packed_uint2* p2 [[buffer(0)]],
@@ -104,6 +152,33 @@ for (const ios of [18,26]) for (const math of [0,1]) {
 }
 for (const [shader,body] of Object.entries({packed:packedBody,unpack:unpackBody,select:selectBody}))
   cases.push({name:`${shader}-ir`,source:metalHeader+body,ios:18,math:0,kind:1,shader,status:0});
+
+// Generic multiply-add contraction regression. Inputs are dynamic so the
+// optimizer cannot replace the operation with a constant. No fast-math pragma.
+const multiplyAddBody = `kernel void multiply_add(device const float* in [[buffer(0)]],
+  device float* scalar [[buffer(1)]], device float2* vector [[buffer(2)]]) {
+  scalar[0] = in[0] * in[1] + in[2];
+  vector[0] = float2(in[3], in[4]) * float2(in[5], in[6]) + float2(in[7], in[8]);
+}`;
+// Byte-for-byte authored fixture that reproduced llvm.fmuladd.v2f32 rejection.
+const authoredRenderSource = "#include <metal_stdlib>\nusing namespace metal;\nstruct VOut { float4 position [[position]]; float4 value [[user(locn0)]]; };\nstruct FIn { float4 value [[user(locn0)]]; };\nstruct FloatOut { float4 value [[color(0)]]; };\nstruct SintOut { int4 value [[color(0)]]; };\nstruct UintOut { uint4 value [[color(0)]]; };\nvertex VOut authored_vertex(uint id [[vertex_id]]) {\n  VOut o;\n  float x = float(id & 1u);\n  float y = float((id >> 1u) & 1u);\n  o.position = float4(x * 2.0f - 1.0f, y * 2.0f - 1.0f, 0.0f, 1.0f);\n  o.value = float4(x, y, x + y, 1.0f);\n  return o;\n}\nfragment FloatOut authored_float(FIn input [[stage_in]]) {\n  FloatOut o; o.value = input.value; return o;\n}\nfragment SintOut authored_sint(FIn input [[stage_in]]) {\n  SintOut o; o.value = int4(input.value * 16.0f) - int4(8); return o;\n}\nfragment UintOut authored_uint(FIn input [[stage_in]]) {\n  UintOut o; o.value = uint4(input.value * 16.0f); return o;\n}\n";
+for (const ios of [18,26]) for (const math of [0,1]) {
+  for (const kind of [0,1]) {
+    cases.push({name:`multiply-add-ios${ios}-math${math}-kind${kind}`,
+      source:metalHeader+multiplyAddBody,ios,math,kind,shader:'multiply-add',status:0});
+    cases.push({name:`authored-render-ios${ios}-math${math}-kind${kind}`,
+      source:authoredRenderSource,ios,math,kind,shader:'authored-render',status:0});
+  }
+}
+for (const ios of [18,26]) cases.push({name:`multiply-add-contract-off-ios${ios}`,
+  source:metalHeader+'#pragma clang fp contract(off)\n'+multiplyAddBody,
+  ios,math:0,kind:1,shader:'multiply-add-contract-off',status:0});
+
+// Parameter-specific conditional framebuffer metadata, including sparse slots
+// and typedef-qualified vectors. Preserve the entire prior regression suite.
+for (const ios of [18,26]) for (const math of [0,1]) for (const kind of [0,1])
+  cases.push({name:`conditional-color-ios${ios}-math${math}-kind${kind}`,
+    source:conditionalColorSource,ios,math,kind,shader:'conditional-color',status:0});
 
 function options(args) {
   const result = {};
@@ -180,9 +255,50 @@ async function runCase(build, name) {
       module._air_result_diagnostics_size(result), 64 * 1024);
     assert.equal(status, test.status,
       `${test.name}: ${new TextDecoder().decode(diagnostics).slice(0, 2048)}`);
+    let metadata = null;
     if (status === 0) {
       assert(output.length > 4, "Empty compiled library");
-      if (test.kind === 1 && test.shader === "exact-math") {
+      if (test.kind === 1 && test.shader === 'conditional-color') {
+        assertConditionalColorIR(new TextDecoder('utf-8',{fatal:true}).decode(output));
+      } else if (test.kind === 1 && ['multiply-add','authored-render','multiply-add-contract-off'].includes(test.shader)) {
+        const ir = new TextDecoder('utf-8',{fatal:true}).decode(output);
+        assert(!/call[^\n]*@llvm\.(?:fmuladd|fma)\./.test(ir), 'Unlowered multiply-add intrinsic');
+        if (test.shader === 'multiply-add-contract-off') {
+          assert(!/call[^\n]*@air\.fma\./.test(ir), 'Contract-off expression was fused');
+          assert(/fmul /.test(ir) && /fadd /.test(ir), 'Contract-off arithmetic was lost');
+        } else if (test.math === 0) {
+          assert(/call[^\n]*@air\.fma\.v2f32/.test(ir), 'Missing vector fused lowering');
+          if (test.shader === 'multiply-add')
+            assert(/call[^\n]*@air\.fma\.f32/.test(ir), 'Missing scalar fused lowering');
+        }
+        if (test.math === 0) {
+          assert(!ir.includes('air.fast_'), 'Conservative regression used fast math');
+          assert(!/call (?:fast|nnan|ninf|nsz|arcp|reassoc|afn) /.test(ir), 'Conservative call gained fast-math flags');
+        }
+        if (test.shader === 'authored-render') {
+          assert(ir.includes('!air.vertex') && ir.includes('!air.fragment'), 'Render stage metadata lost');
+          for (const entry of ['authored_vertex','authored_float','authored_sint','authored_uint'])
+            assert(ir.includes('@'+entry+'('), 'Missing render entry '+entry);
+        }
+      } else if(test.kind===1 && ['conservative-unary','precise','exact-trunc','uint-color'].includes(test.shader)) {
+        const ir=new TextDecoder('utf-8',{fatal:true}).decode(output);
+        if(test.shader==='uint-color') {
+          assertConditionalColorIR(ir,[{entry:'uint_side',parameters:[
+            {name:'current',index:0,type:'uint4',slot:0,constant:'enabled',constantIndex:203}]}]);
+        } else if(test.shader==='exact-trunc') {
+          assert(!ir.includes('air.fast_trunc'),'Conservative trunc used a fast intrinsic');
+          for(const constant of ['-2147483648','-1082130432','1065353216','2143363909','-8388608','1056964608'])assert(ir.includes(constant),'Trunc/abs lost exact bits '+constant);
+          assert(ir.includes('i32 1'),'Absolute value lost a subnormal');
+        } else {
+          const names=['sqrt','rsqrt','exp2','log2','sin','cos','ceil','rint',...(test.shader==='precise'?['fmin','fmax','clamp']:[])];
+          for(const name of names)assert(ir.includes('air.'+name+'.f32'),'Missing precise intrinsic '+name);
+          assert(!ir.includes('air.fast_'),'Conservative/precise math used a fast intrinsic');
+          assert(!ir.includes('air.abs.s.i32'),'Floating absolute value selected the integer overload');
+          const calls=ir.split('\n').filter(l=>/call.*@air\.(?:sqrt|rsqrt|exp2|log2|sin|cos|ceil|rint|fmin|fmax|clamp)\.f32/.test(l));
+          assert(calls.length>=names.length,'Missing math calls');
+          if(test.math===0)assert(calls.every(l=>!/(?:call|tail call) (?:fast|nnan|ninf|nsz|arcp|reassoc|afn)/.test(l)),'Conservative call inherited fast-math flags');
+        }
+      } else if (test.kind === 1 && test.shader === "exact-math") {
         const ir = new TextDecoder("utf-8", { fatal: true }).decode(output);
         assert(ir.includes("!air.kernel"), "Missing AIR compute metadata");
         assert(!ir.includes("air.fast_floor"), "Conservative floor used fast intrinsic");
@@ -218,12 +334,13 @@ async function runCase(build, name) {
         }
       } else {
         assert.deepEqual(Array.from(output.subarray(0, 4)), [77, 84, 76, 66], "Missing MTLB magic");
+        metadata = assertMetallibMetadata(output, metadataExpectations(test));
       }
     } else {
       assert.equal(output.length, 0, "Rejected input produced output");
       assert(diagnostics.length > 0, "Rejected input has no diagnostic");
     }
-    return { name, passed: true, status, outputBytes: output.length, diagnosticBytes: diagnostics.length };
+    return { name, passed: true, status, outputBytes: output.length, diagnosticBytes: diagnostics.length, metadata };
   } finally {
     if (result) module._air_result_free(result);
     module._free(pointer);

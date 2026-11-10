@@ -39,7 +39,9 @@ jobs:
           node-version: "24"
           package-manager-cache: false
       - name: Test build and release helper behavior
-        run: python3 -m unittest discover -s wasm/release -p 'test_*.py' -v
+        run: |
+          python3 -m unittest discover -s wasm/release -p 'test_*.py' -v
+          node --test wasm/release/conditional-color.test.mjs wasm/release/metallib-metadata.test.mjs
       - name: Verify source hashes and build resources
         id: source
         env:

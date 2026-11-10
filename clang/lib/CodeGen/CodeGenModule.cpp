@@ -3505,7 +3505,8 @@ void CodeGenModule::GenAIRMetadata(const FunctionDecl *FD, llvm::Function *Fn,
       unsigned ColorCount = 0;
       for (const auto *A : Field->attrs()) ColorCount += isa<GraphicsFBOColorLocationAttr>(A);
       if (ColorCount != 1 || !V || V->getNumElements() != 4 ||
-          !V->getElementType()->isSpecificBuiltinType(BuiltinType::Float) ||
+          !(V->getElementType()->isSpecificBuiltinType(BuiltinType::Float) ||
+            V->getElementType()->isSpecificBuiltinType(BuiltinType::UInt)) ||
           !Color || Color->getEvalLocation() > 7 || Field->isBitField() ||
           Field->hasAttr<GraphicsVertexPositionAttr>() || Field->hasAttr<MetalUserVaryingAttr>() ||
           Field->hasAttr<MetalVertexAttributeAttr>() || (Field->hasAttr<MetalInterpolationAttr>() || Field->hasAttr<GraphicsInterpolateFlatAttr>()) ||
@@ -4417,7 +4418,7 @@ void CodeGenModule::GenAIRMetadata(const FunctionDecl *FD, llvm::Function *Fn,
                 llvm::ConstantAsMetadata::get(Builder.getInt32(
                     parm->getAttr<GraphicsFBOColorLocationAttr>()->getEvalLocation())),
                 llvm::MDString::get(VMContext, "air.arg_type_name"),
-                llvm::MDString::get(VMContext, "float4"),
+                llvm::MDString::get(VMContext, make_air_type_name(clang_type)),
                 llvm::MDString::get(VMContext, "air.arg_name"),
                 llvm::MDString::get(VMContext, parm->getName())};
             arg_infos.push_back(llvm::MDNode::get(VMContext, Info));

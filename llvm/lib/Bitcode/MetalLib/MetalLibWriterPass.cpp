@@ -451,13 +451,13 @@ compress_source_archive(const void *archive_ptr, const uint32_t archive_size) {
   return {std::move(dst), dst_len};
 }
 
-// Public/private metadata lengths exclude the four-byte length prefix.
-// Derive the payload length from emitted bytes, including ENDT and all strings,
+// Public/private metadata lengths include the four-byte length prefix.
+// Derive the complete record length from emitted bytes, including ENDT and all strings,
 // rather than duplicate the serializer's variable-length arithmetic.
 static void finish_metadata_length(std::string &block) {
-  if (block.size() < 4 || block.size() - 4 > std::numeric_limits<uint32_t>::max())
+  if (block.size() < 4 || block.size() > std::numeric_limits<uint32_t>::max())
     report_fatal_error("Metal metadata block length is out of range");
-  const auto size = static_cast<uint32_t>(block.size() - 4);
+  const auto size = static_cast<uint32_t>(block.size());
   for (unsigned i = 0; i != 4; ++i)
     block[i] = static_cast<char>((size >> (8 * i)) & 0xff);
 }
