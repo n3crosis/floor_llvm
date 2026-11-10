@@ -130,6 +130,70 @@ class ReleaseTests(unittest.TestCase):
                 with self.assertRaisesRegex(release.ReleaseError, "version tag"):
                     release.release_version()
 
+    def request_release(self):
+        base = self.git("rev-parse", "HEAD")
+        request = {"schemaVersion": 1, "repository": "example/compiler",
+                   "ref": "refs/heads/wasm", "baseCommit": base, "version": "v0.3.0"}
+        self.put("wasm/release/release-request.json", release.encoded(request))
+        self.commit()
+        os.environ.update(GITHUB_SHA=self.git("rev-parse", "HEAD"),
+                          GITHUB_REF="refs/heads/wasm", AIR_RELEASE_PUSH_BEFORE=base)
+        return request
+
+    def test_explicit_push_request_resolves_once(self):
+        self.request_release()
+        self.assertEqual(release.pushed_release_request(), "v0.3.0")
+        destination = self.work / "github-env"
+        with patch.dict(os.environ, {"GITHUB_ENV": str(destination)}):
+            release.resolve_request(self.config, self.work)
+        self.assertEqual(destination.read_text(), "AIR_RELEASE_VERSION=v0.3.0\n")
+        with patch.dict(os.environ, {"AIR_RELEASE_VERSION": "v0.3.0"}):
+            self.assertEqual(release.source_identity(self.config)["version"], "v0.3.0")
+
+    def test_later_push_is_artifact_only_even_with_stale_request(self):
+        self.request_release()
+        previous = self.git("rev-parse", "HEAD")
+        self.put("later.txt", b"ordinary later change\n")
+        self.commit()
+        os.environ.update(GITHUB_SHA=self.git("rev-parse", "HEAD"), AIR_RELEASE_PUSH_BEFORE=previous)
+        self.assertIsNone(release.pushed_release_request())
+        self.assertEqual(release.release_version(), "")
+        # Reusing the original event-before SHA cannot bypass the parent check.
+        request = json.loads((self.root / "wasm/release/release-request.json").read_text())
+        os.environ["AIR_RELEASE_PUSH_BEFORE"] = request["baseCommit"]
+        self.assertIsNone(release.pushed_release_request())
+        with patch.dict(os.environ, {"AIR_RELEASE_VERSION": "v0.3.0"}):
+            with self.assertRaisesRegex(release.ReleaseError, "matching one-push"):
+                release.release_version()
+
+    def test_request_rejects_other_version_contexts_and_repository(self):
+        self.request_release()
+        for key, value in [("GITHUB_EVENT_NAME", "pull_request"), ("GITHUB_REF", "refs/heads/other"),
+                           ("GITHUB_SHA", "f" * 40), ("AIR_RELEASE_PUSH_BEFORE", "f" * 40)]:
+            with self.subTest(key=key), patch.dict(os.environ, {key: value}):
+                self.assertIsNone(release.pushed_release_request())
+        with patch.object(release, "REPOSITORY", "other/compiler"):
+            self.assertIsNone(release.pushed_release_request())
+        with patch.dict(os.environ, {"AIR_RELEASE_VERSION": "v0.4.0"}):
+            with self.assertRaisesRegex(release.ReleaseError, "matching one-push"):
+                release.release_version()
+
+    def test_request_supports_real_shallow_checkout_parent(self):
+        self.request_release()
+        shallow = self.work / "shallow"
+        subprocess.run(["git", "clone", "-q", "--depth", "1", self.root.as_uri(), str(shallow)], check=True)
+        with patch.object(release, "ROOT", shallow):
+            self.assertEqual(release.pushed_release_request(), "v0.3.0")
+
+    def test_request_schema_and_version_cannot_inject_environment(self):
+        request = self.request_release()
+        for changes in [{"version": "v0.3.0\nOTHER=value"}, {"baseCommit": "HEAD^"},
+                        {"schemaVersion": 2}, {"unexpected": True}]:
+            with self.subTest(changes=changes):
+                self.put("wasm/release/release-request.json", release.encoded(request | changes))
+                with self.assertRaises(release.ReleaseError):
+                    release.pushed_release_request()
+
     def test_existing_tags_and_releases_are_immutable(self):
         api = Mock()
         for existing_commit in (self.commit_sha, "f" * 40):

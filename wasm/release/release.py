@@ -29,7 +29,8 @@ SDK_COMMIT = "e4fe26ef59168ff44f4c23c466e497bf60b3411e"
 OUTPUTS = ("air_wasm.mjs", "air_wasm.wasm")
 TOOLING = (".github/workflows/release-air-wasm.yml", "wasm/release/github_release.py",
            "wasm/release/probe.mjs", "wasm/release/conditional-color.mjs",
-           "wasm/release/metallib-metadata.mjs", "wasm/release/release-config.json", "wasm/release/release.py")
+           "wasm/release/metallib-metadata.mjs", "wasm/release/release-config.json", "wasm/release/release.py",
+           "wasm/release/release-request.json")
 NOTICE_PATHS = ("llvm/LICENSE.TXT", "clang/LICENSE.TXT", "llvm/include/llvm/Support/LICENSE.TXT",
                 "llvm/include/llvm/Transforms/LibFloor/cfg/LICENSE", "llvm/lib/Transforms/LibFloor/cfg/LICENSE",
                 "llvm/lib/Bitcode/MetalLib/bzip2/LICENSE", "llvm/lib/Bitcode/MetalLib/tar/LICENSE")
@@ -66,10 +67,48 @@ def source_fingerprint(repository, commit, tree, lock_sha, inputs):
     return digest(text.encode())
 
 
+def pushed_release_request():
+    """A checked-in request authorizes only the immediate, single-parent push."""
+    request_path = ROOT / "wasm/release/release-request.json"
+    if os.environ.get("GITHUB_EVENT_NAME") != "push" or not request_path.exists():
+        return None
+    request = json.loads(request_path.read_text())
+    require(set(request) == {"schemaVersion", "repository", "ref", "baseCommit", "version"}
+            and request["schemaVersion"] == 1, "Invalid CI release request schema")
+    require(re.fullmatch(r"[a-f0-9]{40}", request["baseCommit"]), "Invalid CI release request base")
+    require(re.fullmatch(r"v[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?", request["version"]),
+            "Use a version tag such as v0.2.0")
+    if (request["repository"] != REPOSITORY or request["ref"] != "refs/heads/wasm"
+            or os.environ.get("GITHUB_REF") != request["ref"]
+            or os.environ.get("AIR_RELEASE_PUSH_BEFORE") != request["baseCommit"]):
+        return None
+    commit = git("rev-parse", "HEAD")
+    if commit != os.environ.get("GITHUB_SHA"):
+        return None
+    # Raw commit headers retain parents even in actions/checkout's depth-1 clone.
+    headers = git("cat-file", "-p", "HEAD").split("\n\n", 1)[0].splitlines()
+    parents = [line.removeprefix("parent ") for line in headers if line.startswith("parent ")]
+    if parents != [request["baseCommit"]]:
+        return None
+    return request["version"]
+
+
+def resolve_request(config, work):
+    version = pushed_release_request()
+    if version:
+        with open(os.environ["GITHUB_ENV"], "a") as stream:
+            stream.write("AIR_RELEASE_VERSION=" + version + "\n")
+        print("Explicit one-push CI release request: " + version)
+    else:
+        print("No matching one-push CI release request; artifact-only build")
+
+
 def release_version():
     version = os.environ.get("AIR_RELEASE_VERSION", "")
     if version:
-        require(os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch", "Publishing requires an explicit manual release version")
+        require(os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch"
+                or pushed_release_request() == version,
+                "Publishing requires explicit manual dispatch or a matching one-push CI release request")
         require(re.fullmatch(r"v[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*)?", version), "Use a version tag such as v0.2.0")
     return version
 
@@ -470,7 +509,7 @@ def publish(config, work):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("operation", choices=("preflight", "build", "package", "publish"))
+    parser.add_argument("operation", choices=("resolve-request", "preflight", "build", "package", "publish"))
     parser.add_argument("--work", type=Path, required=True)
     args = parser.parse_args()
     require(os.environ.get("CI") == "true" and os.environ.get("RUNNER_OS") == "Linux", "Release operations run only on the approved Linux CI runner")
@@ -478,7 +517,7 @@ def main():
     work = args.work.resolve()
     require(ROOT not in work.parents and work != ROOT, "Build outputs must stay outside the clean source checkout")
     work.mkdir(parents=True, exist_ok=True)
-    globals()[args.operation](config, work)
+    globals()[args.operation.replace("-", "_")](config, work)
 
 
 if __name__ == "__main__":

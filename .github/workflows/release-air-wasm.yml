@@ -20,6 +20,7 @@ concurrency:
 env:
   PYTHONDONTWRITEBYTECODE: "1"
   AIR_RELEASE_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.release_version || '' }}
+  AIR_RELEASE_PUSH_BEFORE: ${{ github.event.before || '' }}
 
 jobs:
   build:
@@ -42,6 +43,9 @@ jobs:
         run: |
           python3 -m unittest discover -s wasm/release -p 'test_*.py' -v
           node --test wasm/release/conditional-color.test.mjs wasm/release/metallib-metadata.test.mjs
+      - name: Resolve an explicit one-push release request
+        if: ${{ github.event_name == 'push' }}
+        run: python3 wasm/release/release.py resolve-request --work "$RUNNER_TEMP/air-release"
       - name: Verify source hashes and build resources
         id: source
         env:
@@ -115,7 +119,7 @@ jobs:
           retention-days: 30
           overwrite: false
       - name: Publish only an explicitly requested new prerelease
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.release_version != '' }}
+        if: ${{ env.AIR_RELEASE_VERSION != '' }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: python3 wasm/release/release.py publish --work "$RUNNER_TEMP/air-release"
