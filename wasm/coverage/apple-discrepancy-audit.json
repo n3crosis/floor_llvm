@@ -1,0 +1,226 @@
+{
+  "scope": "Independent evidence audit and CPU replay; no native execution or source changes",
+  "verifiedSharedFiles": 467,
+  "omittedBinaryFilesNotIndependentlyRehashed": [
+    "output/ios27-default-control.air",
+    "output/ios27-default-control.metallib",
+    "output/ios27-default-integer.air",
+    "output/ios27-default-integer.metallib",
+    "output/ios27-default-interleave.air",
+    "output/ios27-default-interleave.metallib",
+    "output/macos27-default-control.air",
+    "output/macos27-default-control.metallib",
+    "output/macos27-default-integer.air",
+    "output/macos27-default-integer.metallib",
+    "output/macos27-default-interleave.air",
+    "output/macos27-default-interleave.metallib",
+    "output/probe"
+  ],
+  "inputIdentitiesVerified": [
+    "README.txt",
+    "control.json",
+    "control.metal",
+    "generate_cases.py",
+    "integer.json",
+    "integer.metal",
+    "interleave.json",
+    "interleave.metal",
+    "manifest.json",
+    "probe.swift",
+    "run_probes.py",
+    "test_cases.py"
+  ],
+  "rawFilesVerified": 404,
+  "wordChecks": 1816,
+  "mismatchedWords": 56,
+  "targets": [
+    {
+      "target": "ios27",
+      "totals": {
+        "controlPasses": 2,
+        "dispatches": 202,
+        "integerPasses": 180,
+        "integerFailures": 20,
+        "scalarAfterGuardFailures": 12,
+        "vectorPrefillFailures": 8,
+        "interleavePipelineFailures": 9
+      },
+      "endpoint": {
+        "extract_uint2_dynamic_all_32_0": {
+          "passed": 4
+        },
+        "extract_uint2_dynamic_x_32_0": {
+          "passed": 4
+        },
+        "extract_uint2_literal_32_0": {
+          "failed": 2
+        },
+        "extract_uint_dynamic_all_32_0": {
+          "passed": 4
+        },
+        "extract_uint_dynamic_x_32_0": {
+          "failed": 4
+        },
+        "extract_uint_literal_32_0": {
+          "failed": 2
+        },
+        "insert_uint2_dynamic_all_32_0": {
+          "passed": 4
+        },
+        "insert_uint2_dynamic_x_32_0": {
+          "failed": 4
+        },
+        "insert_uint2_literal_32_0": {
+          "failed": 2
+        },
+        "insert_uint_dynamic_all_32_0": {
+          "passed": 4
+        },
+        "insert_uint_dynamic_x_32_0": {
+          "failed": 4
+        },
+        "insert_uint_literal_32_0": {
+          "failed": 2
+        }
+      }
+    },
+    {
+      "target": "macos27",
+      "totals": {
+        "controlPasses": 2,
+        "dispatches": 202,
+        "integerPasses": 180,
+        "integerFailures": 20,
+        "scalarAfterGuardFailures": 12,
+        "vectorPrefillFailures": 8,
+        "interleavePipelineFailures": 9
+      },
+      "endpoint": {
+        "extract_uint2_dynamic_all_32_0": {
+          "passed": 4
+        },
+        "extract_uint2_dynamic_x_32_0": {
+          "passed": 4
+        },
+        "extract_uint2_literal_32_0": {
+          "failed": 2
+        },
+        "extract_uint_dynamic_all_32_0": {
+          "passed": 4
+        },
+        "extract_uint_dynamic_x_32_0": {
+          "failed": 4
+        },
+        "extract_uint_literal_32_0": {
+          "failed": 2
+        },
+        "insert_uint2_dynamic_all_32_0": {
+          "passed": 4
+        },
+        "insert_uint2_dynamic_x_32_0": {
+          "failed": 4
+        },
+        "insert_uint2_literal_32_0": {
+          "failed": 2
+        },
+        "insert_uint_dynamic_all_32_0": {
+          "passed": 4
+        },
+        "insert_uint_dynamic_x_32_0": {
+          "failed": 4
+        },
+        "insert_uint_literal_32_0": {
+          "failed": 2
+        }
+      }
+    }
+  ],
+  "air": [
+    {
+      "label": "ios27-default-integer",
+      "entry": "extract_uint_literal_32_0",
+      "literalEndpointIntrinsicRetained": true,
+      "volatileResultStoreRetained": true
+    },
+    {
+      "label": "ios27-default-integer",
+      "entry": "insert_uint_literal_32_0",
+      "literalEndpointIntrinsicRetained": true,
+      "volatileResultStoreRetained": true
+    },
+    {
+      "label": "ios27-default-integer",
+      "entry": "extract_uint_dynamic_x_32_0",
+      "literalEndpointIntrinsicRetained": true,
+      "volatileResultStoreRetained": true
+    },
+    {
+      "label": "ios27-default-integer",
+      "entry": "insert_uint_dynamic_x_32_0",
+      "literalEndpointIntrinsicRetained": true,
+      "volatileResultStoreRetained": true
+    },
+    {
+      "label": "ios27-default-integer",
+      "entry": "extract_uint2_literal_32_0",
+      "literalEndpointIntrinsicRetained": true,
+      "volatileResultStoreRetained": true
+    },
+    {
+      "label": "ios27-default-integer",
+      "entry": "insert_uint2_literal_32_0",
+      "literalEndpointIntrinsicRetained": true,
+      "volatileResultStoreRetained": true
+    },
+    {
+      "label": "ios27-default-integer",
+      "entry": "insert_uint2_dynamic_x_32_0",
+      "literalEndpointIntrinsicRetained": true,
+      "volatileResultStoreRetained": true
+    },
+    {
+      "label": "macos27-default-integer",
+      "entry": "extract_uint_literal_32_0",
+      "literalEndpointIntrinsicRetained": true,
+      "volatileResultStoreRetained": true
+    },
+    {
+      "label": "macos27-default-integer",
+      "entry": "insert_uint_literal_32_0",
+      "literalEndpointIntrinsicRetained": true,
+      "volatileResultStoreRetained": true
+    },
+    {
+      "label": "macos27-default-integer",
+      "entry": "extract_uint_dynamic_x_32_0",
+      "literalEndpointIntrinsicRetained": true,
+      "volatileResultStoreRetained": true
+    },
+    {
+      "label": "macos27-default-integer",
+      "entry": "insert_uint_dynamic_x_32_0",
+      "literalEndpointIntrinsicRetained": true,
+      "volatileResultStoreRetained": true
+    },
+    {
+      "label": "macos27-default-integer",
+      "entry": "extract_uint2_literal_32_0",
+      "literalEndpointIntrinsicRetained": true,
+      "volatileResultStoreRetained": true
+    },
+    {
+      "label": "macos27-default-integer",
+      "entry": "insert_uint2_literal_32_0",
+      "literalEndpointIntrinsicRetained": true,
+      "volatileResultStoreRetained": true
+    },
+    {
+      "label": "macos27-default-integer",
+      "entry": "insert_uint2_dynamic_x_32_0",
+      "literalEndpointIntrinsicRetained": true,
+      "volatileResultStoreRetained": true
+    }
+  ],
+  "allExecutedRawWordsIdenticalAcrossTargets": true,
+  "optionalO0": "Not advertised, not attempted; actual support unknown"
+}

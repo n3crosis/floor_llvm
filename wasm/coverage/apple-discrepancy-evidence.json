@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-10",
+  "scope": "Separate Apple-only diagnostic, no compiler source changes or Apple/FLOOR parity. Earlier failed gates remain unchanged.",
+  "returnZipBytes": 240112,
+  "returnZipSha256": "3c7149091e45a6e50a179a2983c7fce0cf8afe64c797b2a15046cdbdaa163a36",
+  "inputBundleSha256": "72eeb1fb521a64971d5f206039cd4a7dc75d8152834f612c8767af0ed6a8cef7",
+  "originalConclusionSha256": "17f0795c09896400358105de937929d2b2442f49ac82bc08fe5b7cc7beee7cd6",
+  "auditSha256": "31db6a60aa36e1b1f7dfe38fba4c708d113d6e6393a25307df6052790d6d9016",
+  "host": {
+    "device": "Apple M1 Max",
+    "os": "macOS 27.2 (26B123)",
+    "xcode": "27.2 (27B52)",
+    "sdk": "27.2",
+    "metal": "32023.922",
+    "gpuFamilyQueries": {
+      "Apple7": true,
+      "Apple8": false,
+      "Apple9": false
+    }
+  },
+  "targets": [
+    "air64-apple-ios27.0",
+    "air64-apple-macosx27.0"
+  ],
+  "language": "metal4.1",
+  "math": "-fno-fast-math",
+  "optimization": "default; optional -O0 not advertised and not attempted, actual support unknown",
+  "sourceTargetGroupsCompiledLinkedLoaded": 6,
+  "dispatches": 404,
+  "numericalPasses": 364,
+  "numericalFailures": 40,
+  "interleavePipelineFailures": 18,
+  "exitStatus": 1,
+  "sharedFileHashesVerified": 467,
+  "rawOutputFilesVerified": 404,
+  "outputWordsReplayed": 1816,
+  "mismatchedWords": 56,
+  "guardWords": "all correct",
+  "omittedBinariesNotIndependentlyRehashed": 13,
+  "endpointContract": "MSL 4.1 section 6.4 Table 6.2 p. 203 defines offset 32 / count 0 for 32-bit operands: extract returns 0, insert returns base. Undefined condition is sum greater than width, not equality.",
+  "endpointClassification": "Reproducible Apple-stack numerical nonconformance, dependent on operand constancy and scalar/vector form. Constant-specialized intrinsic/native lowering is leading explanation; exact compiler pass, AIR contract, driver component and native instruction not identified.",
+  "interleaveClassification": "Apple intrinsic-lowering/availability blocker on tested M1 Max stack. Reproduced with native macOS and iOS targets; not purely iOS-on-Mac. Unsupported architecture versus compiler/driver defect remains unresolved; cannot generalize to other GPUs/software.",
+  "specification": {
+    "url": "https://developer.apple.com/metal/Metal-Shading-Language-Specification.pdf",
+    "version": "4.1, June 4, 2026",
+    "sha256": "41538b30d2f1140a5b2a0c84ce0a9f7b67bf0c707e224cfea0bfe5a44aa26cf5"
+  },
+  "findingsFile": "APPLE-DISCREPANCY-FINDINGS.md",
+  "auditFile": "apple-discrepancy-audit.json"
+}

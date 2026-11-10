@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "date": "2026-11-10",
   "baselineCommit": "81d255965a578d9dd55ec4cd2b53a2f239a989f1",
   "checkpointCommit": "1accfd44d88898b2885390cafd527e48b4f00479",
@@ -30,7 +30,7 @@
       "placement": 6,
       "barrier": 8
     },
-    "status": "configured_not_built_or_executed_with_new_floor_runtime",
+    "status": "published_build_compiling_no_artifact",
     "note": "Supplemental GPU counts are separate harness plans, not extra completed generic GPU pairs."
   },
   "hardwareMacRun": "completed_with_failed_paired_gate_and_separate_floor_only_pass",
@@ -62,39 +62,54 @@
     {
       "id": "placement_new",
       "scope": "Authored placement-new subset and diagnostics",
-      "sourceStatus": "source_candidate_unbuilt",
+      "sourceStatus": "published_build_in_progress",
       "floorCompiler": "not_run",
       "appleCompileLink": "preflight_only",
       "gpuNumerics": "not_run",
       "configuredCompilerCases": 74,
       "supplementalGpuCases": 6,
-      "detail": "Source/tests and Apple preflight or Swift build evidence only; fresh compiler and dual-backend GPU pending."
+      "detail": "Published 788-case source; corrected preflight passed, compiler build in progress with no artifact. Apple preflight/harness evidence only; no new FLOOR or GPU qualification."
     },
     {
       "id": "texture_reads",
       "scope": "Authored Metal 4.1 texture-read subset",
-      "sourceStatus": "source_candidate_unbuilt",
+      "sourceStatus": "published_build_in_progress",
       "floorCompiler": "not_run",
       "appleCompileLink": "preflight_only",
       "gpuNumerics": "not_run",
       "configuredCompilerCases": 71,
       "supplementalGpuCases": 24,
-      "detail": "Source/tests and Apple preflight or Swift build evidence only; fresh compiler and dual-backend GPU pending."
+      "detail": "Published 788-case source; corrected preflight passed, compiler build in progress with no artifact. Apple preflight/harness evidence only; no new FLOOR or GPU qualification."
     },
     {
       "id": "acquire_release_barriers",
       "scope": "Authored barrier subset; does not qualify all acquire/release atomics",
-      "sourceStatus": "source_candidate_unbuilt",
+      "sourceStatus": "published_build_in_progress",
       "floorCompiler": "not_run",
       "appleCompileLink": "preflight_only",
       "gpuNumerics": "not_run",
       "configuredCompilerCases": 141,
       "supplementalGpuCases": 8,
-      "detail": "Source/tests and Apple preflight or Swift build evidence only; fresh compiler and dual-backend GPU pending."
+      "detail": "Published 788-case source; corrected preflight passed, compiler build in progress with no artifact. Apple preflight/harness evidence only; no new FLOOR or GPU qualification."
+    },
+    {
+      "id": "uint_atomic_orders_flags",
+      "scope": "Bounded uint RMW orders and flags, ordinary/volatile pointers; versioned signatures, operand provenance and rejection contracts",
+      "sourceStatus": "published_source_unbuilt",
+      "floorCompiler": "not_run",
+      "appleCompileLink": "native_reference_only",
+      "pipelineCreation": "not_run",
+      "gpuExecution": "not_run",
+      "gpuNumerics": "not_run",
+      "configuredCompilerCases": 166,
+      "configuredApplePairs": 64,
+      "detail": "Production native ABI reference validated and validator reviews applied. 86 Apple probes: 54 of 74 MSL 4.1 cases accepted, 20 non-relaxed three-argument forms rejected; earlier-language sets each accepted 2 and rejected 4. Dynamic/unknown controls accepted by Apple textual AIR are deliberately rejected by the bounded FLOOR API. No new compiler, atomic GPU or acquire-release synchronization proof.",
+      "nativeReferenceZipSha256": "616dbdc1edae54b9f0a7fda90b9c51b6e8ee2105b745897942931a2a61413c56",
+      "publicationScope": "Source published with this revision; unbuilt."
     },
     {
       "id": "remaining_msl41",
-      "scope": "Float-to-float round-toward-zero, ray-tracing function_id, block scaling, multiplane tensors/tensor_blockwise, expanded MPP matrix types and broader atomics",
+      "scope": "Float-to-float round-toward-zero, ray-tracing function_id, block scaling, multiplane tensors/tensor_blockwise, expanded MPP matrix types and atomics beyond the bounded uint candidate",
       "sourceStatus": "unsupported_or_unvalidated",
       "floorCompiler": "not_covered",
       "appleCompileLink": "not_covered",
@@ -111,5 +126,45 @@
     }
   ],
   "hardwareEvidenceFile": "hardware-checkpoint-evidence.json",
-  "nextCandidatePublicationScope": "Source publication in this documentation revision; no new compiler artifact or execution proof."
+  "nextCandidatePublicationScope": "The placement/texture/barrier source batch is published; corrected 788-case build is compiling. The separate atomic 954-case source is published with this revision; unbuilt.",
+  "publishedThreeFeatureSourceCommit": "8026ac51d6e9f3e2a547445343ff5a206f0ed0ec",
+  "threeFeatureBuild": {
+    "firstCheckpointCommitPrefix": "65c735a",
+    "firstCheckpointResult": "failed_before_compilation_hardcoded_10_header_preflight",
+    "correctedCheckpointCommit": "0895444c9befcebe4eeea580642dc43d385abe83",
+    "correction": "Exact 11-header preflight with regression tests",
+    "workflowRun": "https://github.com/n3crosis/floor_llvm/actions/runs/42824346921",
+    "status": "preflight_passed_compilation_in_progress",
+    "compilerCasesConfigured": 788,
+    "artifactAvailable": false,
+    "scope": "Status at this documentation snapshot. No new compiler pass or artifact qualification."
+  },
+  "laterAtomicCandidate": {
+    "status": "published_source_unbuilt",
+    "published": true,
+    "floorCompiler": 954,
+    "positiveAIR": 281,
+    "positiveMetallib": 279,
+    "expectedRejections": 394,
+    "appleReferencePairs": 236,
+    "increment": {
+      "compilerContracts": 166,
+      "positiveAIR": 66,
+      "positiveMetallib": 50,
+      "frontendRejections": 44,
+      "invalidIRRejections": 6,
+      "appleReferencePairs": 64
+    },
+    "localSourceTests": {
+      "node": 633,
+      "releasePython": 34,
+      "texture": 68,
+      "sourceLocks": "passed"
+    },
+    "freshCompilerBuilt": false,
+    "atomicGpuEvidence": "not_run",
+    "note": "Local tests and production native ABI validation do not qualify the modified compiler or GPU memory semantics.",
+    "publicationScope": "Source published with this revision; unbuilt."
+  },
+  "appleDiscrepancyEvidenceFile": "apple-discrepancy-evidence.json"
 }
