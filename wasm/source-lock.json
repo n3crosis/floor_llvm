@@ -58,7 +58,7 @@
     "api/include/metal_atomic": "6c850c7148caf5203caeec87c786d741f4760ecf75017a1c9a5df238c7658d3f",
     "api/include/metal_control": "f87dced6eda391f6dfc21a867ac0914f8bf95dca6e8efd1fd95609b0c3b8c93f",
     "api/include/metal_depth": "eda5ab77bea5b6d89791f6cb610af9ff3bdc54e425244e6af3bfa566faae5605",
-    "api/include/metal_integer": "a68e8bc6c727f6b0cff168ca4a918ca09d584d61e0ba69400c0bef5bb8eabd1e",
+    "api/include/metal_integer": "296c5ba331cfcec259bb34d5b5aa0692a0fcf131eae22974665d5b6a4e76ec4b",
     "api/include/metal_math": "9a2391475b4e336ff751c68b1eb952ce926e02d8881dede321c24a726aa7e2ef",
     "api/include/metal_simd": "fb4e83a886e2a47b3f8787c3ca0585116b9e8bd4ddccefea0f1d37c5790746bc",
     "api/include/metal_stdlib": "6f25b2f4ec564faf97d20e81f405fc655c1efbde523e48fc3c11fc025302f79a",

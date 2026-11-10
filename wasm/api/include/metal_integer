@@ -44,5 +44,31 @@ inline __attribute__((always_inline)) uint insert_bits(uint base, uint value, ui
 inline __attribute__((always_inline)) int insert_bits(int base, int value, uint offset, uint count) {
   return as_type<int>(insert_bits(uint(base), uint(value), offset, count));
 }
+// BEGIN 32-bit vector subset
+// MSL 4.1 (2026-06-04), section 6.4, Table 6.2, pp. 202-204:
+// integer functions preserve T, including signedness and vector lane count.
+// Only int/uint and their 2/3/4-lane vectors are implemented here. Reject
+// other operand types instead of silently promoting narrow scalar operands.
+template<class T> T clz(T) = delete;
+template<class T> T ctz(T) = delete;
+template<class T> T popcount(T) = delete;
+template<class T> T extract_bits(T, uint, uint) = delete;
+template<class A, class B> A insert_bits(A, B, uint, uint) = delete;
+
+#define AIR_INTEGER_VECTOR(T,N) \
+  inline __attribute__((always_inline)) T##N clz(T##N x) { T##N r; for(uint i=0;i<N;++i) r[i]=clz(x[i]); return r; } \
+  inline __attribute__((always_inline)) T##N ctz(T##N x) { T##N r; for(uint i=0;i<N;++i) r[i]=ctz(x[i]); return r; } \
+  inline __attribute__((always_inline)) T##N popcount(T##N x) { T##N r; for(uint i=0;i<N;++i) r[i]=popcount(x[i]); return r; } \
+  inline __attribute__((always_inline)) T##N reverse_bits(T##N x) { T##N r; for(uint i=0;i<N;++i) r[i]=reverse_bits(x[i]); return r; } \
+  inline __attribute__((always_inline)) T##N extract_bits(T##N x,uint offset,uint count) { T##N r; for(uint i=0;i<N;++i) r[i]=extract_bits(x[i],offset,count); return r; } \
+  inline __attribute__((always_inline)) T##N insert_bits(T##N base,T##N value,uint offset,uint count) { T##N r; for(uint i=0;i<N;++i) r[i]=insert_bits(base[i],value[i],offset,count); return r; }
+AIR_INTEGER_VECTOR(int,2)
+AIR_INTEGER_VECTOR(int,3)
+AIR_INTEGER_VECTOR(int,4)
+AIR_INTEGER_VECTOR(uint,2)
+AIR_INTEGER_VECTOR(uint,3)
+AIR_INTEGER_VECTOR(uint,4)
+#undef AIR_INTEGER_VECTOR
+// END 32-bit vector subset
 }
 #endif

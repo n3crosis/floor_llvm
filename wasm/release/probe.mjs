@@ -8,7 +8,7 @@ import { resolve } from "node:path";
 import process from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-const expectedHeader = "648599fb8b756cf5256be2938c2c728d385ec8a69135e5120544af3870f6fc6e";
+const expectedHeader = "d9a4602e60ff6dd35e3ca27e132cd297494f1d5eb1680bcf1b178345ab5f2548";
 const outputLimit = 64 * 1024 * 1024;
 const requiredExports = [
   "malloc", "free", "air_compile_v1", "air_compile_v2", "air_result_status",
