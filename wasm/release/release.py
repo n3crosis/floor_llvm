@@ -30,7 +30,8 @@ OUTPUTS = ("air_wasm.mjs", "air_wasm.wasm")
 TOOLING = (".github/workflows/release-air-wasm.yml", "wasm/release/github_release.py",
            "wasm/release/probe.mjs", "wasm/release/conditional-color.mjs",
            "wasm/release/metallib-metadata.mjs", "wasm/release/integer-vector.mjs",
-           "wasm/release/derivative-vector.mjs", "wasm/release/release-config.json", "wasm/release/release.py",
+           "wasm/release/derivative-vector.mjs", "wasm/release/common-functions.mjs",
+           "wasm/release/common-functions-ir.mjs", "wasm/release/release-config.json", "wasm/release/release.py",
            "wasm/release/release-request.json")
 NOTICE_PATHS = ("llvm/LICENSE.TXT", "clang/LICENSE.TXT", "llvm/include/llvm/Support/LICENSE.TXT",
                 "llvm/include/llvm/Transforms/LibFloor/cfg/LICENSE", "llvm/lib/Transforms/LibFloor/cfg/LICENSE",

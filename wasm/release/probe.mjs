@@ -4,13 +4,14 @@ import { assertMetallibMetadata, metadataExpectations } from "./metallib-metadat
 import { conditionalColorSource, assertConditionalColorIR } from "./conditional-color.mjs";
 import { integerVectorCases, assertIntegerVectorIR } from "./integer-vector.mjs";
 import { derivativeVectorCases, assertDerivativeVectorIR } from "./derivative-vector.mjs";
+import { commonFunctionCases, assertCommonFunctionIR } from "./common-functions.mjs";
 import { spawnSync } from "node:child_process";
 import { lstat, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import process from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-const expectedHeader = "4ba42863c3e79808a6bcd5101d53561b3e867c73d076471de503ed6625dbb979";
+const expectedHeader = "5b2cbcaea61eb90f878c0d16e500d742079d1674aa5b331c21cc0589f5d6ca3e";
 const outputLimit = 64 * 1024 * 1024;
 const requiredExports = [
   "malloc", "free", "air_compile_v1", "air_compile_v2", "air_result_status",
@@ -183,7 +184,7 @@ for (const ios of [18,26]) for (const math of [0,1]) for (const kind of [0,1])
     source:conditionalColorSource,ios,math,kind,shader:'conditional-color',status:0});
 
 // Generic authored MSL coverage, independent of application shader corpora.
-cases.push(...integerVectorCases, ...derivativeVectorCases);
+cases.push(...integerVectorCases, ...derivativeVectorCases, ...commonFunctionCases);
 assert.equal(new Set(cases.map(test => test.name)).size, cases.length, "Duplicate probe names");
 assert(cases.every(test => new TextEncoder().encode(test.source).length <= 4096), "Probe source exceeds bound");
 
@@ -269,6 +270,8 @@ async function runCase(build, name) {
         assertIntegerVectorIR(new TextDecoder('utf-8',{fatal:true}).decode(output), test);
       } else if (test.kind === 1 && test.derivativeVector) {
         assertDerivativeVectorIR(new TextDecoder('utf-8',{fatal:true}).decode(output), test);
+      } else if (test.kind === 1 && test.commonFunctions) {
+        assertCommonFunctionIR(new TextDecoder('utf-8',{fatal:true}).decode(output), test);
       } else if (test.kind === 1 && test.shader === 'conditional-color') {
         assertConditionalColorIR(new TextDecoder('utf-8',{fatal:true}).decode(output));
       } else if (test.kind === 1 && ['multiply-add','authored-render','multiply-add-contract-off'].includes(test.shader)) {

@@ -59,7 +59,7 @@
     "api/include/metal_control": "ab9230e6aa68a195d3843b2e698fe81f2dcbf7d64fada6bd300112b8a766cccc",
     "api/include/metal_depth": "eda5ab77bea5b6d89791f6cb610af9ff3bdc54e425244e6af3bfa566faae5605",
     "api/include/metal_integer": "296c5ba331cfcec259bb34d5b5aa0692a0fcf131eae22974665d5b6a4e76ec4b",
-    "api/include/metal_math": "9a2391475b4e336ff751c68b1eb952ce926e02d8881dede321c24a726aa7e2ef",
+    "api/include/metal_math": "51bcffd3d3d3d1b07275459335dbc1ed2ad10c3a9376080c740412a8b5c04ee2",
     "api/include/metal_simd": "fb4e83a886e2a47b3f8787c3ca0585116b9e8bd4ddccefea0f1d37c5790746bc",
     "api/include/metal_stdlib": "6f25b2f4ec564faf97d20e81f405fc655c1efbde523e48fc3c11fc025302f79a",
     "api/include/metal_tessellation": "5290e6ba43c62f4531d5969eb1742293443fec6ed602e06066ec2454a37540b5",

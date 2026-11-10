@@ -29,7 +29,7 @@ them. Ordinary builds never republish `v0.1.0`.
 
 The workflow keeps Emscripten 4.0.20 pinned, checks source hashes, compiles the
 compiler, and runs fresh ABI, header, and compile-smoke probes before packaging.
-The probes include 209 authored vertex, fragment, and compute regressions across
+The probes include 285 authored vertex, fragment, and compute regressions across
 iOS 18/26 and both math profiles. Empty vertex return/argument metadata is tested
 in both LLVM IR and metallib output, including a void vertex that writes to a
 buffer. These checks do not establish Apple loader, GPU, or device acceptance.
@@ -44,7 +44,7 @@ The math subset also exposes conservative float/float-vector `sqrt`, `rsqrt`, `e
 
 Conditional framebuffer-input AIR metadata now derives its name from the actual Clang parameter type using the existing canonical type helper. Authored regressions bind each check to its fragment entry and input metadata list, then verify the parameter index, signature type, attachment slot, argument name, bool predicate and required function-constant initializer/index. Float and uint inputs, typedefs/qualifiers, sparse slots 2 and 7, reversed parameter order and buffer 29 are checked for iOS 18/26 and both math profiles, in IR and metallib form. Return metadata cannot satisfy input-type assertions. This is compiler ABI validation, not Apple pipeline or GPU execution proof.
 
-Metal library public/private metadata lengths now include their own four-byte prefixes. All 81 successful metallib cases validate serialized function records, boundaries, metadata tags, AIR sizes and hashes; 16 also bind constants to exact authored entry parameters. The validator never rewrites output bytes. Run `node --test wasm/release/conditional-color.test.mjs wasm/release/metallib-metadata.test.mjs` for 41 synthetic assertion tests; these run in CI before each compiler build. The receipt includes both validation helpers in its tooling inventory.
+Metal library public/private metadata lengths now include their own four-byte prefixes. All 103 successful metallib cases validate serialized function records, boundaries, metadata tags, AIR sizes and hashes; 16 also bind constants to exact authored entry parameters. The validator never rewrites output bytes. Run `node --test wasm/release/conditional-color.test.mjs wasm/release/metallib-metadata.test.mjs` for 41 synthetic assertion tests; these run in CI before each compiler build. The receipt includes both validation helpers in its tooling inventory.
 
 The wasm branch merges upstream `a2flo/floor_toolchain_1406` at `9c7e27fe79744c25a405395b5b98c726dfa6dd87` (CUDA 13.5 / PTX 9.5). The source lock records that upstream commit and hashes all six changed upstream source files. Existing WASM history, Metal/AIR changes, and earlier SDK compatibility fixes remain intact.
 
@@ -77,3 +77,20 @@ ensures it cannot publish from the functional branch. A changed header bundle
 requires a fresh compiler build and fingerprint; older binaries are never
 relabeled as containing these changes. Compile/IR validation does not establish
 Apple loader acceptance, derivative numerical results, or GPU/device execution.
+
+## Common-function coverage
+
+MSL 4.1 section 6.3, Table 6.1 supplies the interface reference for same-width
+`float`, `float2`, `float3`, and `float4` forms of `mix`, `step`, `smoothstep`, and
+`sign` through `metal_stdlib`. These ordinary arithmetic helpers add no AIR symbols.
+`sign` preserves signed zero and returns positive zero for NaN. Half, integer,
+mixed-type, and scalar-vector overloads remain outside this subset.
+
+The common-function module contributes 76 compiler cases: 22 AIR and 22 metallib
+successes plus 32 expected rejections. Forty synthetic and mutation tests check
+its assertions. The AIR checker follows supported straight-line lane dataflow
+and destination stores with bounded finite, non-dyadic, signed-zero, infinity,
+and NaN values; it rejects unrecognized operations and control flow. Constant
+outputs are checked separately. This bounded IR evaluation is not device execution
+or proof over all floating-point inputs. Both validation modules are included in
+the source provenance. A fresh embedded-header build is required for acceptance.

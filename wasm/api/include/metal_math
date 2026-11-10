@@ -296,6 +296,38 @@ AIR_ALL_MASK(2)
 AIR_ALL_MASK(3)
 AIR_ALL_MASK(4)
 #undef AIR_ALL_MASK
+// BEGIN float common functions
+// MSL 4.1 (2026-06-04), section 6.3, Table 6.1, pp. 200-202.
+// This authored subset supports float and float2/3/4, never silently promotes
+// half, integer or mixed operand families. No new AIR intrinsic declarations.
+template<class A,class B,class C> A mix(A,B,C) = delete;
+template<class A,class B> A step(A,B) = delete;
+template<class A,class B,class C> A smoothstep(A,B,C) = delete;
+template<class T> T sign(T) = delete;
+AIR_INLINE float mix(float x,float y,float a) { return x + (y-x)*a; }
+AIR_INLINE float step(float edge,float x) { return x < edge ? 0.0f : 1.0f; }
+AIR_INLINE float smoothstep(float edge0,float edge1,float x) {
+  float t=saturate((x-edge0)/(edge1-edge0));
+  return t*t*(3.0f-2.0f*t);
+}
+// Use binary32 bits so sign preserves either zero and maps either NaN sign
+// to +0, without a floating-point comparison or float-to-integer conversion.
+AIR_INLINE float sign(float x) {
+  uint bits=as_type<uint>(x), magnitude=bits & 0x7fffffffu;
+  if (magnitude==0u) return x;
+  if (magnitude>0x7f800000u) return 0.0f;
+  return as_type<float>((bits & 0x80000000u) | 0x3f800000u);
+}
+#define AIR_COMMON_VECTOR(N) \
+  AIR_INLINE float##N mix(float##N x,float##N y,float##N a) { float##N r; for(uint i=0;i<N;++i) r[i]=mix(x[i],y[i],a[i]); return r; } \
+  AIR_INLINE float##N step(float##N edge,float##N x) { float##N r; for(uint i=0;i<N;++i) r[i]=step(edge[i],x[i]); return r; } \
+  AIR_INLINE float##N smoothstep(float##N edge0,float##N edge1,float##N x) { float##N r; for(uint i=0;i<N;++i) r[i]=smoothstep(edge0[i],edge1[i],x[i]); return r; } \
+  AIR_INLINE float##N sign(float##N x) { float##N r; for(uint i=0;i<N;++i) r[i]=sign(x[i]); return r; }
+AIR_COMMON_VECTOR(2)
+AIR_COMMON_VECTOR(3)
+AIR_COMMON_VECTOR(4)
+#undef AIR_COMMON_VECTOR
+// END float common functions
 #undef AIR_INLINE
 }
 #endif
