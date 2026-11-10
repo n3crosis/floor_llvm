@@ -5,7 +5,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/* Experimental a2flo Metal 3.2 frontend; full Apple MSL compatibility is not proven.
+/* Experimental a2flo Metal frontend; full Apple MSL compatibility is not proven.
  * No caller-provided compiler flags, paths, includes, or subprocesses.
  * Use one dedicated worker per compilation until upstream global caches are fixed.
  */
@@ -32,6 +32,15 @@ void air_result_free(air_result *result);
 const char *air_compiler_header_sha256(void);
 /* math_profile: 0 = conservative subset, 1 = explicitly selected fast-f32 profile. */
 air_result *air_compile_v2(const uint8_t *, size_t, uint32_t, uint32_t, uint32_t);
+/* v3 selects a real language mode. Initially supported (ios_major, metal_version)
+ * pairs are exactly (18, 320), (26, 400), and (27, 410). No automatic fallback.
+ * v1/v2 still select Metal 3.2 and accept only iOS 18 or 26.
+ * Selecting 4.1 is not a claim of complete MSL 4.1 library or GPU support.
+ */
+enum air_metal_version { AIR_METAL_3_2 = 320, AIR_METAL_4_0 = 400, AIR_METAL_4_1 = 410 };
+air_result *air_compile_v3(const uint8_t *source, size_t source_size,
+    uint32_t ios_major, uint32_t output_kind, uint32_t math_profile,
+    uint32_t metal_version);
 uint32_t air_compiler_header_bundle_version(void);
 #ifdef __cplusplus
 }

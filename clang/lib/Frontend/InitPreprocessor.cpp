@@ -747,6 +747,13 @@ static void InitializePredefinedMacros(const TargetInfo &TI,
   Builder.defineMacro("__VERSION__", "\"" +
                       Twine(getClangFullCPPVersion()) + "\"");
 
+  // MSL 1.6.2: these describe the selected language, not the deployment OS.
+  // Do not synthesize a language revision in the compatibility headers.
+  if (LangOpts.Metal) {
+    Builder.defineMacro("__METAL__");
+    Builder.defineMacro("__METAL_VERSION__", Twine(LangOpts.MetalVersion));
+  }
+
   // Initialize language-specific preprocessor defines.
 
   // Standard conforming mode?
@@ -1353,3 +1360,4 @@ void clang::InitializePreprocessor(
   // Copy PredefinedBuffer into the Preprocessor.
   PP.setPredefines(Predefines.str());
 }
+

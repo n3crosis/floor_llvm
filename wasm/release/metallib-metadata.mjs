@@ -76,13 +76,14 @@ export function assertMetallibMetadata(input, expected = null) {
     const list = tags(bytes, p + 4, end), name = string(required(list, 'NAME'));
     assert(!functions.some(fn => fn.name === name), 'Duplicate function name');
     const type = required(list, 'TYPE', 1)[0]; assert(type <= 6, 'Invalid function type');
-    required(list, 'VERS', 8);
+    const vers = required(list, 'VERS', 8);
+    const versions = [0, 4].map(at => [vers.readUInt16LE(at), vers[at + 2], vers[at + 3]]);
     const offsets = required(list, 'OFFT', 24), offset = [0, 8, 16].map(at => u64(offsets, at));
     const sizeBC = u64(required(list, 'MDSZ', 8));
     assert(sizeBC >= 4 && offset[2] + sizeBC <= bs, 'AIR OFFT/MDSZ exceeds section');
     const code = bytes.subarray(bo + offset[2], bo + offset[2] + sizeBC);
     assert.equal(required(list, 'HASH', 32).toString('hex'), sha(code), 'AIR HASH mismatch');
-    functions.push({ name, type, offset, sizeBC, metadata: [] }); p = end;
+    functions.push({ name, type, offset, sizeBC, versions, metadata: [] }); p = end;
   }
   assert.equal(p, fo + 4 + fs, 'Function count/section mismatch');
   tags(bytes, p, po); // Extension tags are bounded, never scanned as metadata.

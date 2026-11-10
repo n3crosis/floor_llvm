@@ -14,7 +14,7 @@ class RuntimeTests(unittest.TestCase):
         commit=git('rev-parse','HEAD'); tree=git('rev-parse','HEAD^{tree}')
         identity=module.sha(('floor-air-header-bundle-v2\nmetal_stdlib:'+module.sha(b'header')+'\n').encode())
         files={n:pin(b'fake') for n in ('air_wasm.mjs','air_wasm.wasm')}
-        m={'schemaVersion':1,'status':'final','kind':'fork-built-compiler','commit':commit,'tree':tree,'repository':'n3crosis/floor_llvm','binaryBuiltFromNewFork':True,'apiVersion':2,'headerBundleVersion':2,'sourceLockSha256':module.sha(b'{}'),'sourceFingerprintSha256':'c'*64,'headerSha256':identity,'files':files}
+        m={'schemaVersion':1,'status':'final','kind':'fork-built-compiler','commit':commit,'tree':tree,'repository':'n3crosis/floor_llvm','binaryBuiltFromNewFork':True,'apiVersion':3,'supportedApiVersions':[1,2,3],'sourceLanguage':'floor-metal-4.1-subset','legacyLanguageVersion':320,'explicitLanguageTargets':[{'ios':18,'metalVersion':320},{'ios':26,'metalVersion':400},{'ios':27,'metalVersion':410}],'headerBundleVersion':2,'sourceLockSha256':module.sha(b'{}'),'sourceFingerprintSha256':'c'*64,'headerSha256':identity,'files':files}
         members={'air_wasm.mjs':b'fake','air_wasm.wasm':b'fake','build-report.json':json.dumps(m).encode(),'include/metal_stdlib':b'header','air_compiler.h':b'api','source-lock.json':b'{}'}
         m['buildReceiptSha256']=module.sha(members['build-report.json']); m['runtimeFiles']={n:pin(v) for n,v in members.items()}
         with tarfile.open(artifact/'runtime.tar.gz','w:gz') as t:
@@ -28,9 +28,14 @@ class RuntimeTests(unittest.TestCase):
             root=pathlib.Path(d); a,c,m=self.fixture(root); module.verify(a,c,root/'out',m['commit'])
             self.assertEqual(json.loads((root/'out/verified-runtime.json').read_text())['headerSha256'],m['headerSha256'])
     def test_rejects_wrong_commit_tampered_runtime_and_header(self):
-        for mode in ('commit','tree','runtime','header'):
+        for mode in ('commit','tree','runtime','header','api','supported','targets','legacy','language'):
             with self.subTest(mode=mode),tempfile.TemporaryDirectory() as d:
                 root=pathlib.Path(d); a,c,m=self.fixture(root)
+                fields={'supported':('supportedApiVersions',[2,3]),'targets':('explicitLanguageTargets',[]),'legacy':('legacyLanguageVersion',410),'language':('sourceLanguage','metal-4.1')}
+                if mode in fields:
+                    key,value=fields[mode];m[key]=value;(a/'test-manifest.json').write_text(json.dumps(m))
+                if mode=='api':
+                    m['apiVersion']=2; (a/'test-manifest.json').write_text(json.dumps(m))
                 if mode=='tree':
                     m['tree']='f'*40; (a/'test-manifest.json').write_text(json.dumps(m))
                 if mode=='runtime': (a/'runtime.tar.gz').write_bytes(b'tampered')

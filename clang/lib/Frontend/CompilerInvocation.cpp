@@ -3815,6 +3815,24 @@ bool CompilerInvocation::ParseLangArgs(LangOptions &Opts, ArgList &Args,
 
   CompilerInvocation::setLangDefaults(Opts, IK, T, Includes, LangStd);
 
+  // Metal 4.1 targets the unified OS 27 generation. Older modes retain the
+  // fork's historical target behavior; the public v3 API is stricter still.
+  if (Opts.Metal && Opts.MetalVersion == 410) {
+    // isMacOSX() also includes Darwin triples. Their raw OS major is a
+    // Darwin kernel version, not the macOS deployment version (Darwin 27
+    // maps to macOS 18 in this fork). Use the translated deployment version.
+    auto Deployment = T.getOSVersion();
+    bool ValidOS = T.isiOS() || T.isTvOS() || T.isXROS();
+    if (T.isMacOSX())
+      ValidOS = T.getMacOSXVersion(Deployment);
+    if (T.getArch() != llvm::Triple::air64 || !ValidOS ||
+        Deployment.getMajor() < 27) {
+      Diags.Report(Diags.getCustomDiagID(DiagnosticsEngine::Error,
+          "Metal 4.1 requires an AIR target for iOS, tvOS, macOS, or visionOS 27 or later"));
+    }
+  }
+
+
   // The key paths of codegen options defined in Options.td start with
   // "LangOpts->". Let's provide the expected variable name and type.
   LangOptions *LangOpts = &Opts;
@@ -4860,3 +4878,4 @@ clang::createVFSFromCompilerInvocation(
   }
   return Result;
 }
+

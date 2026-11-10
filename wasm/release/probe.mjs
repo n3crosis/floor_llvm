@@ -5,6 +5,7 @@ import { conditionalColorSource, assertConditionalColorIR } from "./conditional-
 import { integerVectorCases, assertIntegerVectorIR } from "./integer-vector.mjs";
 import { derivativeVectorCases, assertDerivativeVectorIR } from "./derivative-vector.mjs";
 import { commonFunctionCases, assertCommonFunctionIR } from "./common-functions.mjs";
+import { metalLanguageCases, assertMetalLanguageIR, assertMetalLanguageMetallib, assertMetalLanguageDiagnostic } from "./metal-language.mjs";
 import { spawnSync } from "node:child_process";
 import { lstat, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
@@ -14,7 +15,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const expectedHeader = "5b2cbcaea61eb90f878c0d16e500d742079d1674aa5b331c21cc0589f5d6ca3e";
 const outputLimit = 64 * 1024 * 1024;
 const requiredExports = [
-  "malloc", "free", "air_compile_v1", "air_compile_v2", "air_result_status",
+  "malloc", "free", "air_compile_v1", "air_compile_v2", "air_compile_v3", "air_result_status",
   "air_result_data", "air_result_size", "air_result_diagnostics",
   "air_result_diagnostics_size", "air_result_free", "air_compiler_header_sha256",
   "air_compiler_header_bundle_version",
@@ -184,7 +185,7 @@ for (const ios of [18,26]) for (const math of [0,1]) for (const kind of [0,1])
     source:conditionalColorSource,ios,math,kind,shader:'conditional-color',status:0});
 
 // Generic authored MSL coverage, independent of application shader corpora.
-cases.push(...integerVectorCases, ...derivativeVectorCases, ...commonFunctionCases);
+cases.push(...integerVectorCases, ...derivativeVectorCases, ...commonFunctionCases, ...metalLanguageCases());
 assert.equal(new Set(cases.map(test => test.name)).size, cases.length, "Duplicate probe names");
 assert(cases.every(test => new TextEncoder().encode(test.source).length <= 4096), "Probe source exceeds bound");
 
@@ -255,7 +256,12 @@ async function runCase(build, name) {
   let result = 0;
   try {
     heapSlice(module, pointer, bytes.length, 4096).set(bytes);
-    result = module._air_compile_v2(pointer, bytes.length, test.ios, test.kind ?? 0, test.math ?? 0);
+    if (test.api === 3)
+      result = module._air_compile_v3(pointer, bytes.length, test.ios, test.kind ?? 0, test.math ?? 0, test.metalVersion);
+    else if (test.api === 1)
+      result = module._air_compile_v1(pointer, bytes.length, test.ios, test.kind ?? 0);
+    else
+      result = module._air_compile_v2(pointer, bytes.length, test.ios, test.kind ?? 0, test.math ?? 0);
     assert(result, "Compilation returned no result");
     const status = module._air_result_status(result);
     const output = heapSlice(module, module._air_result_data(result), module._air_result_size(result), outputLimit);
@@ -266,7 +272,12 @@ async function runCase(build, name) {
     let metadata = null;
     if (status === 0) {
       assert(output.length > 4, "Empty compiled library");
-      if (test.kind === 1 && test.integerVector) {
+      if (test.metalLanguage) {
+        if (test.kind === 1)
+          assertMetalLanguageIR(new TextDecoder('utf-8',{fatal:true}).decode(output), test);
+        else
+          metadata = assertMetalLanguageMetallib(output, test);
+      } else if (test.kind === 1 && test.integerVector) {
         assertIntegerVectorIR(new TextDecoder('utf-8',{fatal:true}).decode(output), test);
       } else if (test.kind === 1 && test.derivativeVector) {
         assertDerivativeVectorIR(new TextDecoder('utf-8',{fatal:true}).decode(output), test);
@@ -353,6 +364,8 @@ async function runCase(build, name) {
     } else {
       assert.equal(output.length, 0, "Rejected input produced output");
       assert(diagnostics.length > 0, "Rejected input has no diagnostic");
+      if (test.metalLanguage && test.status === 3)
+        assertMetalLanguageDiagnostic(new TextDecoder('utf-8',{fatal:true}).decode(diagnostics), test);
     }
     return { name, passed: true, status, outputBytes: output.length, diagnosticBytes: diagnostics.length, metadata };
   } finally {
@@ -392,7 +405,7 @@ async function main() {
   }
   const report = {
     schemaVersion: 1, exportsVerified: true, headerVerified: true,
-    abiVersion: 2, headerBundleVersion: 2, headerSha256: expectedHeader,
+    abiVersion: 3, supportedApiVersions: [1, 2, 3], headerBundleVersion: 2, headerSha256: expectedHeader,
     smoke: { passed: true, cases: results }, browserExecutionVerified: false,
     deviceExecutionVerified: false, gpuExecutionVerified: false, fullApplicationVerified: false,
   };

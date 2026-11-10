@@ -1,4 +1,5 @@
 #include "air_compiler.h"
+#include "air_target_options.h"
 #include "clang/Basic/Diagnostic.h"
 #include "clang/Basic/SourceManager.h"
 #include "clang/AST/Attr.h"
@@ -167,11 +168,60 @@ public:
   bool VisitGCCAsmStmt(clang::GCCAsmStmt *) { rejected = true; return false; }
   bool VisitMSAsmStmt(clang::MSAsmStmt *) { rejected = true; return false; }
 };
+// A fail-closed public API boundary, not a claim of complete MSL conformance.
+// Placement new is legal in 4.1 but remains unimplemented in this header bundle.
+class RejectMetal41Features final
+    : public clang::RecursiveASTVisitor<RejectMetal41Features> {
+public:
+  const char *reason = nullptr;
+  bool reject(const char *text) { reason = text; return false; }
+  bool VisitDesignatedInitExpr(clang::DesignatedInitExpr *) {
+    return reject("designated initializers require C++20 and are not supported in Metal 4.1");
+  }
+  bool VisitCXXNewExpr(clang::CXXNewExpr *expr) {
+    return reject(expr->getNumPlacementArgs()
+        ? "placement new is not implemented by this Metal 4.1 header bundle"
+        : "dynamic allocation is not permitted in Metal 4.1");
+  }
+  bool VisitCXXDeleteExpr(clang::CXXDeleteExpr *) { return reject("delete is not permitted in Metal 4.1"); }
+  bool VisitGotoStmt(clang::GotoStmt *) { return reject("goto is not permitted in Metal 4.1"); }
+  bool VisitIndirectGotoStmt(clang::IndirectGotoStmt *) { return reject("indirect goto is not permitted in Metal 4.1"); }
+  bool VisitAddrLabelExpr(clang::AddrLabelExpr *) { return reject("label addresses are not permitted in Metal 4.1"); }
+  bool VisitCXXDynamicCastExpr(clang::CXXDynamicCastExpr *) { return reject("dynamic_cast is not permitted in Metal 4.1"); }
+  bool VisitCXXTypeidExpr(clang::CXXTypeidExpr *) { return reject("typeid is not permitted in Metal 4.1"); }
+  bool VisitCXXNoexceptExpr(clang::CXXNoexceptExpr *) { return reject("the noexcept operator is not permitted in Metal 4.1"); }
+  bool VisitCXXTryStmt(clang::CXXTryStmt *) { return reject("exception handling is not permitted in Metal 4.1"); }
+  bool VisitCXXThrowExpr(clang::CXXThrowExpr *) { return reject("throw is not permitted in Metal 4.1"); }
+  bool VisitVarDecl(clang::VarDecl *decl) {
+    if (decl->getTLSKind() != clang::VarDecl::TLS_None)
+      return reject("thread_local is not permitted in Metal 4.1");
+    if (decl->getStorageClass() == clang::SC_Register)
+      return reject("register is not permitted in Metal 4.1");
+    return true;
+  }
+  bool VisitCXXRecordDecl(clang::CXXRecordDecl *decl) {
+    if (!decl->isCompleteDefinition()) return true;
+    if (decl->getNumBases()) return reject("derived classes are not permitted in Metal 4.1");
+    if (decl->isPolymorphic()) return reject("virtual functions are not permitted in Metal 4.1");
+    return true;
+  }
+};
 class ValidateSource final : public clang::ASTConsumer {
   clang::DiagnosticsEngine &diagnostics;
+  const bool strictMetal41;
   bool rejected = false;
   bool check(clang::Decl *decl) {
     if (rejected) return false;
+    if (strictMetal41) {
+      RejectMetal41Features features;
+      features.TraverseDecl(decl);
+      if (features.reason) {
+        rejected = true;
+        diagnostics.Report(diagnostics.getCustomDiagID(
+            clang::DiagnosticsEngine::Error, "%0")) << features.reason;
+        return false;
+      }
+    }
     RejectAssembly assembly;
     assembly.TraverseDecl(decl);
     if (assembly.rejected) {
@@ -183,7 +233,8 @@ class ValidateSource final : public clang::ASTConsumer {
     return !rejected;
   }
 public:
-  explicit ValidateSource(clang::DiagnosticsEngine &d) : diagnostics(d) {}
+  ValidateSource(clang::DiagnosticsEngine &d, bool strict)
+      : diagnostics(d), strictMetal41(strict) {}
   bool HandleTopLevelDecl(clang::DeclGroupRef group) override {
     for (auto *decl : group) if (!check(decl)) return false;
     return true;
@@ -197,13 +248,19 @@ public:
 // these mappings also covers umbrella groups such as -Weverything.
 class ProtectSemanticDiagnostics final : public clang::PPCallbacks {
   clang::DiagnosticsEngine &diagnostics;
+  const bool strictMetal41;
   void protect(clang::SourceLocation location) {
     for (const char *group : {"unknown-attributes", "ignored-attributes", "unknown-pragmas"})
       diagnostics.setSeverityForGroup(clang::diag::Flavor::WarningOrError,
           group, clang::diag::Severity::Error, location);
+    if (strictMetal41)
+      for (const char *group : {"c++20-extensions", "c++2b-extensions"})
+        diagnostics.setSeverityForGroup(clang::diag::Flavor::WarningOrError,
+            group, clang::diag::Severity::Error, location);
   }
 public:
-  explicit ProtectSemanticDiagnostics(clang::DiagnosticsEngine &d) : diagnostics(d) {}
+  ProtectSemanticDiagnostics(clang::DiagnosticsEngine &d, bool strict)
+      : diagnostics(d), strictMetal41(strict) {}
   void PragmaDiagnostic(clang::SourceLocation location, llvm::StringRef,
                         clang::diag::Severity, llvm::StringRef) override {
     protect(location);
@@ -219,12 +276,35 @@ public:
 protected:
   std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(
       clang::CompilerInstance &compiler, llvm::StringRef file) override {
+    // This dedicated EmitLLVM action owns the preprocessor's token watcher.
+    // __extension__ can silence even promoted extension diagnostics, and its
+    // declaration form is discarded by the parser. Reject the expanded token
+    // before parsing, including a marker supplied by a macro. Apple Metal 4.1
+    // also rejects explicit noexcept, including function specifications, not
+    // only noexcept expressions. Reject its token in every syntactic position.
+    if (compiler.getLangOpts().MetalVersion == 410) {
+      auto *diagnostics = &compiler.getDiagnostics();
+      compiler.getPreprocessor().setTokenWatcher(
+          [diagnostics, reported = false](const clang::Token &token) mutable {
+            const char *reason = token.is(clang::tok::kw___extension__)
+                ? "__extension__ is not supported in the Metal 4.1 API"
+                : token.is(clang::tok::kw_noexcept)
+                    ? "noexcept is not supported in the Metal 4.1 API" : nullptr;
+            if (!reported && reason) {
+              reported = true;
+              diagnostics->Report(token.getLocation(), diagnostics->getCustomDiagID(
+                  clang::DiagnosticsEngine::Error, "%0")) << reason;
+            }
+          });
+    }
     compiler.getPreprocessor().addPPCallbacks(
-        std::make_unique<ProtectSemanticDiagnostics>(compiler.getDiagnostics()));
+        std::make_unique<ProtectSemanticDiagnostics>(compiler.getDiagnostics(),
+            compiler.getLangOpts().MetalVersion == 410));
     auto codegen = clang::EmitLLVMOnlyAction::CreateASTConsumer(compiler, file);
     if (!codegen) return nullptr;
     std::vector<std::unique_ptr<clang::ASTConsumer>> consumers;
-    consumers.push_back(std::make_unique<ValidateSource>(compiler.getDiagnostics()));
+    consumers.push_back(std::make_unique<ValidateSource>(compiler.getDiagnostics(),
+        compiler.getLangOpts().MetalVersion == 410));
     consumers.push_back(std::move(codegen));
     return std::make_unique<clang::MultiplexConsumer>(std::move(consumers));
   }
@@ -415,6 +495,33 @@ bool finalizeFragmentInputLiveness(llvm::Module &module) {
   return true;
 }
 
+bool validVersionMetadata(const llvm::Module &module,
+                          const floor_air::TargetOptions &target) {
+  if (module.getTargetTriple() != target.triple) return false;
+  auto version = [&](const char *name, bool language, uint32_t major,
+                     uint32_t minor, uint32_t patch) {
+    const auto *list = module.getNamedMetadata(name);
+    if (!list || list->getNumOperands() != 1) return false;
+    const auto *node = list->getOperand(0);
+    const unsigned offset = language ? 1 : 0;
+    if (!node || node->getNumOperands() != offset + 3) return false;
+    if (language) {
+      const auto *label = llvm::dyn_cast_or_null<llvm::MDString>(node->getOperand(0).get());
+      if (!label || label->getString() != "Metal") return false;
+    }
+    const uint32_t expected[] = {major, minor, patch};
+    for (unsigned i = 0; i < 3; ++i) {
+      const auto *value = llvm::mdconst::dyn_extract_or_null<llvm::ConstantInt>(
+          node->getOperand(offset + i).get());
+      if (!value || !value->getType()->isIntegerTy(32) ||
+          value->getZExtValue() != expected[i]) return false;
+    }
+    return true;
+  };
+  return version("air.version", false, 2, target.airMinor, 0) &&
+      version("air.language_version", true, target.metalVersion / 100,
+              (target.metalVersion % 100) / 10, target.metalVersion % 10);
+}
 bool hasEntry(const llvm::Module &module) {
   for (const auto *name : {"air.kernel", "air.vertex", "air.fragment"})
     if (const auto *node = module.getNamedMetadata(name))
@@ -424,7 +531,8 @@ bool hasEntry(const llvm::Module &module) {
 }
 
 static air_result *compile(const uint8_t *source, size_t source_size,
-                                     uint32_t ios_major, uint32_t output_kind, uint32_t math_profile) {
+                                     uint32_t ios_major, uint32_t output_kind, uint32_t math_profile,
+                                     uint32_t metal_version = 320, bool explicit_language = false) {
   auto result = std::unique_ptr<air_result>(new (std::nothrow) air_result());
   if (!result) return nullptr;
   if (!source || !source_size || source_size > SourceLimit) {
@@ -432,23 +540,31 @@ static air_result *compile(const uint8_t *source, size_t source_size,
     appendDiagnostic(*result, "Source must contain between 1 and 4194304 bytes.\n");
     return result.release();
   }
-  if ((ios_major != 18 && ios_major != 26) || output_kind > AIR_LLVM_TEXT || math_profile > 1) {
+  floor_air::TargetOptions target{};
+  if (!floor_air::selectTarget(ios_major, metal_version, explicit_language, target) ||
+      output_kind > AIR_LLVM_TEXT || math_profile > 1) {
     result->status = AIR_BAD_OPTIONS;
-    appendDiagnostic(*result, "Unsupported target or output kind.\n");
+    appendDiagnostic(*result, explicit_language
+        ? "Unsupported target, Metal language version, output kind, or math profile.\n"
+        : "Unsupported target or output kind.\n");
     return result.release();
   }
   Diagnostics diagnostic(*result);
   clang::CompilerInstance compiler;
   compiler.createDiagnostics(&diagnostic, false);
   auto invocation = std::make_shared<clang::CompilerInvocation>();
-  const char *triple = ios_major == 18 ? "air64-apple-ios18.0.0" : "air64-apple-ios26.0.0";
   std::vector<const char *> args = {
-    "-triple", triple, "-x", "metal", "-std=metal3.2", "-O2",
+    "-triple", target.triple, "-x", "metal", target.standard, "-O2",
     "-flegacy-pass-manager", "-emit-llvm", "-nostdsysteminc", "-nobuiltininc",
     "-I/include", "-include", "metal_stdlib",
     "-Werror=unknown-attributes", "-Werror=ignored-attributes",
     "-Werror=unknown-pragmas", "-ferror-limit", "20", "/input/shader.metal"
   };
+  if (metal_version == 410) {
+    args.insert(args.end() - 1, "-Werror=c++20-extensions");
+    args.insert(args.end() - 1, "-Werror=c++2b-extensions");
+    args.insert(args.end() - 1, "-Wsystem-headers");
+  }
   if (math_profile == 1) {
     for (const char *flag : {"-DAIR_FAST_MATH=1", "-cl-single-precision-constant", "-ffast-math", "-ffp-contract=fast",
         "-fno-signed-zeros", "-menable-no-infs", "-menable-no-nans"}) args.insert(args.end() - 1, flag);
@@ -456,6 +572,11 @@ static air_result *compile(const uint8_t *source, size_t source_size,
   if (!clang::CompilerInvocation::CreateFromArgs(*invocation, args,
                                                 compiler.getDiagnostics())) {
     result->status = AIR_BAD_OPTIONS;
+    return result.release();
+  }
+  if (explicit_language && invocation->getLangOpts()->MetalVersion != metal_version) {
+    result->status = AIR_BAD_OPTIONS;
+    appendDiagnostic(*result, "Frontend selected a different Metal language version.\n");
     return result.release();
   }
   // The pinned fork ignores -fconvergent-functions and forces this off.
@@ -504,6 +625,13 @@ static air_result *compile(const uint8_t *source, size_t source_size,
   if (!hasEntry(*module)) {
     result->status = AIR_NO_ENTRY;
     appendDiagnostic(*result, "No AIR entry point was generated.\n");
+    return result.release();
+  }
+  // v3's matched tuples also match the writer's existing OS-selected VERS.
+  // Do not rewrite metadata or relabel legacy v1/v2 output here.
+  if (explicit_language && !validVersionMetadata(*module, target)) {
+    result->status = AIR_INVALID_IR;
+    appendDiagnostic(*result, "AIR metadata disagrees with the selected Metal language version.\n");
     return result.release();
   }
   if (!validControlStages(*module)) {
@@ -571,5 +699,9 @@ extern "C" air_result *air_compile_v1(const uint8_t *source, size_t size, uint32
 }
 extern "C" air_result *air_compile_v2(const uint8_t *source, size_t size, uint32_t ios, uint32_t output, uint32_t math_profile) {
   return compile(source, size, ios, output, math_profile);
+}
+extern "C" air_result *air_compile_v3(const uint8_t *source, size_t size, uint32_t ios,
+    uint32_t output, uint32_t math_profile, uint32_t metal_version) {
+  return compile(source, size, ios, output, math_profile, metal_version, true);
 }
 extern "C" uint32_t air_compiler_header_bundle_version(void) { return 2; }

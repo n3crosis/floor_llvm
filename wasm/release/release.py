@@ -27,11 +27,19 @@ ROOT = Path(__file__).resolve().parents[2]
 REPOSITORY = os.environ.get("GITHUB_REPOSITORY", "")
 SDK_COMMIT = "e4fe26ef59168ff44f4c23c466e497bf60b3411e"
 OUTPUTS = ("air_wasm.mjs", "air_wasm.wasm")
+CAPABILITIES = {
+    "apiVersion": 3, "supportedApiVersions": [1, 2, 3],
+    "sourceLanguage": "floor-metal-4.1-subset", "legacyLanguageVersion": 320,
+    "explicitLanguageTargets": [{"ios": 18, "metalVersion": 320},
+                                {"ios": 26, "metalVersion": 400},
+                                {"ios": 27, "metalVersion": 410}],
+}
 TOOLING = (".github/workflows/release-air-wasm.yml", "wasm/release/github_release.py",
            "wasm/release/probe.mjs", "wasm/release/conditional-color.mjs",
            "wasm/release/metallib-metadata.mjs", "wasm/release/integer-vector.mjs",
            "wasm/release/derivative-vector.mjs", "wasm/release/common-functions.mjs",
-           "wasm/release/common-functions-ir.mjs", "wasm/release/apple-reference.mjs",
+           "wasm/release/common-functions-ir.mjs", "wasm/release/metal-language.mjs",
+           "wasm/release/apple-reference.mjs",
            "wasm/release/verify-apple-runtime.py", "wasm/release/metal-numerical.swift",
            "wasm/release/release-config.json", "wasm/release/release.py",
            "wasm/release/release-request.json")
@@ -322,14 +330,14 @@ def build(config, work):
     run_bounded(probe, deadline, environment)
     verification = json.loads(report_path.read_text())
     require(verification["exportsVerified"] is True and verification["headerVerified"] is True and verification["smoke"]["passed"] is True, "Compiler probe did not pass")
-    require(verification["abiVersion"] == 2 and verification["headerBundleVersion"] == 2 and verification["headerSha256"] == config["headerSha256"], "Compiler ABI/header mismatch")
+    require(verification["abiVersion"] == 3 and verification["headerBundleVersion"] == 2 and verification["headerSha256"] == config["headerSha256"], "Compiler ABI/header mismatch")
+    require(verification["supportedApiVersions"] == CAPABILITIES["supportedApiVersions"], "Compiler API capability mismatch")
     require(all(verification[key] is False for key in ("browserExecutionVerified", "deviceExecutionVerified", "gpuExecutionVerified", "fullApplicationVerified")), "Overstated validation scope")
     require(source_identity(config) == identity, "Source changed during compiler build")
     require(sdk_sources(sdk, work) == sdk_snapshot, "SDK runtime sources changed during compiler build")
     files = {name: {k: v for k, v in descriptor(dist / name).items() if k != "name"} for name in OUTPUTS}
     require(0 < files["air_wasm.mjs"]["bytes"] <= 1024**2 and 0 < files["air_wasm.wasm"]["bytes"] <= 128 * 1024**2, "Compiler outputs exceed release limits")
-    receipt = {"schemaVersion": 1, "kind": "floor-air-wasm-build", **identity, "apiVersion": 2, "headerBundleVersion": 2,
-               "sourceLanguage": "floor-metal-3.2", "headerSha256": config["headerSha256"], "buildTool": build_tool,
+    receipt = {"schemaVersion": 1, "kind": "floor-air-wasm-build", **identity, **CAPABILITIES, "headerBundleVersion": 2, "headerSha256": config["headerSha256"], "buildTool": build_tool,
                "files": files, "verification": verification}
     write_json(work / "build-report.json", receipt)
     tooling = {path: sha256(ROOT / path) for path in TOOLING}
@@ -474,7 +482,7 @@ def package(config, work):
     require(0 < inputs.stat().st_size <= 1024**2, "Build-input disclosure exceeds the consumer limit")
     manifest = {"schemaVersion": 1, "status": "final", "kind": "fork-built-compiler",
                 **{key: identity[key] for key in ("repository", "commit", "tree", "version", "sourceLockSha256", "sourceFingerprintSha256")},
-                "apiVersion": 2, "headerBundleVersion": 2, "sourceLanguage": "floor-metal-3.2", "headerSha256": config["headerSha256"],
+                **CAPABILITIES, "headerBundleVersion": 2, "headerSha256": config["headerSha256"],
                 "binaryBuiltFromNewFork": True, "buildReceiptSha256": sha256(receipt_path), "files": receipt["files"],
                 "runtimeFiles": {name: {"bytes": len(data), "sha256": digest(data)} for name, data in sorted(members.items())},
                 "assets": {"runtime": descriptor(runtime), "correspondingSource": descriptor(source), "buildInputs": descriptor(inputs)}}

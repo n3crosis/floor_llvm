@@ -49,6 +49,6 @@ if(EMSCRIPTEN)
     "-sMAXIMUM_MEMORY=2147483648" "-sSTACK_SIZE=8388608"
     "-sEXPORTED_RUNTIME_METHODS=['HEAPU8']"
     "-sFILESYSTEM=0" "-sERROR_ON_UNDEFINED_SYMBOLS=1"
-    "-sEXPORTED_FUNCTIONS=['_malloc','_free','_air_compile_v1','_air_result_status','_air_result_data','_air_result_size','_air_result_diagnostics','_air_result_diagnostics_size','_air_result_free','_air_compiler_header_sha256','_air_compile_v2','_air_compiler_header_bundle_version']"
+    "-sEXPORTED_FUNCTIONS=['_malloc','_free','_air_compile_v1','_air_result_status','_air_result_data','_air_result_size','_air_result_diagnostics','_air_result_diagnostics_size','_air_result_free','_air_compiler_header_sha256','_air_compile_v2','_air_compile_v3','_air_compiler_header_bundle_version']"
   )
 endif()

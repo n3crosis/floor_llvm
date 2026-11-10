@@ -15,7 +15,10 @@ def verify(artifact, checkout, destination, commit):
     assert head == commit and m['tree'] == tree, 'Checkout identity differs from artifact'
     assert m['commit'] == commit and m['binaryBuiltFromNewFork'] is True
     assert m['repository'] == 'n3crosis/floor_llvm'
-    assert m['apiVersion'] == 2 and m['headerBundleVersion'] == 2
+    assert m['apiVersion'] == 3 and m['headerBundleVersion'] == 2
+    assert m['supportedApiVersions'] == [1,2,3]
+    assert m['sourceLanguage'] == 'floor-metal-4.1-subset' and m['legacyLanguageVersion'] == 320
+    assert m['explicitLanguageTargets'] == [{'ios':18,'metalVersion':320},{'ios':26,'metalVersion':400},{'ios':27,'metalVersion':410}]
     assert m['sourceLockSha256'] == sha((checkout/'wasm/source-lock.json').read_bytes())
     headers = sorted((checkout/'wasm/api/include').rglob('*'))
     identity = sha(('floor-air-header-bundle-v2\n'+''.join(p.relative_to(checkout/'wasm/api/include').as_posix()+':'+sha(p.read_bytes())+'\n' for p in headers if p.is_file())).encode())
@@ -36,7 +39,7 @@ def verify(artifact, checkout, destination, commit):
     assert set(members) == set(m['runtimeFiles'])
     receipt = json.loads(members['build-report.json'])
     assert sha(members['build-report.json']) == m['buildReceiptSha256']
-    for key in ('repository','commit','tree','sourceFingerprintSha256','sourceLockSha256','headerSha256','apiVersion','headerBundleVersion'):
+    for key in ('repository','commit','tree','sourceFingerprintSha256','sourceLockSha256','headerSha256','apiVersion','headerBundleVersion','supportedApiVersions','sourceLanguage','legacyLanguageVersion','explicitLanguageTargets'):
         assert receipt[key] == m[key], key
     for name in ('air_wasm.mjs','air_wasm.wasm'):
         assert m['files'][name] == receipt['files'][name] == m['runtimeFiles'][name]
@@ -48,7 +51,7 @@ def verify(artifact, checkout, destination, commit):
     destination.mkdir(parents=True, exist_ok=False)
     for name, content in members.items():
         path = destination/name; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(content)
-    (destination/'verified-runtime.json').write_text(json.dumps({'commit':commit,'manifestSha256':sha(raw),'runtimeArchiveSha256':sha(data),'headerSha256':identity,'files':m['files']}, indent=2)+'\n')
+    (destination/'verified-runtime.json').write_text(json.dumps({'commit':commit,'apiVersion':m['apiVersion'],'manifestSha256':sha(raw),'runtimeArchiveSha256':sha(data),'headerSha256':identity,'files':m['files']}, indent=2)+'\n')
 
 if __name__ == '__main__':
     assert len(sys.argv) == 5, 'Usage: verify-apple-runtime.py ARTIFACT CHECKOUT NEW_RUNTIME_DIR EXPECTED_COMMIT'
