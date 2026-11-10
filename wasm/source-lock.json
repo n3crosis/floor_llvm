@@ -47,7 +47,7 @@
     "llvm/lib/Transforms/IPO/PassManagerBuilder.cpp": "7259dc39c1ef883309ef86ed961e4c5fb399420fa2e7fad606eed31b9eb9021d",
     "llvm/lib/Transforms/LibFloor/FloorImage.cpp": "468e29894c59f85395b609ac7cbe07a79792c51215cc9575ba34948b57999c3d",
     "llvm/lib/Transforms/LibFloor/MetalFinal.cpp": "af9d15774ca94682a7ed92cda0a0da395f7addd2e542b14f2d184f6528a113b2",
-    "llvm/lib/Transforms/LibFloor/MetalImage.cpp": "89f4dda86f2e0d8acf73f4413693bb9de0cf20e0c22159d6263cc66fe1f25448",
+    "llvm/lib/Transforms/LibFloor/MetalImage.cpp": "e435d3a16fdc1a9c213d36fb0df7a64e625d3066e424e0b543d57ab96e1313e9",
     "llvm/lib/Transforms/LibFloor/PointerBCFixup.cpp": "5ff6ab1d033e138ab99ccbd8c5f5a0ec7d359b7d619a1d087700f1db791d7c95",
     "llvm/lib/Transforms/LibFloor/VulkanFinal.cpp": "375d11589f70100361d1213f2dee0abbe8dfbf82b8b47017afa8bf804c395e30"
   },
@@ -69,9 +69,9 @@
     "api/include/metal_simd": "fb4e83a886e2a47b3f8787c3ca0585116b9e8bd4ddccefea0f1d37c5790746bc",
     "api/include/metal_stdlib": "850cadf3bbd65a1143d4e65cd66ec84748c0d4cc1f9ba7bd7dc73ce876337b9b",
     "api/include/metal_tessellation": "5290e6ba43c62f4531d5969eb1742293443fec6ed602e06066ec2454a37540b5",
-    "api/include/metal_texture": "61c0b7b9a033180a33a6696a033899fc2dcf8c529163cd26aeca26f222c14946",
+    "api/include/metal_texture": "3d38178401f369689a3f47a1d07de9d29c5b3aea1a3b8c8734ebe622581bc400",
     "api/include/simd/simd.h": "bfe1cbfa9254467cac99645914a5b9a4c9f3cef3a39bc4daf721b71569b3ac28",
-    "api/texture_trust.inc": "acb7f40468b59aa9f7bd9fef9416e79184e1698ca7811607f5703c21c8c805ca",
+    "api/texture_trust.inc": "1a7682fbb7783d733672d664187a98da1a30395cec2a822798018e83805ed2a4",
     "api/wasm_entry.cpp": "be596edd81506cce311364b9e16f1f26e73d6a25453b1c742f6188291bb7bee8",
     "build.mjs": "24873e60f10385fe21482b4818e20c85b960a7d8be04cdfbf513d6a633fe306f"
   },

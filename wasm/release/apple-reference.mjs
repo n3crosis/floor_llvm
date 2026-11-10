@@ -9,6 +9,7 @@ import { integerVectorCases } from './integer-vector.mjs';
 import { derivativeVectorCases } from './derivative-vector.mjs';
 import { metalLanguageCases } from './metal-language.mjs';
 import { msl41BitInterleaveCases } from './msl41-bit-interleave.mjs';
+import { msl41TextureReadCases } from './msl41-texture-read.mjs';
 import { commonFunctionCases } from './common-functions.mjs';
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 export function positiveCases(cases) {
@@ -21,7 +22,7 @@ export function positiveCases(cases) {
   }
   return [...unique.values()];
 }
-export const referenceCases=()=>positiveCases([...integerVectorCases,...derivativeVectorCases,...commonFunctionCases,...metalLanguageCases(),...msl41BitInterleaveCases]);
+export const referenceCases=()=>positiveCases([...integerVectorCases,...derivativeVectorCases,...commonFunctionCases,...metalLanguageCases(),...msl41BitInterleaveCases,...msl41TextureReadCases]);
 export function validateGPUReport(raw, exitStatus, expectedHashes) {
   assert([0,1,77].includes(exitStatus),'GPU probe did not complete successfully or report unavailable');
   const report=JSON.parse(raw);

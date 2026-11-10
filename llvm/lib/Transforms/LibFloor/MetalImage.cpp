@@ -366,6 +366,19 @@ namespace {
 			// for msaa: always read
 			// for all else: read if int coords, sample if float coords
 			const bool is_sample_call = (!is_msaa && !coord_type->isIntegerTy());
+            // Explicit 4.1 read names have their own signature, so they can
+            // coexist with older sampler-less reads in the same module. Never
+            // reinterpret an old floor read's ignored sampler operand.
+            const bool is_sampler_read = func_name.contains(".sampler.");
+            if (is_sampler_read &&
+                (metal_version < 410 || is_sample_call ||
+                 (image_type != COMPUTE_IMAGE_TYPE::IMAGE_2D &&
+                  image_type != COMPUTE_IMAGE_TYPE::IMAGE_3D &&
+                  image_type != COMPUTE_IMAGE_TYPE::IMAGE_2D_ARRAY) ||
+                 !coord_type->isIntegerTy(32) || !dyn_sampler_arg)) {
+                ctx->emitError(&I, "sampler-backed integer texture reads require Metal 4.1 and a supported texture");
+                return;
+            }
             const bool is_buffer = image_type == COMPUTE_IMAGE_TYPE::IMAGE_1D_BUFFER;
             if (is_buffer && (is_sample_call || coord_vec_type->getNumElements() != 1)) {
                 ctx->emitError(&I, "buffer textures require scalar integer read coordinates");
@@ -376,10 +389,10 @@ namespace {
 			func_arg_types.push_back(img_handle_arg->getType());
 			func_args.push_back(img_handle_arg);
 			
-			// only add the sampler arg if this is a sample call
+			// Sampling and explicit Metal 4.1 reads preserve the supplied sampler.
 			bool set_sampler_attrs = false;
 			uint32_t sampler_param_idx = 0;
-			if (is_sample_call) {
+			if (is_sample_call || is_sampler_read) {
 				auto sampler = make_sampler(const_sampler_arg, dyn_sampler_arg, ctx, *M, I);
 				if (!sampler) return; // make_sampler already emitted a diagnostic.
 				
@@ -447,7 +460,7 @@ namespace {
 			
 			// handle offset
 			llvm::Value* offset_coord_arg = coord_arg;
-			if(!is_sample_call && is_offset) {
+			if(!is_sample_call && is_offset && !is_sampler_read) {
 				offset_coord_arg = builder->CreateAdd(coord_arg, offset_arg);
 			}
 			
@@ -498,10 +511,12 @@ namespace {
 			
 			// -> additional args: lod, bias, gradient, offset
 			if(!is_sample_call) {
-				// 2D/3D non-cube/non-msaa images: unknown zero init argument
+				// AIR 4.x 2D/3D reads carry a signed texel offset. Preserve it
+                // separately for sampler reads, before the sampler clamps;
+                // legacy sampler-less reads retain their existing add/zero path.
 				if (metal_version >= 400 && !is_cube && !is_msaa && coord_vec_type->getNumElements() > 1) {
 					func_arg_types.push_back(coord_vec_type);
-					func_args.push_back(llvm::Constant::getNullValue(coord_vec_type));
+					func_args.push_back(is_sampler_read ? offset_arg : llvm::Constant::getNullValue(coord_vec_type));
 				}
 				
 				// -> read

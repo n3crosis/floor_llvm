@@ -52,6 +52,7 @@
     static const Signature signatures[] = {
       {"metal::__texture_detail::__sample_texture2d","floor.opaque.read_image.texture2d.float.f2",T::Float4,18,{T::Image2D,T::Sampler,T::ULong,T::Float2,T::UInt,T::UInt,T::Int2,T::Int,T::Float,T::Bool,T::Bool,T::Bool,T::Float2,T::Float2,T::Bool,T::UInt,T::Float,T::Bool}},
       {"metal::__texture_detail::__read_texture2d","floor.opaque.read_image.texture2d.float.i2",T::Float4,18,{T::Image2D,T::UInt,T::ULong,T::Int2,T::UInt,T::UInt,T::Int2,T::Int,T::Float,T::Bool,T::Bool,T::Bool,T::Float2,T::Float2,T::Bool,T::UInt,T::Float,T::Bool}},
+      {"metal::__texture_detail::__sampler_read_texture2d","floor.opaque.read_image.texture2d.sampler.float.i2",T::Float4,18,{T::Image2D,T::Sampler,T::ULong,T::Int2,T::UInt,T::UInt,T::Int2,T::Int,T::Float,T::Bool,T::Bool,T::Bool,T::Float2,T::Float2,T::Bool,T::UInt,T::Float,T::Bool}},
       {"metal::__texture_detail::__gather_texture2d","floor.opaque.gather_image.texture2d.float",T::Float4,7,{T::Image2D,T::Sampler,T::ULong,T::Float2,T::UInt,T::Int2,T::UInt}},
       {"metal::__texture_detail::__width_texture2d","air.get_width_texture_2d",T::UInt,2,{T::Image2D,T::UInt}},
       {"metal::__texture_detail::__height_texture2d","air.get_height_texture_2d",T::UInt,2,{T::Image2D,T::UInt}},
@@ -59,6 +60,7 @@
       {"metal::__texture_detail::__write_texture2d","floor.opaque.write_image.texture2d.float.i2",T::Void,7,{T::Image2D,T::ULong,T::Int2,T::UInt,T::UInt,T::Bool,T::Float4}},
       {"metal::__texture_detail::__sample_texture3d","floor.opaque.read_image.texture3d.float.f3",T::Float4,18,{T::Image3D,T::Sampler,T::ULong,T::Float3,T::UInt,T::UInt,T::Int3,T::Int,T::Float,T::Bool,T::Bool,T::Bool,T::Float3,T::Float3,T::Bool,T::UInt,T::Float,T::Bool}},
       {"metal::__texture_detail::__read_texture3d","floor.opaque.read_image.texture3d.float.i3",T::Float4,18,{T::Image3D,T::UInt,T::ULong,T::Int3,T::UInt,T::UInt,T::Int3,T::Int,T::Float,T::Bool,T::Bool,T::Bool,T::Float3,T::Float3,T::Bool,T::UInt,T::Float,T::Bool}},
+      {"metal::__texture_detail::__sampler_read_texture3d","floor.opaque.read_image.texture3d.sampler.float.i3",T::Float4,18,{T::Image3D,T::Sampler,T::ULong,T::Int3,T::UInt,T::UInt,T::Int3,T::Int,T::Float,T::Bool,T::Bool,T::Bool,T::Float3,T::Float3,T::Bool,T::UInt,T::Float,T::Bool}},
       {"metal::__texture_detail::__width_texture3d","air.get_width_texture_3d",T::UInt,2,{T::Image3D,T::UInt}},
       {"metal::__texture_detail::__height_texture3d","air.get_height_texture_3d",T::UInt,2,{T::Image3D,T::UInt}},
       {"metal::__texture_detail::__num_mip_levels_texture3d","air.get_num_mip_levels_texture_3d",T::UInt,1,{T::Image3D}},
@@ -66,6 +68,7 @@
       {"metal::__texture_detail::__write_texture3d","floor.opaque.write_image.texture3d.float.i3",T::Void,7,{T::Image3D,T::ULong,T::Int3,T::UInt,T::UInt,T::Bool,T::Float4}},
       {"metal::__texture_detail::__sample_texture2d_array","floor.opaque.read_image.texture2d_array.float.f2",T::Float4,18,{T::Image2DArray,T::Sampler,T::ULong,T::Float2,T::UInt,T::UInt,T::Int2,T::Int,T::Float,T::Bool,T::Bool,T::Bool,T::Float2,T::Float2,T::Bool,T::UInt,T::Float,T::Bool}},
       {"metal::__texture_detail::__read_texture2d_array","floor.opaque.read_image.texture2d_array.float.i2",T::Float4,18,{T::Image2DArray,T::UInt,T::ULong,T::Int2,T::UInt,T::UInt,T::Int2,T::Int,T::Float,T::Bool,T::Bool,T::Bool,T::Float2,T::Float2,T::Bool,T::UInt,T::Float,T::Bool}},
+      {"metal::__texture_detail::__sampler_read_texture2d_array","floor.opaque.read_image.texture2d_array.sampler.float.i2",T::Float4,18,{T::Image2DArray,T::Sampler,T::ULong,T::Int2,T::UInt,T::UInt,T::Int2,T::Int,T::Float,T::Bool,T::Bool,T::Bool,T::Float2,T::Float2,T::Bool,T::UInt,T::Float,T::Bool}},
       {"metal::__texture_detail::__gather_texture2d_array","floor.opaque.gather_image.texture2d_array.float",T::Float4,7,{T::Image2DArray,T::Sampler,T::ULong,T::Float2,T::UInt,T::Int2,T::UInt}},
       {"metal::__texture_detail::__width_texture2d_array","air.get_width_texture_2d_array",T::UInt,2,{T::Image2DArray,T::UInt}},
       {"metal::__texture_detail::__height_texture2d_array","air.get_height_texture_2d_array",T::UInt,2,{T::Image2DArray,T::UInt}},
@@ -87,7 +90,13 @@
       bool matches = true;
       for (unsigned i=0; i<signature.count; ++i)
         matches &= textureABITypeMatches(function->getParamDecl(i)->getType(), signature.parameters[i]);
-      if (matches) return true;
+      if (matches) {
+        // Trusted physical declarations still obey the selected language mode.
+        if (attr->getLabel().contains(".sampler.") &&
+            function->getASTContext().getLangOpts().MetalVersion < 410)
+          return false;
+        return true;
+      }
     }
     return false;
   }

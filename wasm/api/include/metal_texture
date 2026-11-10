@@ -26,6 +26,9 @@ namespace __texture_detail {
 typedef int int1 __attribute__((ext_vector_type(1)));
 typedef float float1 __attribute__((ext_vector_type(1)));
 extern "C" float4 __sample_texture2d(image2d_t, sampler_t, ulong, float2, uint, uint, int2, int, float, bool, bool, bool, float2, float2, bool, uint, float, bool) __asm__("floor.opaque.read_image.texture2d.float.f2");
+#if __METAL_VERSION__ >= 410
+extern "C" float4 __sampler_read_texture2d(image2d_t, sampler_t, ulong, int2, uint, uint, int2, int, float, bool, bool, bool, float2, float2, bool, uint, float, bool) __asm__("floor.opaque.read_image.texture2d.sampler.float.i2");
+#endif
 extern "C" float4 __read_texture2d(image2d_t, uint, ulong, int2, uint, uint, int2, int, float, bool, bool, bool, float2, float2, bool, uint, float, bool) __asm__("floor.opaque.read_image.texture2d.float.i2");
 extern "C" float4 __gather_texture2d(image2d_t, sampler_t, ulong, float2, uint, int2, uint) __asm__("floor.opaque.gather_image.texture2d.float");
 extern "C" uint __width_texture2d(image2d_t, uint) __asm__("air.get_width_texture_2d");
@@ -33,6 +36,9 @@ extern "C" uint __height_texture2d(image2d_t, uint) __asm__("air.get_height_text
 extern "C" uint __num_mip_levels_texture2d(image2d_t) __asm__("air.get_num_mip_levels_texture_2d");
 extern "C" void __write_texture2d(image2d_t, ulong, int2, uint, uint, bool, float4) __asm__("floor.opaque.write_image.texture2d.float.i2");
 extern "C" float4 __sample_texture3d(image3d_t, sampler_t, ulong, float3, uint, uint, int3, int, float, bool, bool, bool, float3, float3, bool, uint, float, bool) __asm__("floor.opaque.read_image.texture3d.float.f3");
+#if __METAL_VERSION__ >= 410
+extern "C" float4 __sampler_read_texture3d(image3d_t, sampler_t, ulong, int3, uint, uint, int3, int, float, bool, bool, bool, float3, float3, bool, uint, float, bool) __asm__("floor.opaque.read_image.texture3d.sampler.float.i3");
+#endif
 extern "C" float4 __read_texture3d(image3d_t, uint, ulong, int3, uint, uint, int3, int, float, bool, bool, bool, float3, float3, bool, uint, float, bool) __asm__("floor.opaque.read_image.texture3d.float.i3");
 extern "C" uint __width_texture3d(image3d_t, uint) __asm__("air.get_width_texture_3d");
 extern "C" uint __height_texture3d(image3d_t, uint) __asm__("air.get_height_texture_3d");
@@ -40,6 +46,9 @@ extern "C" uint __num_mip_levels_texture3d(image3d_t) __asm__("air.get_num_mip_l
 extern "C" uint __depth_texture3d(image3d_t, uint) __asm__("air.get_depth_texture_3d");
 extern "C" void __write_texture3d(image3d_t, ulong, int3, uint, uint, bool, float4) __asm__("floor.opaque.write_image.texture3d.float.i3");
 extern "C" float4 __sample_texture2d_array(image2d_array_t, sampler_t, ulong, float2, uint, uint, int2, int, float, bool, bool, bool, float2, float2, bool, uint, float, bool) __asm__("floor.opaque.read_image.texture2d_array.float.f2");
+#if __METAL_VERSION__ >= 410
+extern "C" float4 __sampler_read_texture2d_array(image2d_array_t, sampler_t, ulong, int2, uint, uint, int2, int, float, bool, bool, bool, float2, float2, bool, uint, float, bool) __asm__("floor.opaque.read_image.texture2d_array.sampler.float.i2");
+#endif
 extern "C" float4 __read_texture2d_array(image2d_array_t, uint, ulong, int2, uint, uint, int2, int, float, bool, bool, bool, float2, float2, bool, uint, float, bool) __asm__("floor.opaque.read_image.texture2d_array.float.i2");
 extern "C" float4 __gather_texture2d_array(image2d_array_t, sampler_t, ulong, float2, uint, int2, uint) __asm__("floor.opaque.gather_image.texture2d_array.float");
 extern "C" uint __width_texture2d_array(image2d_array_t, uint) __asm__("air.get_width_texture_2d_array");
@@ -108,6 +117,22 @@ template<> struct texture2d<float, access::sample> {
  __attribute__((always_inline)) float4 gather(sampler state, float2 uv, int2 offset = int2(0), component c = component::x) const device { return __texture_detail::__gather_texture2d(__handle,state,0x2f400UL,uv,0,offset,uint(c)); }
  __attribute__((always_inline)) float4 gather(sampler state, float2 uv, int2 offset = int2(0), component c = component::x) const constant { return __texture_detail::__gather_texture2d(__handle,state,0x2f400UL,uv,0,offset,uint(c)); }
  __attribute__((always_inline)) float4 gather(sampler state, float2 uv, int2 offset = int2(0), component c = component::x) const threadgroup { return __texture_detail::__gather_texture2d(__handle,state,0x2f400UL,uv,0,offset,uint(c)); }
+#if __METAL_VERSION__ >= 410
+ // MSL 4.1 section 6.13: signed texel coordinates, sampler addressing,
+ // and an offset applied by the AIR read, before clamping the coordinates.
+ __attribute__((always_inline)) float4 read(sampler state, int2 coordinate, int2 offset = int2(0), uint lod = 0) const thread {
+  return __texture_detail::__sampler_read_texture2d(__handle,state,0x2f400UL,coordinate,0,0,offset,int(lod),0.f,true,false,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 read(sampler state, int2 coordinate, int2 offset = int2(0), uint lod = 0) const device {
+  return __texture_detail::__sampler_read_texture2d(__handle,state,0x2f400UL,coordinate,0,0,offset,int(lod),0.f,true,false,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 read(sampler state, int2 coordinate, int2 offset = int2(0), uint lod = 0) const constant {
+  return __texture_detail::__sampler_read_texture2d(__handle,state,0x2f400UL,coordinate,0,0,offset,int(lod),0.f,true,false,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 read(sampler state, int2 coordinate, int2 offset = int2(0), uint lod = 0) const threadgroup {
+  return __texture_detail::__sampler_read_texture2d(__handle,state,0x2f400UL,coordinate,0,0,offset,int(lod),0.f,true,false,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+#endif
  __attribute__((always_inline)) float4 read(uint2 coordinate, uint lod = 0) const thread {
   return __texture_detail::__read_texture2d(__handle,0,0x2f400UL,__builtin_convertvector(coordinate,int2),0,0,int2(0),int(lod),0.f,true,false,false,float2(0.f),float2(0.f),false,0,0.f,false);
  }
@@ -183,6 +208,22 @@ template<> struct texture3d<float, access::sample> {
  __attribute__((always_inline)) float4 sample(sampler state, float3 uv, gradient3d gradient, int3 offset = int3(0)) const threadgroup {
   return __texture_detail::__sample_texture3d(__handle,state,0x3f400UL,uv,0,0,offset,0,0.f,false,true,false,gradient.dx,gradient.dy,true,0,0.f,false);
  }
+#if __METAL_VERSION__ >= 410
+ // MSL 4.1 section 6.13: signed texel coordinates, sampler addressing,
+ // and an offset applied by the AIR read, before clamping the coordinates.
+ __attribute__((always_inline)) float4 read(sampler state, int3 coordinate, int3 offset = int3(0), uint lod = 0) const thread {
+  return __texture_detail::__sampler_read_texture3d(__handle,state,0x3f400UL,coordinate,0,0,offset,int(lod),0.f,true,false,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 read(sampler state, int3 coordinate, int3 offset = int3(0), uint lod = 0) const device {
+  return __texture_detail::__sampler_read_texture3d(__handle,state,0x3f400UL,coordinate,0,0,offset,int(lod),0.f,true,false,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 read(sampler state, int3 coordinate, int3 offset = int3(0), uint lod = 0) const constant {
+  return __texture_detail::__sampler_read_texture3d(__handle,state,0x3f400UL,coordinate,0,0,offset,int(lod),0.f,true,false,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 read(sampler state, int3 coordinate, int3 offset = int3(0), uint lod = 0) const threadgroup {
+  return __texture_detail::__sampler_read_texture3d(__handle,state,0x3f400UL,coordinate,0,0,offset,int(lod),0.f,true,false,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+#endif
  __attribute__((always_inline)) float4 read(uint3 coordinate, uint lod = 0) const thread {
   return __texture_detail::__read_texture3d(__handle,0,0x3f400UL,__builtin_convertvector(coordinate,int3),0,0,int3(0),int(lod),0.f,true,false,false,float3(0.f),float3(0.f),false,0,0.f,false);
  }
@@ -266,6 +307,22 @@ template<> struct texture2d_array<float, access::sample> {
  __attribute__((always_inline)) float4 gather(sampler state, float2 uv, uint layer, int2 offset = int2(0), component c = component::x) const device { return __texture_detail::__gather_texture2d_array(__handle,state,0x12f400UL,uv,layer,offset,uint(c)); }
  __attribute__((always_inline)) float4 gather(sampler state, float2 uv, uint layer, int2 offset = int2(0), component c = component::x) const constant { return __texture_detail::__gather_texture2d_array(__handle,state,0x12f400UL,uv,layer,offset,uint(c)); }
  __attribute__((always_inline)) float4 gather(sampler state, float2 uv, uint layer, int2 offset = int2(0), component c = component::x) const threadgroup { return __texture_detail::__gather_texture2d_array(__handle,state,0x12f400UL,uv,layer,offset,uint(c)); }
+#if __METAL_VERSION__ >= 410
+ // MSL 4.1 section 6.13: signed texel coordinates, sampler addressing,
+ // and an offset applied by the AIR read, before clamping the coordinates.
+ __attribute__((always_inline)) float4 read(sampler state, int2 coordinate, uint layer, int2 offset = int2(0), uint lod = 0) const thread {
+  return __texture_detail::__sampler_read_texture2d_array(__handle,state,0x12f400UL,coordinate,layer,0,offset,int(lod),0.f,true,false,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 read(sampler state, int2 coordinate, uint layer, int2 offset = int2(0), uint lod = 0) const device {
+  return __texture_detail::__sampler_read_texture2d_array(__handle,state,0x12f400UL,coordinate,layer,0,offset,int(lod),0.f,true,false,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 read(sampler state, int2 coordinate, uint layer, int2 offset = int2(0), uint lod = 0) const constant {
+  return __texture_detail::__sampler_read_texture2d_array(__handle,state,0x12f400UL,coordinate,layer,0,offset,int(lod),0.f,true,false,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 read(sampler state, int2 coordinate, uint layer, int2 offset = int2(0), uint lod = 0) const threadgroup {
+  return __texture_detail::__sampler_read_texture2d_array(__handle,state,0x12f400UL,coordinate,layer,0,offset,int(lod),0.f,true,false,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+#endif
  __attribute__((always_inline)) float4 read(uint2 coordinate, uint layer, uint lod = 0) const thread {
   return __texture_detail::__read_texture2d_array(__handle,0,0x12f400UL,__builtin_convertvector(coordinate,int2),layer,0,int2(0),int(lod),0.f,true,false,false,float2(0.f),float2(0.f),false,0,0.f,false);
  }

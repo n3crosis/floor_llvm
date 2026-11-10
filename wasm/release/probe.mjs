@@ -6,6 +6,7 @@ import { integerVectorCases, assertIntegerVectorIR } from "./integer-vector.mjs"
 import { derivativeVectorCases, assertDerivativeVectorIR } from "./derivative-vector.mjs";
 import { commonFunctionCases, assertCommonFunctionIR } from "./common-functions.mjs";
 import { msl41PlacementCases, assertMSL41PlacementIR, assertMSL41PlacementMetallib, assertMSL41PlacementDiagnostic } from "./msl41-placement.mjs";
+import { msl41TextureReadCases, assertMSL41TextureReadIR, assertMSL41TextureReadMetallib, assertMSL41TextureReadDiagnostic } from "./msl41-texture-read.mjs";
 import { msl41BitInterleaveCases, assertMSL41BitInterleaveIR } from "./msl41-bit-interleave.mjs";
 import { metalLanguageCases, assertMetalLanguageIR, assertMetalLanguageMetallib, assertMetalLanguageDiagnostic } from "./metal-language.mjs";
 import { spawnSync } from "node:child_process";
@@ -14,7 +15,7 @@ import { resolve } from "node:path";
 import process from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-const expectedHeader = "da0914a67ab9d0fcd49b221de85fc8caa968dd2348b1ac19df9b283e3ee0806b";
+const expectedHeader = "0fc306a18b5d16799fc83eb1ff6c47775784bec3e7eb527c5fba082e02157f5b";
 const outputLimit = 64 * 1024 * 1024;
 const requiredExports = [
   "malloc", "free", "air_compile_v1", "air_compile_v2", "air_compile_v3", "air_result_status",
@@ -187,7 +188,7 @@ for (const ios of [18,26]) for (const math of [0,1]) for (const kind of [0,1])
     source:conditionalColorSource,ios,math,kind,shader:'conditional-color',status:0});
 
 // Generic authored MSL coverage, independent of application shader corpora.
-cases.push(...integerVectorCases, ...derivativeVectorCases, ...commonFunctionCases, ...metalLanguageCases(), ...msl41BitInterleaveCases, ...msl41PlacementCases);
+cases.push(...integerVectorCases, ...derivativeVectorCases, ...commonFunctionCases, ...metalLanguageCases(), ...msl41BitInterleaveCases, ...msl41PlacementCases, ...msl41TextureReadCases);
 assert.equal(new Set(cases.map(test => test.name)).size, cases.length, "Duplicate probe names");
 assert(cases.every(test => new TextEncoder().encode(test.source).length <= 4096), "Probe source exceeds bound");
 
@@ -279,6 +280,11 @@ async function runCase(build, name) {
           assertMSL41PlacementIR(new TextDecoder('utf-8',{fatal:true}).decode(output), test);
         else
           metadata = assertMSL41PlacementMetallib(output, test);
+      } else if (test.msl41TextureRead) {
+        if (test.kind === 1)
+          assertMSL41TextureReadIR(new TextDecoder('utf-8',{fatal:true}).decode(output), test);
+        else
+          metadata = assertMSL41TextureReadMetallib(output, test);
       } else if (test.metalLanguage) {
         if (test.kind === 1)
           assertMetalLanguageIR(new TextDecoder('utf-8',{fatal:true}).decode(output), test);
@@ -375,6 +381,8 @@ async function runCase(build, name) {
       assert(diagnostics.length > 0, "Rejected input has no diagnostic");
       if (test.msl41Placement && test.status === 3)
         assertMSL41PlacementDiagnostic(new TextDecoder('utf-8',{fatal:true}).decode(diagnostics), test);
+      if (test.msl41TextureRead && test.status === 3)
+        assertMSL41TextureReadDiagnostic(new TextDecoder('utf-8',{fatal:true}).decode(diagnostics), test);
       if (test.metalLanguage && test.status === 3)
         assertMetalLanguageDiagnostic(new TextDecoder('utf-8',{fatal:true}).decode(diagnostics), test);
     }
