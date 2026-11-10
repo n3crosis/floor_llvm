@@ -24,6 +24,8 @@ env:
 
 jobs:
   build:
+    outputs:
+      compiler_artifact_id: ${{ steps.compiler_artifact.outputs.artifact-id }}
     runs-on: ubuntu-24.04
     timeout-minutes: 180
     permissions:
@@ -110,6 +112,7 @@ jobs:
       - name: Package the exact source commit, runtime and build-input disclosure
         run: python3 wasm/release/release.py package --work "$RUNNER_TEMP/air-release"
       - name: Upload verified compiler artifacts
+        id: compiler_artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: air-wasm-${{ steps.source.outputs.version }}-${{ github.sha }}
@@ -123,3 +126,59 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: python3 wasm/release/release.py publish --work "$RUNNER_TEMP/air-release"
+
+  apple_reference:
+    needs: build
+    runs-on: macos-15
+    timeout-minutes: 35
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the exact workflow source commit
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Set up Node 24
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: "24"
+          package-manager-cache: false
+      - name: Download the immutable artifact produced by this run
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          artifact-ids: ${{ needs.build.outputs.compiler_artifact_id }}
+          path: ${{ runner.temp }}/compiler-artifact
+          merge-multiple: true
+      - name: Select the highest installed Xcode 26 or newer
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import glob, os, re, subprocess
+          candidates = []
+          for path in glob.glob('/Applications/Xcode*.app/Contents/Developer'):
+              env = dict(os.environ, DEVELOPER_DIR=path)
+              p = subprocess.run(['xcodebuild', '-version'], env=env, text=True, capture_output=True)
+              m = re.search(r'^Xcode (\d+(?:\.\d+)*)', p.stdout)
+              if p.returncode == 0 and m and int(m[1].split('.')[0]) >= 26:
+                  candidates.append((tuple(map(int,m[1].split('.'))),path))
+          assert candidates, 'Xcode 26+ unavailable; no older-toolchain fallback'
+          with open(os.environ['GITHUB_ENV'],'a') as f:
+              f.write('DEVELOPER_DIR='+max(candidates)[1]+'\n')
+          PY
+      - name: Verify manifest, exact commit, runtime hashes and header identity
+        run: python3 wasm/release/verify-apple-runtime.py "$RUNNER_TEMP/compiler-artifact" "$GITHUB_WORKSPACE" "$RUNNER_TEMP/verified-runtime" "$GITHUB_SHA"
+      - name: Compile the optional Metal numerical probe
+        run: xcrun -sdk macosx swiftc wasm/release/metal-numerical.swift -framework Metal -framework Foundation -o "$RUNNER_TEMP/metal-numerical"
+      - name: Compare same-source Apple acceptance and FLOOR compilation
+        run: node wasm/release/apple-reference.mjs "$RUNNER_TEMP/verified-runtime" "$RUNNER_TEMP/apple-reference" --gpu-probe "$RUNNER_TEMP/metal-numerical"
+      - name: Upload layered Apple reference evidence even on failure
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: apple-reference-${{ github.sha }}
+          path: ${{ runner.temp }}/apple-reference
+          if-no-files-found: warn
+          retention-days: 30
+          overwrite: false

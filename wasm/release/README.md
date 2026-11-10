@@ -94,3 +94,41 @@ and NaN values; it rejects unrecognized operations and control flow. Constant
 outputs are checked separately. This bounded IR evaluation is not device execution
 or proof over all floating-point inputs. Both validation modules are included in
 the source provenance. A fresh embedded-header build is required for acceptance.
+
+## Apple reference and optional GPU evidence
+
+After the Linux build passes, a separate `macos-15` job downloads the immutable
+compiler artifact from the same workflow run. Before executing it, the verifier
+binds the manifest to the actual checkout commit and tree, source-lock hash,
+complete header identity, runtime archive/member hashes, and build receipt.
+Compiler exports must report the matching embedded-header identity.
+
+The reference harness selects the highest installed Xcode 26 or newer and runs
+34 deduplicated positive source/target/profile combinations through both compilers.
+Apple uses the iPhoneOS SDK, the unchanged iOS 18/Metal 3.2 or iOS 26/Metal 4.0
+target, explicit fast-math settings, then `metallib`. FLOOR compiles the same
+source into its own metallib. Commands, diagnostics, hashes, and layer-specific
+results are retained in the `apple-reference-<commit>` artifact even on failure.
+FLOOR-subset rejections do not impose invalid rejection expectations on Apple.
+Successful source compilation and linking do not establish that FLOOR's output
+loads or executes correctly. This is an additional dependent CI job, not a
+condition on the existing optional release-publication step in the build job.
+
+An optional Swift harness tries loading both original libraries on the runner's
+actual `MTLDevice`. No GPU, or an Apple reference library that cannot load, is
+reported as unavailable with diagnostics, never as a pass. If Apple loads but
+FLOOR rejects, the job fails. Libraries are never rewritten or retargeted to macOS
+to manufacture a result. No paid runner is selected or enabled.
+
+When both libraries load, integer vector kernels run fixed/random bit patterns
+and legal bit-range endpoints against an independent CPU oracle, retaining
+16-byte stride for three-lane vectors. Position-based derivative fragments render
+to a float texture; interior pixels are checked against both libraries and an
+analytic result. A numerical pass requires both loads, successful pipeline
+creation, completed GPU commands, matching output hashes, and nonzero numerical
+comparisons. Common functions, negative/mixed-slope derivatives, and divergent
+control flow are excluded from the GPU scope. In particular, these position-only
+tests cannot establish numerical correctness of `fwidth` absolute-value handling
+for negative derivatives. Local source-contract and oracle tests do not compile
+Swift or execute Metal. Read the report's individual layers and limitations;
+a green compile/link job with GPU unavailable is not device equivalence proof.
