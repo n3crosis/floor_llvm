@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "baselineCommit": "81d255965a578d9dd55ec4cd2b53a2f239a989f1",
+  "date": "2026-11-10",
+  "macHost": {
+    "device": "Apple M1 Max",
+    "architecture": "arm64",
+    "os": "macOS 27.2 (26B123)",
+    "xcode": "27.2 (27B52)",
+    "iPhoneOSSDK": "27.2",
+    "metal": "32023.922 (metalfe-32023.922.4)"
+  },
+  "appleMetal41Capability": {
+    "status": "minimal_compile_link_accepted",
+    "language": "metal4.1",
+    "target": "air64-apple-ios27.0",
+    "sdk": "27.2",
+    "sdkAtLeast27": true,
+    "compile": "accepted",
+    "link": "accepted",
+    "sourceSha256": "cc5a512b801f3697648a803a831d1e0cdbde03024eb579ea9a21a91a22e44721",
+    "airSha256": "69a823b93b4391624e45b3170dbd44dfbded03b37388f0ebcb72f58a748162df",
+    "metallibSha256": "a0162ef59a7b2e287c7804522c7bfbe0629c6853c3bef52ef2cab9c6098b70ef",
+    "libraryLoading": "not_run",
+    "gpuExecution": "not_run",
+    "numericalComparison": "not_run",
+    "scope": "Minimal Apple source compile/link capability only, not Metal 4.1 feature conformance or FLOOR 4.1 support."
+  },
+  "baselineMacFailFast": {
+    "result": "failed",
+    "stoppedAt": "case-1",
+    "compilePairsCompleted": 2,
+    "dynamicIntegerPairsPassed": 1,
+    "constantIntegerPairsFailed": 1
+  },
+  "supplementalMac": {
+    "identity": "Separate continuation of the pinned baseline after fail-fast run; not a green original runner result.",
+    "appleCompilesPassed": 34,
+    "appleLinksPassed": 34,
+    "floorCompilesPassed": 34,
+    "bothLibrariesLoaded": 12,
+    "gpuPairsWithCompletedCommands": 8,
+    "dynamicIntegerPairsPassed": 4,
+    "dynamicChecksPerPair": 46656,
+    "constantIntegerPairsFailed": 4,
+    "derivativePipelinePairsFailed": 4,
+    "derivativeExecutionPairs": 0,
+    "commonGpuPairsCovered": 0,
+    "aggregateNumericalPass": false,
+    "aggregationNote": "The supplemental compile report has stale/default aggregate GPU booleans. Layer facts here are reconciled from all 12 individual GPU reports and matched library hashes, not promoted from those aggregates."
+  },
+  "ciAppleFailFast": {
+    "result": "failed_at_case1",
+    "compilePairsCompleted": 2,
+    "device": "Apple Paravirtual device",
+    "os": "macOS 15.8.2 (24H232)",
+    "dynamicIntegerChecksPassed": 46656,
+    "error": "GPU probe failed for case-1: ",
+    "workflowURL": "https://github.com/n3crosis/floor_llvm/actions/runs/42790141243"
+  },
+  "evidenceFiles": [
+    {
+      "name": "Mac returned bundle / floor-mac-validation-results-81d2559.zip",
+      "sha256": "56befb38054a1f3d01d2fd968baac1541677f649482e74613634995185465f4f"
+    },
+    {
+      "name": "Mac returned bundle / summary.txt",
+      "sha256": "f5bc6c5b5cd43751f2fb771e734649846c895f8de83379e0b68e475d549f6ba2"
+    },
+    {
+      "name": "Mac returned bundle / artifact-verification.json",
+      "sha256": "dbe1cfc52f0d0c52647ff578b8059d5e361d165f56e2ab00d1e9f95a2d092a54"
+    },
+    {
+      "name": "Mac returned bundle / capability/result.json",
+      "sha256": "b741c8418d30092730de32ac2227a4c992ebc5c7ed487b0bef756e3387cc61a0"
+    },
+    {
+      "name": "Mac returned bundle / supplemental/evidence/report.json",
+      "sha256": "690e8167821ad7fe87b716c338ddd78064f4ffa4a540e3d0120d531d74166c74"
+    },
+    {
+      "name": "CI Apple report.json",
+      "sha256": "d6c92fd05542482237c97063b1b952c11fde316b703c55eba989f1db95532e23"
+    }
+  ],
+  "limits": [
+    "No full Metal 4.1 conformance claim.",
+    "No fresh FLOOR 4.1 candidate compiler artifact.",
+    "No common-function GPU numerics.",
+    "No negative/mixed-slope derivative numerics.",
+    "No iPhone/iPad execution.",
+    "Original derivative failure snapshot and corrected follow-up are distinct runs and source identities."
+  ],
+  "correctedDerivativeFollowup": {
+    "id": "corrected_derivative_followup_20261110",
+    "status": "passed",
+    "compilerCommit": "81d255965a578d9dd55ec4cd2b53a2f239a989f1",
+    "compilerIdentity": "Same authenticated baseline runtime; no rebuilt or relabeled compiler.",
+    "fixtureIdentity": "Augmented derivative source and corrected render-target harness. New libraries were compiled; these are not the original source-hash pairs.",
+    "pairsPassed": 4,
+    "checkedPixelLanesPerPair": 4320,
+    "totalCheckedPixelLanes": 17280,
+    "pixelReadbacks": 96,
+    "scope": "Position-derived float/float2/float3/float4 dfdx,dfdy,fwidth. Three-lane rendering uses a four-component wrapper; output formats match the tested widths.",
+    "limitations": [
+      "No negative/mixed-slope derivative oracle.",
+      "No divergent-control-flow derivative guarantee.",
+      "No FLOOR Metal 4.1 candidate compilation or execution."
+    ],
+    "privatelyRetainedEvidenceBundleSha256": "edccc10a35193fea3c5faffc500dcba8418e64f1491802c2e053677b5070beda",
+    "evidenceProvenance": "Returned native Mac follow-up receipt records this digest and the passed outcomes. This documentation snapshot does not claim a separate local rehash of that private bundle.",
+    "originalBaselineResult": "All four original derivative cases failed at the Apple pipeline because of the harness format mismatch. Original case-ledger rows remain unchanged."
+  },
+  "boundaryAndMetal41Followup": {
+    "privatelyRetainedEvidenceBundleSha256": "b79e1a4120f7c4eda6593a70f69d0eb79548b29df1031e15b6e129e5c5717579",
+    "scope": "Separate boundary and native4.1 metadata investigation; do not erase original literal(32,0) integer failures.",
+    "evidenceProvenance": "Digest from returned native evidence receipt; no separate local rehash claimed."
+  },
+  "apple41SourcePreflight": {
+    "sourceBundleSha256": "8cf225e719f2187023a8797330b8d1c8c30b463d2a565f88c485d7e819b5099a",
+    "descriptors": 40,
+    "compileTextAndLinkPassed": 39,
+    "sourceRejected": 1,
+    "interleaveAccepted": 36,
+    "rejectedCase": "metal41-noexcept-specification",
+    "acceptedMetadata": "AIR2.9.0, Metal 4.1.0, air64_v29-apple-ios27.0.0",
+    "floorCandidateCompiled": false,
+    "gpuExecuted": false,
+    "summarySha256": "842b958968b131faa95347f03442368f3ac12ded61787d92a969d912d1f5e220",
+    "reportSha256": "1940fe8d5f90ccb8310966e635352311428050f6b4ce5d704074edabe1d365cb",
+    "scope": "Apple reference only. Separate corrected language controls do not retroactively turn the original40-case run into40/40."
+  }
+}

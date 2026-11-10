@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "documentationQA": "passed",
+  "featureRows": 30,
+  "applePairs": 34,
+  "distinctAuthoredSourceHashes": 9,
+  "gpuEligiblePairs": 12,
+  "dynamicNumericalPasses": 4,
+  "constantNumericalFailures": 4,
+  "derivativePipelineFailures": 4,
+  "commonGpuStagesNotCovered": 22,
+  "passedDynamicCheckedValues": 186624,
+  "fullBaselineCICases": 285,
+  "groupedCompilerCases": 167,
+  "groupedExpectedRejections": 99,
+  "primarySourceHashesVerified": 18,
+  "supplementalBaselineSourceHashesVerified": 3,
+  "sourceProvenance": "18 primary files plus 3 separate preserved baseline files. Commit URLs and qualifications in case-ledger.json; no claim that supplemental files exist in the primary partial snapshot.",
+  "checks": [
+    "Feature IDs unique",
+    "Unprobed feature families stay not_covered",
+    "Spec cross-references corrected",
+    "Common GPU stage applicability consistent",
+    "All 34 source/target/profile comparisons retained",
+    "All 12 GPU report library hashes match compilation records",
+    "4 dynamic passes and 8 failures preserved",
+    "Legacy iOS 26 AIR/VERS mismatch documented",
+    "All inventoried source hashes match their correct unedited baseline",
+    "All cited source paths exist in one of the two baseline snapshots",
+    "4.1 source candidate is published; fresh build and GPU qualification are pending",
+    "Python builder syntax valid"
+  ],
+  "executionScope": "Documentation reconciled existing Mac/CI evidence. No compiler rebuild or native execution was performed by this documentation update.",
+  "correctedDerivativeFollowup": {
+    "pairsPassed": 4,
+    "pixelLanesPerPair": 4320,
+    "originalCaseRowsPreserved": true,
+    "privateBundleDigest": "edccc10a35193fea3c5faffc500dcba8418e64f1491802c2e053677b5070beda",
+    "digestStatus": "Recorded native receipt; not independently rehashed by documentation update"
+  },
+  "appleInterleaveAccepted": 36,
+  "candidateCompilerBuilt": false,
+  "candidateCasesConfiguredOnly": {
+    "compiler": 497,
+    "applePairs": 82,
+    "gpuPairs": 48
+  }
+}

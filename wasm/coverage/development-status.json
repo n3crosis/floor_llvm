@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-10",
+  "baselineCommit": "81d255965a578d9dd55ec4cd2b53a2f239a989f1",
+  "candidateCommit": "1accfd44d88898b2885390cafd527e48b4f00479",
+  "published": true,
+  "freshCandidateCompilerBuilt": false,
+  "tracks": [
+    {
+      "id": "explicit_msl41_core",
+      "status": "published_build_in_progress",
+      "scope": "air_compile_v3 exact tuples (18,320),(26,400),(27,410); truthful macros; 4.1 C++17 selection and fail-closed public restrictions; target/AIR/language/VERS checks.",
+      "validation": "Source/validator unit checks and standalone target-options tests only. Fresh compiled-fork, Apple4.1 and runtime tests remain pending.",
+      "legacyCompatibility": "v1/v2 intentionally retain legacy selection and iOS 26 version mismatch."
+    },
+    {
+      "id": "interleave_deinterleave",
+      "status": "published_build_in_progress",
+      "scope": "Three unsigned type pairs and both interleave forms with version-gated authored tests.",
+      "validation": "All 36 Apple reference compile/text-AIR/link combinations accepted under Metal 4.1/iOS27. Fresh FLOOR candidate build and dual-backend GPU comparisons remain unrun."
+    },
+    {
+      "id": "derivative_harness_format",
+      "status": "native_followup_passed",
+      "scope": "Corrected and augmented position-derivative fixture/harness passed 4 pairs, 4320 checked pixel lanes each on authenticated81d2559 runtime.",
+      "validation": "Original derivative failures stay recorded. Separate private evidence bundle hash is in execution-evidence.json; not a new FLOOR 4.1 runtime qualification."
+    },
+    {
+      "id": "legacy_ios26_version_coherence",
+      "status": "open_follow_up",
+      "scope": "Resolve v1/v2 frontend/AIR 3.2/2.7 versus wrapper 4.0/2.8 with a documented compatibility policy and regression/loader tests.",
+      "validation": "Not fixed by the new matched v3 tuples."
+    }
+  ],
+  "publicationSnapshot": "The first Metal 4.1 source checkpoint is published. Its fresh compiler build is in progress; no new FLOOR runtime or GPU pass is asserted.",
+  "configuredCandidateCases": {
+    "floorCompiler": 497,
+    "appleReferencePairs": 82,
+    "gpuEligiblePairs": 48,
+    "status": "configured_not_executed_with_new_floor_runtime",
+    "policy": "Batch checkpoint builds; these counts are not passing-result counts."
+  },
+  "checkpointRun": "https://github.com/n3crosis/floor_llvm/actions/runs/42801805934"
+}

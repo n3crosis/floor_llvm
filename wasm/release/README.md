@@ -223,3 +223,5 @@ pinned to the historical `81d2559` build; it is not a runner for an unbuilt v3
 compiler. Keep baseline evidence separate from new feature qualification.
 
 Apple Xcode 27.2 preflight accepted all 36 interleave sources and built the extended Swift harness. It rejected an earlier `noexcept` positive; explicit `noexcept` is now rejected and that positive uses C++17 nested-namespace syntax. Apple source acceptance and a Swift build do not establish rebuilt FLOOR or GPU correctness.
+
+The [coverage matrix](../coverage/CURRENT-SUPPORT.md) separates the immutable baseline, corrected derivative follow-up, Apple reference acceptance and the new compiler checkpoint awaiting qualification.
