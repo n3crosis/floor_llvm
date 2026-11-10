@@ -46,13 +46,10 @@
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/MemoryBuffer.h"
 #include "llvm/Support/PrettyStackTrace.h"
-#include "llvm/../../projects/spirv/include/LLVMSPIRVLib.h"
 #include "llvm/Support/TimeProfiler.h"
 #include "llvm/Support/Timer.h"
 #include "llvm/Support/ToolOutputFile.h"
 #include "llvm/Support/raw_ostream.h"
-#include "llvm/../../projects/spirv/lib/SPIRV/SPIRVWriterPass.h"
-#include "llvm/../../projects/spirv/lib/SPIRV/SPIRVContainerWriterPass.h"
 #include "llvm/Target/TargetMachine.h"
 #include "llvm/Target/TargetOptions.h"
 #include "llvm/Transforms/Coroutines.h"
@@ -1177,12 +1174,9 @@ void EmitAssemblyHelper::EmitAssemblyWithLegacyPassManager(
     break;
 
   case Backend_EmitSPIRV:
-    PerModulePasses.add(createSPIRVWriterPass(*OS, CodeGenOpts.SPIRVVersion));
-    break;
-
   case Backend_EmitSPIRVContainer:
-    PerModulePasses.add(createSPIRVContainerWriterPass(*OS));
-    break;
+    TheModule->getContext().emitError("SPIR-V emission is unavailable in this AIR-only build");
+    return;
 
   case Backend_EmitMetalLib:
     PerModulePasses.add(createMetalLibWriterPass(*OS));
@@ -1641,12 +1635,9 @@ void EmitAssemblyHelper::RunOptimizationPipeline(
     break;
 
   case Backend_EmitSPIRV:
-    MPM.addPass(SPIRVWriterPass(*OS));
-    break;
-
   case Backend_EmitSPIRVContainer:
-    MPM.addPass(SPIRVContainerWriterPass(*OS));
-    break;
+    TheModule->getContext().emitError("SPIR-V emission is unavailable in this AIR-only build");
+    return;
 
   case Backend_EmitMetalLib:
     MPM.addPass(MetalLibWriterPass(*OS));

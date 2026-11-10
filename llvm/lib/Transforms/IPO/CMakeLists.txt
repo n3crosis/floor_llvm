@@ -63,6 +63,7 @@ add_llvm_component_library(LLVMipo
   BitReader
   BitWriter
   BitWriter140
+  CodeGen
   Core
   FrontendOpenMP
   InstCombine
@@ -72,7 +73,6 @@ add_llvm_component_library(LLVMipo
   Object
   ProfileData
   Scalar
-  SPIRVLib
   SPIRVerifier
   Support
   TransformUtils

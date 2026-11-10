@@ -1,0 +1,32 @@
+// Authored MSL patch interface. No Apple SDK implementation is included.
+#ifndef FLOOR_AIR_METAL_TESSELLATION
+#define FLOOR_AIR_METAL_TESSELLATION
+namespace metal {
+// Public quad-factor buffer ABI. Shader values are half, not host uint16 numbers.
+struct MTLQuadTessellationFactorsHalf {
+  half edgeTessellationFactor[4];
+  half insideTessellationFactor[2];
+};
+static_assert(sizeof(MTLQuadTessellationFactorsHalf)==12 &&
+    alignof(MTLQuadTessellationFactorsHalf)==2, "quad factor size and alignment");
+static_assert(__builtin_offsetof(MTLQuadTessellationFactorsHalf,edgeTessellationFactor)==0 &&
+    __builtin_offsetof(MTLQuadTessellationFactorsHalf,insideTessellationFactor)==8,
+    "quad factor field offsets");
+namespace __air_tessellation {
+// The compiler resolves this query from the entry's [[patch]] declaration.
+// It must never survive into a delivered AIR module as an external call.
+uint control_point_count() __asm("floor.get_patch_control_point_count.i32")
+    __attribute__((const));
+}
+template<typename T> class patch_control_point {
+  __patch_control_point_t handle;
+public:
+  __attribute__((always_inline)) T operator[](uint index) const {
+    return __libfloor_access_patch_control_point(index, handle, T{});
+  }
+  __attribute__((always_inline)) uint size() const {
+    return __air_tessellation::control_point_count();
+  }
+};
+}
+#endif

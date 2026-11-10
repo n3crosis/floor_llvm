@@ -1,0 +1,19 @@
+// Authored narrow control/derivative subset, not Apple SDK headers.
+#ifndef FLOOR_AIR_METAL_CONTROL
+#define FLOOR_AIR_METAL_CONTROL
+namespace metal {
+namespace __control_detail {
+float dx(float) __asm__("air.dfdx.f32") __attribute__((convergent));
+float dy(float) __asm__("air.dfdy.f32") __attribute__((convergent));
+void discard() __asm__("air.discard_fragment");
+float shuffle(float,ushort) __asm__("air.simd_shuffle.f32") __attribute__((convergent));
+}
+inline __attribute__((always_inline)) float dfdx(float x) { return __control_detail::dx(x); }
+inline __attribute__((always_inline)) float dfdy(float x) { return __control_detail::dy(x); }
+inline __attribute__((always_inline)) void discard_fragment() { __control_detail::discard(); }
+inline __attribute__((always_inline)) float simd_shuffle(float x,ushort lane) { return __control_detail::shuffle(x,lane); }
+template<class T> T dfdx(T) = delete;
+template<class T> T dfdy(T) = delete;
+template<class T> T simd_shuffle(T,ushort) = delete;
+}
+#endif

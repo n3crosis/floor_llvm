@@ -1,0 +1,33 @@
+// Authored relaxed unsigned-32 atomic subset, matching reference AIR calls.
+#ifndef FLOOR_AIR_METAL_ATOMIC
+#define FLOOR_AIR_METAL_ATOMIC
+#include <metal_stdlib>
+namespace metal {
+struct atomic_uint { private: uint storage; };
+static_assert(sizeof(atomic_uint)==4 && alignof(atomic_uint)==4, "atomic uint layout");
+enum memory_order { memory_order_relaxed = 0 };
+enum class mem_flags { mem_threadgroup = 2 };
+namespace __atomic_detail {
+uint global_add(device uint*,uint,uint,uint,bool) __asm__("air.atomic.global.add.u.i32");
+uint global_min(device uint*,uint,uint,uint,bool) __asm__("air.atomic.global.min.u.i32");
+uint local_add(threadgroup uint*,uint,uint,uint,bool) __asm__("air.atomic.local.add.u.i32");
+uint local_min(threadgroup uint*,uint,uint,uint,bool) __asm__("air.atomic.local.min.u.i32");
+uint local_max(threadgroup uint*,uint,uint,uint,bool) __asm__("air.atomic.local.max.u.i32");
+void barrier(uint,uint) __asm__("air.wg.barrier") __attribute__((convergent));
+}
+#define AIR_ATOMIC_OP(OP, AS, SCOPE, INTRINSIC) \
+inline __attribute__((always_inline)) uint atomic_fetch_##OP##_explicit(AS atomic_uint *p, uint value, memory_order order) \
+__attribute__((diagnose_if(!__builtin_constant_p(order) || order != memory_order_relaxed, "only constant relaxed atomic order is supported", "error"))) { \
+  return __atomic_detail::INTRINSIC(reinterpret_cast<AS uint*>(p), value, 0u, SCOPE, true); }
+AIR_ATOMIC_OP(add,device,2u,global_add)
+AIR_ATOMIC_OP(min,device,2u,global_min)
+AIR_ATOMIC_OP(add,threadgroup,1u,local_add)
+AIR_ATOMIC_OP(min,threadgroup,1u,local_min)
+AIR_ATOMIC_OP(max,threadgroup,1u,local_max)
+#undef AIR_ATOMIC_OP
+inline __attribute__((always_inline)) void threadgroup_barrier(mem_flags flags)
+__attribute__((diagnose_if(!__builtin_constant_p(flags) || flags != mem_flags::mem_threadgroup, "only threadgroup-memory barrier is supported", "error"))) {
+  __atomic_detail::barrier(2u,1u);
+}
+}
+#endif

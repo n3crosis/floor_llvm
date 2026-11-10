@@ -1,0 +1,423 @@
+// MSL 3 resource handles need explicit implicit-object address-space overloads.
+// Authored compatibility subset. Not Apple's SDK headers.
+// Requires the vector typedefs in the authored metal_stdlib.
+#ifndef FLOOR_AIR_METAL_TEXTURE
+#define FLOOR_AIR_METAL_TEXTURE
+namespace metal {
+enum class access { sample = 0, read = 1, write = 2, read_write = 3 };
+enum class component : uint { x=0,y=1,z=2,w=3 };
+typedef sampler_t sampler;
+struct level { float value; explicit level(float v) : value(v) {} };
+struct bias { float value; explicit bias(float v) : value(v) {} };
+struct gradient2d { float2 dx, dy; gradient2d(float2 x, float2 y) : dx(x), dy(y) {} };
+struct gradient3d { float3 dx, dy; gradient3d(float3 x, float3 y) : dx(x), dy(y) {} };
+struct gradientcube { float3 dx, dy; gradientcube(float3 x, float3 y) : dx(x), dy(y) {} };
+template<class T, access A = access::sample> struct texture2d;
+template<class T, access A = access::sample> struct texture3d;
+template<class T, access A = access::sample> struct texture2d_array;
+template<class T, access A = access::sample> struct texturecube;
+template<class T, access A = access::sample> struct texturecube_array;
+template<class T, access A = access::sample> struct depth2d;
+template<class T, access A = access::sample> struct depth2d_array;
+template<class T, access A = access::sample> struct depthcube;
+template<class T, access A = access::sample> struct depthcube_array;
+template<class T, access A = access::read> struct texture_buffer;
+namespace __texture_detail {
+typedef int int1 __attribute__((ext_vector_type(1)));
+typedef float float1 __attribute__((ext_vector_type(1)));
+extern "C" float4 __sample_texture2d(image2d_t, sampler_t, ulong, float2, uint, uint, int2, int, float, bool, bool, bool, float2, float2, bool, uint, float, bool) __asm__("floor.opaque.read_image.texture2d.float.f2");
+extern "C" float4 __read_texture2d(image2d_t, uint, ulong, int2, uint, uint, int2, int, float, bool, bool, bool, float2, float2, bool, uint, float, bool) __asm__("floor.opaque.read_image.texture2d.float.i2");
+extern "C" float4 __gather_texture2d(image2d_t, sampler_t, ulong, float2, uint, int2, uint) __asm__("floor.opaque.gather_image.texture2d.float");
+extern "C" uint __width_texture2d(image2d_t, uint) __asm__("air.get_width_texture_2d");
+extern "C" uint __height_texture2d(image2d_t, uint) __asm__("air.get_height_texture_2d");
+extern "C" uint __num_mip_levels_texture2d(image2d_t) __asm__("air.get_num_mip_levels_texture_2d");
+extern "C" void __write_texture2d(image2d_t, ulong, int2, uint, uint, bool, float4) __asm__("floor.opaque.write_image.texture2d.float.i2");
+extern "C" float4 __sample_texture3d(image3d_t, sampler_t, ulong, float3, uint, uint, int3, int, float, bool, bool, bool, float3, float3, bool, uint, float, bool) __asm__("floor.opaque.read_image.texture3d.float.f3");
+extern "C" float4 __read_texture3d(image3d_t, uint, ulong, int3, uint, uint, int3, int, float, bool, bool, bool, float3, float3, bool, uint, float, bool) __asm__("floor.opaque.read_image.texture3d.float.i3");
+extern "C" uint __width_texture3d(image3d_t, uint) __asm__("air.get_width_texture_3d");
+extern "C" uint __height_texture3d(image3d_t, uint) __asm__("air.get_height_texture_3d");
+extern "C" uint __num_mip_levels_texture3d(image3d_t) __asm__("air.get_num_mip_levels_texture_3d");
+extern "C" uint __depth_texture3d(image3d_t, uint) __asm__("air.get_depth_texture_3d");
+extern "C" void __write_texture3d(image3d_t, ulong, int3, uint, uint, bool, float4) __asm__("floor.opaque.write_image.texture3d.float.i3");
+extern "C" float4 __sample_texture2d_array(image2d_array_t, sampler_t, ulong, float2, uint, uint, int2, int, float, bool, bool, bool, float2, float2, bool, uint, float, bool) __asm__("floor.opaque.read_image.texture2d_array.float.f2");
+extern "C" float4 __read_texture2d_array(image2d_array_t, uint, ulong, int2, uint, uint, int2, int, float, bool, bool, bool, float2, float2, bool, uint, float, bool) __asm__("floor.opaque.read_image.texture2d_array.float.i2");
+extern "C" float4 __gather_texture2d_array(image2d_array_t, sampler_t, ulong, float2, uint, int2, uint) __asm__("floor.opaque.gather_image.texture2d_array.float");
+extern "C" uint __width_texture2d_array(image2d_array_t, uint) __asm__("air.get_width_texture_2d_array");
+extern "C" uint __height_texture2d_array(image2d_array_t, uint) __asm__("air.get_height_texture_2d_array");
+extern "C" uint __num_mip_levels_texture2d_array(image2d_array_t) __asm__("air.get_num_mip_levels_texture_2d_array");
+extern "C" uint __array_size_texture2d_array(image2d_array_t) __asm__("air.get_array_size_texture_2d_array");
+extern "C" float4 __sample_texturecube(imagecube_t, sampler_t, ulong, float3, uint, uint, int3, int, float, bool, bool, bool, float3, float3, bool, uint, float, bool) __asm__("floor.opaque.read_image.texturecube.float.f3");
+extern "C" float4 __read_texturecube(imagecube_t, uint, ulong, int3, uint, uint, int3, int, float, bool, bool, bool, float3, float3, bool, uint, float, bool) __asm__("floor.opaque.read_image.texturecube.float.i3");
+extern "C" float4 __gather_texturecube(imagecube_t, sampler_t, ulong, float3, uint, int2, uint) __asm__("floor.opaque.gather_image.texturecube.float");
+extern "C" uint __width_texturecube(imagecube_t, uint) __asm__("air.get_width_texture_cube");
+extern "C" uint __height_texturecube(imagecube_t, uint) __asm__("air.get_height_texture_cube");
+extern "C" uint __num_mip_levels_texturecube(imagecube_t) __asm__("air.get_num_mip_levels_texture_cube");
+extern "C" float4 __read_buffer(image1d_buffer_t, uint, ulong, int1, uint, uint, int1, int, float, bool, bool, bool, float1, float1, bool, uint, float, bool) __asm__("floor.opaque.read_image.buffer.float.i1");
+}
+template<> struct texture2d<float, access::sample> {
+ image2d_t __handle [[floor::image_data_type(float), floor::image_flags(0x400UL)]];
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, int2 offset = int2(0)) const thread {
+  return __texture_detail::__sample_texture2d(__handle,state,0x2f400UL,uv,0,0,offset,0,0.f,false,true,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, int2 offset = int2(0)) const device {
+  return __texture_detail::__sample_texture2d(__handle,state,0x2f400UL,uv,0,0,offset,0,0.f,false,true,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, int2 offset = int2(0)) const constant {
+  return __texture_detail::__sample_texture2d(__handle,state,0x2f400UL,uv,0,0,offset,0,0.f,false,true,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, int2 offset = int2(0)) const threadgroup {
+  return __texture_detail::__sample_texture2d(__handle,state,0x2f400UL,uv,0,0,offset,0,0.f,false,true,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, level lod, int2 offset = int2(0)) const thread {
+  return __texture_detail::__sample_texture2d(__handle,state,0x2f400UL,uv,0,0,offset,0,lod.value,true,true,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, level lod, int2 offset = int2(0)) const device {
+  return __texture_detail::__sample_texture2d(__handle,state,0x2f400UL,uv,0,0,offset,0,lod.value,true,true,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, level lod, int2 offset = int2(0)) const constant {
+  return __texture_detail::__sample_texture2d(__handle,state,0x2f400UL,uv,0,0,offset,0,lod.value,true,true,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, level lod, int2 offset = int2(0)) const threadgroup {
+  return __texture_detail::__sample_texture2d(__handle,state,0x2f400UL,uv,0,0,offset,0,lod.value,true,true,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, bias lod, int2 offset = int2(0)) const thread {
+  return __texture_detail::__sample_texture2d(__handle,state,0x2f400UL,uv,0,0,offset,0,lod.value,false,true,true,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, bias lod, int2 offset = int2(0)) const device {
+  return __texture_detail::__sample_texture2d(__handle,state,0x2f400UL,uv,0,0,offset,0,lod.value,false,true,true,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, bias lod, int2 offset = int2(0)) const constant {
+  return __texture_detail::__sample_texture2d(__handle,state,0x2f400UL,uv,0,0,offset,0,lod.value,false,true,true,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, bias lod, int2 offset = int2(0)) const threadgroup {
+  return __texture_detail::__sample_texture2d(__handle,state,0x2f400UL,uv,0,0,offset,0,lod.value,false,true,true,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, gradient2d gradient, int2 offset = int2(0)) const thread {
+  return __texture_detail::__sample_texture2d(__handle,state,0x2f400UL,uv,0,0,offset,0,0.f,false,true,false,gradient.dx,gradient.dy,true,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, gradient2d gradient, int2 offset = int2(0)) const device {
+  return __texture_detail::__sample_texture2d(__handle,state,0x2f400UL,uv,0,0,offset,0,0.f,false,true,false,gradient.dx,gradient.dy,true,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, gradient2d gradient, int2 offset = int2(0)) const constant {
+  return __texture_detail::__sample_texture2d(__handle,state,0x2f400UL,uv,0,0,offset,0,0.f,false,true,false,gradient.dx,gradient.dy,true,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, gradient2d gradient, int2 offset = int2(0)) const threadgroup {
+  return __texture_detail::__sample_texture2d(__handle,state,0x2f400UL,uv,0,0,offset,0,0.f,false,true,false,gradient.dx,gradient.dy,true,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 gather(sampler state, float2 uv, int2 offset = int2(0), component c = component::x) const thread { return __texture_detail::__gather_texture2d(__handle,state,0x2f400UL,uv,0,offset,uint(c)); }
+ __attribute__((always_inline)) float4 gather(sampler state, float2 uv, int2 offset = int2(0), component c = component::x) const device { return __texture_detail::__gather_texture2d(__handle,state,0x2f400UL,uv,0,offset,uint(c)); }
+ __attribute__((always_inline)) float4 gather(sampler state, float2 uv, int2 offset = int2(0), component c = component::x) const constant { return __texture_detail::__gather_texture2d(__handle,state,0x2f400UL,uv,0,offset,uint(c)); }
+ __attribute__((always_inline)) float4 gather(sampler state, float2 uv, int2 offset = int2(0), component c = component::x) const threadgroup { return __texture_detail::__gather_texture2d(__handle,state,0x2f400UL,uv,0,offset,uint(c)); }
+ __attribute__((always_inline)) float4 read(uint2 coordinate, uint lod = 0) const thread {
+  return __texture_detail::__read_texture2d(__handle,0,0x2f400UL,__builtin_convertvector(coordinate,int2),0,0,int2(0),int(lod),0.f,true,false,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 read(uint2 coordinate, uint lod = 0) const device {
+  return __texture_detail::__read_texture2d(__handle,0,0x2f400UL,__builtin_convertvector(coordinate,int2),0,0,int2(0),int(lod),0.f,true,false,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 read(uint2 coordinate, uint lod = 0) const constant {
+  return __texture_detail::__read_texture2d(__handle,0,0x2f400UL,__builtin_convertvector(coordinate,int2),0,0,int2(0),int(lod),0.f,true,false,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 read(uint2 coordinate, uint lod = 0) const threadgroup {
+  return __texture_detail::__read_texture2d(__handle,0,0x2f400UL,__builtin_convertvector(coordinate,int2),0,0,int2(0),int(lod),0.f,true,false,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) uint get_width(uint lod = 0) const thread { return __texture_detail::__width_texture2d(__handle,lod); }
+ __attribute__((always_inline)) uint get_width(uint lod = 0) const device { return __texture_detail::__width_texture2d(__handle,lod); }
+ __attribute__((always_inline)) uint get_width(uint lod = 0) const constant { return __texture_detail::__width_texture2d(__handle,lod); }
+ __attribute__((always_inline)) uint get_width(uint lod = 0) const threadgroup { return __texture_detail::__width_texture2d(__handle,lod); }
+ __attribute__((always_inline)) uint get_height(uint lod = 0) const thread { return __texture_detail::__height_texture2d(__handle,lod); }
+ __attribute__((always_inline)) uint get_height(uint lod = 0) const device { return __texture_detail::__height_texture2d(__handle,lod); }
+ __attribute__((always_inline)) uint get_height(uint lod = 0) const constant { return __texture_detail::__height_texture2d(__handle,lod); }
+ __attribute__((always_inline)) uint get_height(uint lod = 0) const threadgroup { return __texture_detail::__height_texture2d(__handle,lod); }
+ __attribute__((always_inline)) uint get_num_mip_levels() const thread { return __texture_detail::__num_mip_levels_texture2d(__handle); }
+ __attribute__((always_inline)) uint get_num_mip_levels() const device { return __texture_detail::__num_mip_levels_texture2d(__handle); }
+ __attribute__((always_inline)) uint get_num_mip_levels() const constant { return __texture_detail::__num_mip_levels_texture2d(__handle); }
+ __attribute__((always_inline)) uint get_num_mip_levels() const threadgroup { return __texture_detail::__num_mip_levels_texture2d(__handle); }
+};
+template<> struct texture3d<float, access::sample> {
+ image3d_t __handle [[floor::image_data_type(float), floor::image_flags(0x400UL)]];
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, int3 offset = int3(0)) const thread {
+  return __texture_detail::__sample_texture3d(__handle,state,0x3f400UL,uv,0,0,offset,0,0.f,false,true,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, int3 offset = int3(0)) const device {
+  return __texture_detail::__sample_texture3d(__handle,state,0x3f400UL,uv,0,0,offset,0,0.f,false,true,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, int3 offset = int3(0)) const constant {
+  return __texture_detail::__sample_texture3d(__handle,state,0x3f400UL,uv,0,0,offset,0,0.f,false,true,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, int3 offset = int3(0)) const threadgroup {
+  return __texture_detail::__sample_texture3d(__handle,state,0x3f400UL,uv,0,0,offset,0,0.f,false,true,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, level lod, int3 offset = int3(0)) const thread {
+  return __texture_detail::__sample_texture3d(__handle,state,0x3f400UL,uv,0,0,offset,0,lod.value,true,true,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, level lod, int3 offset = int3(0)) const device {
+  return __texture_detail::__sample_texture3d(__handle,state,0x3f400UL,uv,0,0,offset,0,lod.value,true,true,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, level lod, int3 offset = int3(0)) const constant {
+  return __texture_detail::__sample_texture3d(__handle,state,0x3f400UL,uv,0,0,offset,0,lod.value,true,true,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, level lod, int3 offset = int3(0)) const threadgroup {
+  return __texture_detail::__sample_texture3d(__handle,state,0x3f400UL,uv,0,0,offset,0,lod.value,true,true,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, bias lod, int3 offset = int3(0)) const thread {
+  return __texture_detail::__sample_texture3d(__handle,state,0x3f400UL,uv,0,0,offset,0,lod.value,false,true,true,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, bias lod, int3 offset = int3(0)) const device {
+  return __texture_detail::__sample_texture3d(__handle,state,0x3f400UL,uv,0,0,offset,0,lod.value,false,true,true,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, bias lod, int3 offset = int3(0)) const constant {
+  return __texture_detail::__sample_texture3d(__handle,state,0x3f400UL,uv,0,0,offset,0,lod.value,false,true,true,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, bias lod, int3 offset = int3(0)) const threadgroup {
+  return __texture_detail::__sample_texture3d(__handle,state,0x3f400UL,uv,0,0,offset,0,lod.value,false,true,true,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, gradient3d gradient, int3 offset = int3(0)) const thread {
+  return __texture_detail::__sample_texture3d(__handle,state,0x3f400UL,uv,0,0,offset,0,0.f,false,true,false,gradient.dx,gradient.dy,true,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, gradient3d gradient, int3 offset = int3(0)) const device {
+  return __texture_detail::__sample_texture3d(__handle,state,0x3f400UL,uv,0,0,offset,0,0.f,false,true,false,gradient.dx,gradient.dy,true,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, gradient3d gradient, int3 offset = int3(0)) const constant {
+  return __texture_detail::__sample_texture3d(__handle,state,0x3f400UL,uv,0,0,offset,0,0.f,false,true,false,gradient.dx,gradient.dy,true,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, gradient3d gradient, int3 offset = int3(0)) const threadgroup {
+  return __texture_detail::__sample_texture3d(__handle,state,0x3f400UL,uv,0,0,offset,0,0.f,false,true,false,gradient.dx,gradient.dy,true,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 read(uint3 coordinate, uint lod = 0) const thread {
+  return __texture_detail::__read_texture3d(__handle,0,0x3f400UL,__builtin_convertvector(coordinate,int3),0,0,int3(0),int(lod),0.f,true,false,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 read(uint3 coordinate, uint lod = 0) const device {
+  return __texture_detail::__read_texture3d(__handle,0,0x3f400UL,__builtin_convertvector(coordinate,int3),0,0,int3(0),int(lod),0.f,true,false,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 read(uint3 coordinate, uint lod = 0) const constant {
+  return __texture_detail::__read_texture3d(__handle,0,0x3f400UL,__builtin_convertvector(coordinate,int3),0,0,int3(0),int(lod),0.f,true,false,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 read(uint3 coordinate, uint lod = 0) const threadgroup {
+  return __texture_detail::__read_texture3d(__handle,0,0x3f400UL,__builtin_convertvector(coordinate,int3),0,0,int3(0),int(lod),0.f,true,false,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) uint get_width(uint lod = 0) const thread { return __texture_detail::__width_texture3d(__handle,lod); }
+ __attribute__((always_inline)) uint get_width(uint lod = 0) const device { return __texture_detail::__width_texture3d(__handle,lod); }
+ __attribute__((always_inline)) uint get_width(uint lod = 0) const constant { return __texture_detail::__width_texture3d(__handle,lod); }
+ __attribute__((always_inline)) uint get_width(uint lod = 0) const threadgroup { return __texture_detail::__width_texture3d(__handle,lod); }
+ __attribute__((always_inline)) uint get_height(uint lod = 0) const thread { return __texture_detail::__height_texture3d(__handle,lod); }
+ __attribute__((always_inline)) uint get_height(uint lod = 0) const device { return __texture_detail::__height_texture3d(__handle,lod); }
+ __attribute__((always_inline)) uint get_height(uint lod = 0) const constant { return __texture_detail::__height_texture3d(__handle,lod); }
+ __attribute__((always_inline)) uint get_height(uint lod = 0) const threadgroup { return __texture_detail::__height_texture3d(__handle,lod); }
+ __attribute__((always_inline)) uint get_num_mip_levels() const thread { return __texture_detail::__num_mip_levels_texture3d(__handle); }
+ __attribute__((always_inline)) uint get_num_mip_levels() const device { return __texture_detail::__num_mip_levels_texture3d(__handle); }
+ __attribute__((always_inline)) uint get_num_mip_levels() const constant { return __texture_detail::__num_mip_levels_texture3d(__handle); }
+ __attribute__((always_inline)) uint get_num_mip_levels() const threadgroup { return __texture_detail::__num_mip_levels_texture3d(__handle); }
+ __attribute__((always_inline)) uint get_depth(uint lod = 0) const thread { return __texture_detail::__depth_texture3d(__handle,lod); }
+ __attribute__((always_inline)) uint get_depth(uint lod = 0) const device { return __texture_detail::__depth_texture3d(__handle,lod); }
+ __attribute__((always_inline)) uint get_depth(uint lod = 0) const constant { return __texture_detail::__depth_texture3d(__handle,lod); }
+ __attribute__((always_inline)) uint get_depth(uint lod = 0) const threadgroup { return __texture_detail::__depth_texture3d(__handle,lod); }
+};
+template<> struct texture2d_array<float, access::sample> {
+ image2d_array_t __handle [[floor::image_data_type(float), floor::image_flags(0x400UL)]];
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, uint layer, int2 offset = int2(0)) const thread {
+  return __texture_detail::__sample_texture2d_array(__handle,state,0x12f400UL,uv,layer,0,offset,0,0.f,false,true,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, uint layer, int2 offset = int2(0)) const device {
+  return __texture_detail::__sample_texture2d_array(__handle,state,0x12f400UL,uv,layer,0,offset,0,0.f,false,true,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, uint layer, int2 offset = int2(0)) const constant {
+  return __texture_detail::__sample_texture2d_array(__handle,state,0x12f400UL,uv,layer,0,offset,0,0.f,false,true,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, uint layer, int2 offset = int2(0)) const threadgroup {
+  return __texture_detail::__sample_texture2d_array(__handle,state,0x12f400UL,uv,layer,0,offset,0,0.f,false,true,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, uint layer, level lod, int2 offset = int2(0)) const thread {
+  return __texture_detail::__sample_texture2d_array(__handle,state,0x12f400UL,uv,layer,0,offset,0,lod.value,true,true,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, uint layer, level lod, int2 offset = int2(0)) const device {
+  return __texture_detail::__sample_texture2d_array(__handle,state,0x12f400UL,uv,layer,0,offset,0,lod.value,true,true,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, uint layer, level lod, int2 offset = int2(0)) const constant {
+  return __texture_detail::__sample_texture2d_array(__handle,state,0x12f400UL,uv,layer,0,offset,0,lod.value,true,true,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, uint layer, level lod, int2 offset = int2(0)) const threadgroup {
+  return __texture_detail::__sample_texture2d_array(__handle,state,0x12f400UL,uv,layer,0,offset,0,lod.value,true,true,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, uint layer, bias lod, int2 offset = int2(0)) const thread {
+  return __texture_detail::__sample_texture2d_array(__handle,state,0x12f400UL,uv,layer,0,offset,0,lod.value,false,true,true,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, uint layer, bias lod, int2 offset = int2(0)) const device {
+  return __texture_detail::__sample_texture2d_array(__handle,state,0x12f400UL,uv,layer,0,offset,0,lod.value,false,true,true,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, uint layer, bias lod, int2 offset = int2(0)) const constant {
+  return __texture_detail::__sample_texture2d_array(__handle,state,0x12f400UL,uv,layer,0,offset,0,lod.value,false,true,true,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, uint layer, bias lod, int2 offset = int2(0)) const threadgroup {
+  return __texture_detail::__sample_texture2d_array(__handle,state,0x12f400UL,uv,layer,0,offset,0,lod.value,false,true,true,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, uint layer, gradient2d gradient, int2 offset = int2(0)) const thread {
+  return __texture_detail::__sample_texture2d_array(__handle,state,0x12f400UL,uv,layer,0,offset,0,0.f,false,true,false,gradient.dx,gradient.dy,true,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, uint layer, gradient2d gradient, int2 offset = int2(0)) const device {
+  return __texture_detail::__sample_texture2d_array(__handle,state,0x12f400UL,uv,layer,0,offset,0,0.f,false,true,false,gradient.dx,gradient.dy,true,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, uint layer, gradient2d gradient, int2 offset = int2(0)) const constant {
+  return __texture_detail::__sample_texture2d_array(__handle,state,0x12f400UL,uv,layer,0,offset,0,0.f,false,true,false,gradient.dx,gradient.dy,true,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float2 uv, uint layer, gradient2d gradient, int2 offset = int2(0)) const threadgroup {
+  return __texture_detail::__sample_texture2d_array(__handle,state,0x12f400UL,uv,layer,0,offset,0,0.f,false,true,false,gradient.dx,gradient.dy,true,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 gather(sampler state, float2 uv, uint layer, int2 offset = int2(0), component c = component::x) const thread { return __texture_detail::__gather_texture2d_array(__handle,state,0x12f400UL,uv,layer,offset,uint(c)); }
+ __attribute__((always_inline)) float4 gather(sampler state, float2 uv, uint layer, int2 offset = int2(0), component c = component::x) const device { return __texture_detail::__gather_texture2d_array(__handle,state,0x12f400UL,uv,layer,offset,uint(c)); }
+ __attribute__((always_inline)) float4 gather(sampler state, float2 uv, uint layer, int2 offset = int2(0), component c = component::x) const constant { return __texture_detail::__gather_texture2d_array(__handle,state,0x12f400UL,uv,layer,offset,uint(c)); }
+ __attribute__((always_inline)) float4 gather(sampler state, float2 uv, uint layer, int2 offset = int2(0), component c = component::x) const threadgroup { return __texture_detail::__gather_texture2d_array(__handle,state,0x12f400UL,uv,layer,offset,uint(c)); }
+ __attribute__((always_inline)) float4 read(uint2 coordinate, uint layer, uint lod = 0) const thread {
+  return __texture_detail::__read_texture2d_array(__handle,0,0x12f400UL,__builtin_convertvector(coordinate,int2),layer,0,int2(0),int(lod),0.f,true,false,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 read(uint2 coordinate, uint layer, uint lod = 0) const device {
+  return __texture_detail::__read_texture2d_array(__handle,0,0x12f400UL,__builtin_convertvector(coordinate,int2),layer,0,int2(0),int(lod),0.f,true,false,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 read(uint2 coordinate, uint layer, uint lod = 0) const constant {
+  return __texture_detail::__read_texture2d_array(__handle,0,0x12f400UL,__builtin_convertvector(coordinate,int2),layer,0,int2(0),int(lod),0.f,true,false,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 read(uint2 coordinate, uint layer, uint lod = 0) const threadgroup {
+  return __texture_detail::__read_texture2d_array(__handle,0,0x12f400UL,__builtin_convertvector(coordinate,int2),layer,0,int2(0),int(lod),0.f,true,false,false,float2(0.f),float2(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) uint get_width(uint lod = 0) const thread { return __texture_detail::__width_texture2d_array(__handle,lod); }
+ __attribute__((always_inline)) uint get_width(uint lod = 0) const device { return __texture_detail::__width_texture2d_array(__handle,lod); }
+ __attribute__((always_inline)) uint get_width(uint lod = 0) const constant { return __texture_detail::__width_texture2d_array(__handle,lod); }
+ __attribute__((always_inline)) uint get_width(uint lod = 0) const threadgroup { return __texture_detail::__width_texture2d_array(__handle,lod); }
+ __attribute__((always_inline)) uint get_height(uint lod = 0) const thread { return __texture_detail::__height_texture2d_array(__handle,lod); }
+ __attribute__((always_inline)) uint get_height(uint lod = 0) const device { return __texture_detail::__height_texture2d_array(__handle,lod); }
+ __attribute__((always_inline)) uint get_height(uint lod = 0) const constant { return __texture_detail::__height_texture2d_array(__handle,lod); }
+ __attribute__((always_inline)) uint get_height(uint lod = 0) const threadgroup { return __texture_detail::__height_texture2d_array(__handle,lod); }
+ __attribute__((always_inline)) uint get_num_mip_levels() const thread { return __texture_detail::__num_mip_levels_texture2d_array(__handle); }
+ __attribute__((always_inline)) uint get_num_mip_levels() const device { return __texture_detail::__num_mip_levels_texture2d_array(__handle); }
+ __attribute__((always_inline)) uint get_num_mip_levels() const constant { return __texture_detail::__num_mip_levels_texture2d_array(__handle); }
+ __attribute__((always_inline)) uint get_num_mip_levels() const threadgroup { return __texture_detail::__num_mip_levels_texture2d_array(__handle); }
+ __attribute__((always_inline)) uint get_array_size() const thread { return __texture_detail::__array_size_texture2d_array(__handle); }
+ __attribute__((always_inline)) uint get_array_size() const device { return __texture_detail::__array_size_texture2d_array(__handle); }
+ __attribute__((always_inline)) uint get_array_size() const constant { return __texture_detail::__array_size_texture2d_array(__handle); }
+ __attribute__((always_inline)) uint get_array_size() const threadgroup { return __texture_detail::__array_size_texture2d_array(__handle); }
+};
+template<> struct texturecube<float, access::sample> {
+ imagecube_t __handle [[floor::image_data_type(float), floor::image_flags(0x400UL)]];
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv) const thread {
+  return __texture_detail::__sample_texturecube(__handle,state,0x82f400UL,uv,0,0,int3(0),0,0.f,false,true,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv) const device {
+  return __texture_detail::__sample_texturecube(__handle,state,0x82f400UL,uv,0,0,int3(0),0,0.f,false,true,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv) const constant {
+  return __texture_detail::__sample_texturecube(__handle,state,0x82f400UL,uv,0,0,int3(0),0,0.f,false,true,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv) const threadgroup {
+  return __texture_detail::__sample_texturecube(__handle,state,0x82f400UL,uv,0,0,int3(0),0,0.f,false,true,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, level lod) const thread {
+  return __texture_detail::__sample_texturecube(__handle,state,0x82f400UL,uv,0,0,int3(0),0,lod.value,true,true,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, level lod) const device {
+  return __texture_detail::__sample_texturecube(__handle,state,0x82f400UL,uv,0,0,int3(0),0,lod.value,true,true,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, level lod) const constant {
+  return __texture_detail::__sample_texturecube(__handle,state,0x82f400UL,uv,0,0,int3(0),0,lod.value,true,true,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, level lod) const threadgroup {
+  return __texture_detail::__sample_texturecube(__handle,state,0x82f400UL,uv,0,0,int3(0),0,lod.value,true,true,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, bias lod) const thread {
+  return __texture_detail::__sample_texturecube(__handle,state,0x82f400UL,uv,0,0,int3(0),0,lod.value,false,true,true,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, bias lod) const device {
+  return __texture_detail::__sample_texturecube(__handle,state,0x82f400UL,uv,0,0,int3(0),0,lod.value,false,true,true,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, bias lod) const constant {
+  return __texture_detail::__sample_texturecube(__handle,state,0x82f400UL,uv,0,0,int3(0),0,lod.value,false,true,true,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, bias lod) const threadgroup {
+  return __texture_detail::__sample_texturecube(__handle,state,0x82f400UL,uv,0,0,int3(0),0,lod.value,false,true,true,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, gradientcube gradient) const thread {
+  return __texture_detail::__sample_texturecube(__handle,state,0x82f400UL,uv,0,0,int3(0),0,0.f,false,true,false,gradient.dx,gradient.dy,true,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, gradientcube gradient) const device {
+  return __texture_detail::__sample_texturecube(__handle,state,0x82f400UL,uv,0,0,int3(0),0,0.f,false,true,false,gradient.dx,gradient.dy,true,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, gradientcube gradient) const constant {
+  return __texture_detail::__sample_texturecube(__handle,state,0x82f400UL,uv,0,0,int3(0),0,0.f,false,true,false,gradient.dx,gradient.dy,true,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 sample(sampler state, float3 uv, gradientcube gradient) const threadgroup {
+  return __texture_detail::__sample_texturecube(__handle,state,0x82f400UL,uv,0,0,int3(0),0,0.f,false,true,false,gradient.dx,gradient.dy,true,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 gather(sampler state, float3 uv, component c = component::x) const thread { return __texture_detail::__gather_texturecube(__handle,state,0x82f400UL,uv,0,int2(0),uint(c)); }
+ __attribute__((always_inline)) float4 gather(sampler state, float3 uv, component c = component::x) const device { return __texture_detail::__gather_texturecube(__handle,state,0x82f400UL,uv,0,int2(0),uint(c)); }
+ __attribute__((always_inline)) float4 gather(sampler state, float3 uv, component c = component::x) const constant { return __texture_detail::__gather_texturecube(__handle,state,0x82f400UL,uv,0,int2(0),uint(c)); }
+ __attribute__((always_inline)) float4 gather(sampler state, float3 uv, component c = component::x) const threadgroup { return __texture_detail::__gather_texturecube(__handle,state,0x82f400UL,uv,0,int2(0),uint(c)); }
+ __attribute__((always_inline)) float4 read(uint2 coordinate, uint face, uint lod = 0) const thread {
+  return __texture_detail::__read_texturecube(__handle,0,0x82f400UL,int3{int(coordinate.x),int(coordinate.y),int(face)},0,0,int3(0),int(lod),0.f,true,false,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 read(uint2 coordinate, uint face, uint lod = 0) const device {
+  return __texture_detail::__read_texturecube(__handle,0,0x82f400UL,int3{int(coordinate.x),int(coordinate.y),int(face)},0,0,int3(0),int(lod),0.f,true,false,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 read(uint2 coordinate, uint face, uint lod = 0) const constant {
+  return __texture_detail::__read_texturecube(__handle,0,0x82f400UL,int3{int(coordinate.x),int(coordinate.y),int(face)},0,0,int3(0),int(lod),0.f,true,false,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 read(uint2 coordinate, uint face, uint lod = 0) const threadgroup {
+  return __texture_detail::__read_texturecube(__handle,0,0x82f400UL,int3{int(coordinate.x),int(coordinate.y),int(face)},0,0,int3(0),int(lod),0.f,true,false,false,float3(0.f),float3(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) uint get_width(uint lod = 0) const thread { return __texture_detail::__width_texturecube(__handle,lod); }
+ __attribute__((always_inline)) uint get_width(uint lod = 0) const device { return __texture_detail::__width_texturecube(__handle,lod); }
+ __attribute__((always_inline)) uint get_width(uint lod = 0) const constant { return __texture_detail::__width_texturecube(__handle,lod); }
+ __attribute__((always_inline)) uint get_width(uint lod = 0) const threadgroup { return __texture_detail::__width_texturecube(__handle,lod); }
+ __attribute__((always_inline)) uint get_height(uint lod = 0) const thread { return __texture_detail::__height_texturecube(__handle,lod); }
+ __attribute__((always_inline)) uint get_height(uint lod = 0) const device { return __texture_detail::__height_texturecube(__handle,lod); }
+ __attribute__((always_inline)) uint get_height(uint lod = 0) const constant { return __texture_detail::__height_texturecube(__handle,lod); }
+ __attribute__((always_inline)) uint get_height(uint lod = 0) const threadgroup { return __texture_detail::__height_texturecube(__handle,lod); }
+ __attribute__((always_inline)) uint get_num_mip_levels() const thread { return __texture_detail::__num_mip_levels_texturecube(__handle); }
+ __attribute__((always_inline)) uint get_num_mip_levels() const device { return __texture_detail::__num_mip_levels_texturecube(__handle); }
+ __attribute__((always_inline)) uint get_num_mip_levels() const constant { return __texture_detail::__num_mip_levels_texturecube(__handle); }
+ __attribute__((always_inline)) uint get_num_mip_levels() const threadgroup { return __texture_detail::__num_mip_levels_texturecube(__handle); }
+};
+template<> struct texture2d<float, access::write> {
+ image2d_t __handle [[floor::image_data_type(float), floor::image_flags(0x800UL)]];
+ __attribute__((always_inline)) void write(float4 value, uint2 coordinate, uint lod = 0) const thread {
+  __texture_detail::__write_texture2d(__handle,0x2f800UL,__builtin_convertvector(coordinate,int2),0,lod,true,value);
+ }
+ __attribute__((always_inline)) void write(float4 value, uint2 coordinate, uint lod = 0) const device {
+  __texture_detail::__write_texture2d(__handle,0x2f800UL,__builtin_convertvector(coordinate,int2),0,lod,true,value);
+ }
+ __attribute__((always_inline)) void write(float4 value, uint2 coordinate, uint lod = 0) const constant {
+  __texture_detail::__write_texture2d(__handle,0x2f800UL,__builtin_convertvector(coordinate,int2),0,lod,true,value);
+ }
+ __attribute__((always_inline)) void write(float4 value, uint2 coordinate, uint lod = 0) const threadgroup {
+  __texture_detail::__write_texture2d(__handle,0x2f800UL,__builtin_convertvector(coordinate,int2),0,lod,true,value);
+ }
+};
+template<> struct texture3d<float, access::write> {
+ image3d_t __handle [[floor::image_data_type(float), floor::image_flags(0x800UL)]];
+ __attribute__((always_inline)) void write(float4 value, uint3 coordinate, uint lod = 0) const thread {
+  __texture_detail::__write_texture3d(__handle,0x3f800UL,__builtin_convertvector(coordinate,int3),0,lod,true,value);
+ }
+ __attribute__((always_inline)) void write(float4 value, uint3 coordinate, uint lod = 0) const device {
+  __texture_detail::__write_texture3d(__handle,0x3f800UL,__builtin_convertvector(coordinate,int3),0,lod,true,value);
+ }
+ __attribute__((always_inline)) void write(float4 value, uint3 coordinate, uint lod = 0) const constant {
+  __texture_detail::__write_texture3d(__handle,0x3f800UL,__builtin_convertvector(coordinate,int3),0,lod,true,value);
+ }
+ __attribute__((always_inline)) void write(float4 value, uint3 coordinate, uint lod = 0) const threadgroup {
+  __texture_detail::__write_texture3d(__handle,0x3f800UL,__builtin_convertvector(coordinate,int3),0,lod,true,value);
+ }
+};
+template<> struct texture_buffer<float, access::read> {
+ image1d_buffer_t __handle [[floor::image_data_type(float), floor::image_flags(0x400UL)]];
+ __attribute__((always_inline)) float4 read(uint coordinate) const thread {
+  return __texture_detail::__read_buffer(__handle,0,0x21f400UL,__texture_detail::int1(int(coordinate)),0,0,__texture_detail::int1(0),0,0.f,false,false,false,__texture_detail::float1(0.f),__texture_detail::float1(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 read(uint coordinate) const device {
+  return __texture_detail::__read_buffer(__handle,0,0x21f400UL,__texture_detail::int1(int(coordinate)),0,0,__texture_detail::int1(0),0,0.f,false,false,false,__texture_detail::float1(0.f),__texture_detail::float1(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 read(uint coordinate) const constant {
+  return __texture_detail::__read_buffer(__handle,0,0x21f400UL,__texture_detail::int1(int(coordinate)),0,0,__texture_detail::int1(0),0,0.f,false,false,false,__texture_detail::float1(0.f),__texture_detail::float1(0.f),false,0,0.f,false);
+ }
+ __attribute__((always_inline)) float4 read(uint coordinate) const threadgroup {
+  return __texture_detail::__read_buffer(__handle,0,0x21f400UL,__texture_detail::int1(int(coordinate)),0,0,__texture_detail::int1(0),0,0.f,false,false,false,__texture_detail::float1(0.f),__texture_detail::float1(0.f),false,0,0.f,false);
+ }
+};
+}
+#endif

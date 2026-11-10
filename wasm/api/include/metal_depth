@@ -1,0 +1,42 @@
+// MSL 3 resource handles need explicit implicit-object address-space overloads.
+// Authored depth views for real SPIRV-Cross texture-handle casts.
+#ifndef FLOOR_AIR_METAL_DEPTH
+#define FLOOR_AIR_METAL_DEPTH
+#include <metal_texture>
+namespace metal {
+namespace __texture_detail {
+extern "C" float4 __compare_depth2d_array(image2d_array_depth_t, sampler_t, ulong, float2, uint, uint, int2, int, float, bool, bool, bool, float2, float2, bool, uint, float, bool) __asm__("floor.opaque.read_image.depth2d_array.float.f2");
+extern "C" float4 __compare_depthcube(imagecube_depth_t, sampler_t, ulong, float3, uint, uint, int3, int, float, bool, bool, bool, float3, float3, bool, uint, float, bool) __asm__("floor.opaque.read_image.depthcube.float.f3");
+}
+template<> struct depth2d_array<float, access::sample> {
+ image2d_array_depth_t __handle [[floor::image_data_type(float), floor::image_flags(0x400UL)]];
+ __attribute__((always_inline)) float sample_compare(sampler state, float2 uv, uint layer, float reference) const thread {
+  return __texture_detail::__compare_depth2d_array(__handle,state,0x1123400UL,uv,layer,0,int2(0),0,0.f,false,true,false,float2(0.f),float2(0.f),false,0,reference,true).x;
+ }
+ __attribute__((always_inline)) float sample_compare(sampler state, float2 uv, uint layer, float reference) const device {
+  return __texture_detail::__compare_depth2d_array(__handle,state,0x1123400UL,uv,layer,0,int2(0),0,0.f,false,true,false,float2(0.f),float2(0.f),false,0,reference,true).x;
+ }
+ __attribute__((always_inline)) float sample_compare(sampler state, float2 uv, uint layer, float reference) const constant {
+  return __texture_detail::__compare_depth2d_array(__handle,state,0x1123400UL,uv,layer,0,int2(0),0,0.f,false,true,false,float2(0.f),float2(0.f),false,0,reference,true).x;
+ }
+ __attribute__((always_inline)) float sample_compare(sampler state, float2 uv, uint layer, float reference) const threadgroup {
+  return __texture_detail::__compare_depth2d_array(__handle,state,0x1123400UL,uv,layer,0,int2(0),0,0.f,false,true,false,float2(0.f),float2(0.f),false,0,reference,true).x;
+ }
+};
+template<> struct depthcube<float, access::sample> {
+ imagecube_depth_t __handle [[floor::image_data_type(float), floor::image_flags(0x400UL)]];
+ __attribute__((always_inline)) float sample_compare(sampler state, float3 uv, float reference) const thread {
+  return __texture_detail::__compare_depthcube(__handle,state,0x1823400UL,uv,0,0,int3(0),0,0.f,false,true,false,float3(0.f),float3(0.f),false,0,reference,true).x;
+ }
+ __attribute__((always_inline)) float sample_compare(sampler state, float3 uv, float reference) const device {
+  return __texture_detail::__compare_depthcube(__handle,state,0x1823400UL,uv,0,0,int3(0),0,0.f,false,true,false,float3(0.f),float3(0.f),false,0,reference,true).x;
+ }
+ __attribute__((always_inline)) float sample_compare(sampler state, float3 uv, float reference) const constant {
+  return __texture_detail::__compare_depthcube(__handle,state,0x1823400UL,uv,0,0,int3(0),0,0.f,false,true,false,float3(0.f),float3(0.f),false,0,reference,true).x;
+ }
+ __attribute__((always_inline)) float sample_compare(sampler state, float3 uv, float reference) const threadgroup {
+  return __texture_detail::__compare_depthcube(__handle,state,0x1823400UL,uv,0,0,int3(0),0,0.f,false,true,false,float3(0.f),float3(0.f),false,0,reference,true).x;
+ }
+};
+}
+#endif
